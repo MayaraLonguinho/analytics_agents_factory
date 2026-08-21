@@ -10,6 +10,7 @@ from c_agents.f_backend_agent.backend_agent import BackendAgent
 from c_agents.g_frontend_agent.frontend_agent import FrontendAgent
 from c_agents.h_devops_agent.devops_agent import DevOpsAgent
 from c_agents.i_qa_agent.qa_agent import QAAgent
+from c_agents.j_documentation_agent.doc_agent import DocumentationAgent
 from a_platform.g_materializer.materializer import Materializer
 from a_platform.h_runtime.runtime_engine import RuntimeEngine
 from a_platform.k_certification.certification_engine import CertificationEngine
@@ -31,6 +32,8 @@ class MasterOrchestrator:
             "devops_infra": DevOpsAgent(),
             "qa_tests": QAAgent()
         }
+        
+        self.doc_agent = DocumentationAgent()
         
         self.materializer = Materializer()
         self.runtime = RuntimeEngine()
@@ -61,6 +64,12 @@ class MasterOrchestrator:
                     agent = self.specialists[task]
                     artifact = await agent.execute(task)
                     artifacts.append(artifact)
+                    
+            # 4.5 Documentation
+            self.state.update("status", "DOCUMENTING")
+            doc_artifact = await self.doc_agent.execute(plan, artifacts)
+            artifacts.append(doc_artifact)
+            
             self.state.update("artifacts", artifacts)
             
             # 5. Materializer

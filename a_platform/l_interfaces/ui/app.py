@@ -16,7 +16,7 @@ if "current_status" not in st.session_state:
 if "project_plan" not in st.session_state:
     st.session_state.project_plan = None
 
-tab1, tab2, tab3 = st.tabs(["💡 Nova Ideia", "🏗️ Planejamento", "🏭 Fábrica & Certificação"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["💡 Nova Ideia", "📊 Profiling", "🕸️ Grafo", "🏗️ Planejamento", "🏭 Fábrica & Certificação"])
 
 with tab1:
     st.markdown("### O que você deseja construir hoje?")
@@ -47,12 +47,29 @@ if st.session_state.job_id:
             
     with tab2:
         if st.session_state.project_plan:
+            st.markdown("### Profiling Data")
+            # We simulate that the profiling chart would come in the plan metadata or state
+            st.info("Gráficos de profiling estatístico do pipeline seriam exibidos aqui.")
+            # For demonstration, we could call an endpoint or render a base64 string
+        else:
+            st.info("Aguardando Profiler...")
+            
+    with tab3:
+        if st.session_state.project_plan:
+            st.markdown("### Grafo de Arquitetura")
+            # Mermaid native rendering in Streamlit
+            st.markdown("```mermaid\\ngraph TD;\\n    A[Source] --> B[ETL];\\n    B --> C[(Database)];\\n    C --> D[API];\\n    D --> E[Dashboard];\\n```")
+        else:
+            st.info("Aguardando Brain Graph Builder...")
+
+    with tab4:
+        if st.session_state.project_plan:
             st.markdown("### Arquitetura Desenhada")
             st.json(st.session_state.project_plan)
         else:
             st.info("Aguardando o Agente de Arquitetura desenhar o plano...")
             
-    with tab3:
+    with tab5:
         from a_platform.l_interfaces.ui.components import render_logs
         render_logs(st.session_state.current_status)
         

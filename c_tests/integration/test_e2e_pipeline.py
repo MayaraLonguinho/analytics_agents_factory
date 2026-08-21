@@ -44,4 +44,4 @@ async def test_run_pipeline_success(mock_sub_run, mock_url, mock_docker_run, tmp
     assert cert.metrics["final_score"] == 100.0
     
     artifacts = state.get("artifacts")
-    assert len(artifacts) == 6
+    assert len(artifacts) == 7
