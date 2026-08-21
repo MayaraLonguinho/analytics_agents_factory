@@ -9,5 +9,6 @@ class ValidationGate:
         result = self.runner.run_tests(project_dir)
         return {
             "is_valid": result.get("passed", False),
-            "details": result
+            "details": result,
+            "error_payload": result.get("errors", "")
         }

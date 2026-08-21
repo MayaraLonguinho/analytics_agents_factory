@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(find)",
+      "Exec(mkdir)",
+      "Exec(mv)",
+      "Exec(cp)",
+      "Exec(rmdir)",
+      "Exec(python3)"
+    ]
+  }
+}

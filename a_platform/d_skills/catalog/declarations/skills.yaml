@@ -1,0 +1,462 @@
+skills:
+  # ============================================================================
+  # Discovery Skills
+  # ============================================================================
+  - id: discover_intent
+    name: Discover Intent
+    description: Extract and refine project intent from natural language requests
+    category: discovery
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/a_discovery/intent_discovery.py
+    tags: [discovery, nlp, parsing]
+    compatible_agents: [orchestrator, discovery_agent]
+    input_schema:
+      - name: request_text
+        data_type: string
+        required: true
+        description: Natural language request text
+      - name: context
+        data_type: dict
+        required: false
+        description: Additional context
+    output_schema:
+      - name: intent
+        data_type: string
+        description: Extracted project intent
+      - name: parsed_request
+        data_type: dict
+        description: Parsed request components
+      - name: confidence
+        data_type: float
+        constraints: { min: 0, max: 1 }
+        description: Parsing confidence score
+    dependencies: []
+    required_brain_context: [domains, patterns, rules]
+    required_mcps: []
+
+  - id: question_generation
+    name: Question Generation
+    description: Generate discovery questions to clarify requirements
+    category: discovery
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/a_discovery/question_generator.py
+    tags: [discovery, questioning, requirements]
+    compatible_agents: [discovery_agent]
+    input_schema:
+      - name: intent
+        data_type: string
+        required: true
+      - name: domain
+        data_type: string
+        required: true
+      - name: known_context
+        data_type: dict
+        required: false
+    output_schema:
+      - name: questions
+        data_type: list
+        description: List of discovery questions
+      - name: question_categories
+        data_type: dict
+        description: Questions grouped by category
+    dependencies: []
+    required_brain_context: [domains, knowledge, patterns]
+    required_mcps: []
+
+  # ============================================================================
+  # Dataset Skills - Profiling
+  # ============================================================================
+  - id: profile_csv_dataset
+    name: Profile CSV Dataset
+    description: Analyze CSV dataset with comprehensive profiling
+    category: dataset
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: a_backend/b_src/b_application/analyzer.py
+    tags: [dataset, profiling, csv, analysis]
+    compatible_agents: [data_agent, discovery_agent]
+    input_schema:
+      - name: file_path
+        data_type: string
+        required: true
+        description: Path to CSV file
+      - name: sample_size
+        data_type: integer
+        required: false
+        default_value: 1000
+        description: Sample size for analysis
+    output_schema:
+      - name: summary
+        data_type: dict
+        description: Dataset summary statistics
+      - name: columns
+        data_type: list
+        description: Column-level analysis
+      - name: profile
+        data_type: dict
+        description: Complete dataset profile
+    dependencies: []
+    required_brain_context: [knowledge]
+    required_mcps: []
+
+  - id: detect_data_types
+    name: Detect Data Types
+    description: Infer data types for dataset columns
+    category: dataset
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/b_dataset/c_schema_detection/type_detector.py
+    tags: [dataset, schema, type-inference]
+    compatible_agents: [data_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: confidence_threshold
+        data_type: float
+        required: false
+        default_value: 0.8
+    output_schema:
+      - name: types
+        data_type: dict
+        description: Inferred types per column
+      - name: confidence_scores
+        data_type: dict
+        description: Confidence scores for each type
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  - id: analyze_data_quality
+    name: Analyze Data Quality
+    description: Assess data quality metrics
+    category: dataset
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/b_dataset/d_quality_analysis/quality_analyzer.py
+    tags: [dataset, quality, validation]
+    compatible_agents: [validation_agent, data_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+    output_schema:
+      - name: quality_score
+        data_type: float
+        constraints: { min: 0, max: 100 }
+        description: Overall quality score
+      - name: issues
+        data_type: list
+        description: Data quality issues
+      - name: recommendations
+        data_type: list
+        description: Data cleaning recommendations
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  # ============================================================================
+  # Analytics Skills - EDA
+  # ============================================================================
+  - id: generate_eda_report
+    name: Generate EDA Report
+    description: Create exploratory data analysis report
+    category: analytics
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: a_backend/b_src/b_application/generator.py
+    tags: [analytics, eda, visualization]
+    compatible_agents: [analytics_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: report_type
+        data_type: string
+        required: false
+        default_value: comprehensive
+    output_schema:
+      - name: eda_report
+        data_type: dict
+        description: Complete EDA report
+      - name: visualizations
+        data_type: list
+        description: Generated visualization specs
+    dependencies: [profile_csv_dataset]
+    required_brain_context: []
+    required_mcps: []
+
+  - id: detect_correlations
+    name: Detect Correlations
+    description: Find correlations between columns
+    category: analytics
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/c_analytics/d_statistical_analysis/correlation_detector.py
+    tags: [analytics, statistical-analysis, correlation]
+    compatible_agents: [analytics_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: threshold
+        data_type: float
+        required: false
+        default_value: 0.7
+    output_schema:
+      - name: correlations
+        data_type: dict
+        description: Correlation matrix
+      - name: significant_pairs
+        data_type: list
+        description: Significantly correlated column pairs
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  - id: generate_visualizations
+    name: Generate Visualizations
+    description: Create data visualizations
+    category: analytics
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: a_backend/b_src/e_chart_factory
+    tags: [analytics, visualization, charts]
+    compatible_agents: [analytics_agent, frontend_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: viz_type
+        data_type: string
+        required: false
+        description: Type of visualization
+    output_schema:
+      - name: visualizations
+        data_type: list
+        description: Visualization specifications
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  # ============================================================================
+  # Data Engineering Skills
+  # ============================================================================
+  - id: extract_csv_source
+    name: Extract CSV Source
+    description: Extract data from CSV file
+    category: data_engineering
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/d_data_engineering/a_extract/csv_extractor.py
+    tags: [data-engineering, extract, csv]
+    compatible_agents: [data_agent]
+    input_schema:
+      - name: file_path
+        data_type: string
+        required: true
+      - name: encoding
+        data_type: string
+        required: false
+        default_value: utf-8
+    output_schema:
+      - name: dataframe
+        data_type: object
+        description: Extracted dataframe
+      - name: row_count
+        data_type: integer
+        description: Number of rows extracted
+      - name: column_count
+        data_type: integer
+        description: Number of columns
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  - id: transform_data
+    name: Transform Data
+    description: Apply data transformations
+    category: data_engineering
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/d_data_engineering/b_transform/data_transformer.py
+    tags: [data-engineering, transform]
+    compatible_agents: [data_agent, backend_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: transformations
+        data_type: list
+        required: true
+        description: List of transformation specs
+    output_schema:
+      - name: transformed_dataframe
+        data_type: object
+      - name: transformation_log
+        data_type: dict
+    dependencies: []
+    required_brain_context: []
+    required_mcps: []
+
+  - id: validate_data_schema
+    name: Validate Data Schema
+    description: Validate data against schema
+    category: data_engineering
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/d_data_engineering/c_validate/schema_validator.py
+    tags: [data-engineering, validate, schema]
+    compatible_agents: [validation_agent, data_agent]
+    input_schema:
+      - name: dataframe
+        data_type: object
+        required: true
+      - name: schema
+        data_type: dict
+        required: true
+    output_schema:
+      - name: is_valid
+        data_type: boolean
+      - name: violations
+        data_type: list
+        description: Schema violations found
+    dependencies: [detect_data_types]
+    required_brain_context: []
+    required_mcps: []
+
+  # ============================================================================
+  # Development Skills - Backend
+  # ============================================================================
+  - id: design_api_structure
+    name: Design API Structure
+    description: Design REST API structure and endpoints
+    category: development
+    execution_type: llm
+    version: 1.0.0
+    author: AAF
+    source: d_skills/e_development/a_backend/api_designer.py
+    tags: [development, backend, api-design]
+    compatible_agents: [backend_agent, architecture_agent]
+    input_schema:
+      - name: project_type
+        data_type: string
+        required: true
+      - name: entities
+        data_type: list
+        required: true
+        description: Data entities/models
+      - name: requirements
+        data_type: dict
+        required: false
+    output_schema:
+      - name: api_specification
+        data_type: dict
+        description: OpenAPI/REST specification
+      - name: endpoints
+        data_type: list
+        description: Endpoint definitions
+    dependencies: []
+    required_brain_context: [patterns, knowledge]
+    required_mcps: []
+
+  # ============================================================================
+  # Quality Skills - Testing
+  # ============================================================================
+  - id: generate_test_cases
+    name: Generate Test Cases
+    description: Generate test cases for requirements
+    category: quality
+    execution_type: llm
+    version: 1.0.0
+    author: AAF
+    source: d_skills/f_quality/a_testing/test_generator.py
+    tags: [quality, testing, test-generation]
+    compatible_agents: [testing_agent, validation_agent]
+    input_schema:
+      - name: requirements
+        data_type: list
+        required: true
+      - name: feature_spec
+        data_type: dict
+        required: false
+    output_schema:
+      - name: test_cases
+        data_type: list
+        description: Generated test cases
+      - name: test_scenarios
+        data_type: dict
+        description: Test scenarios by category
+    dependencies: []
+    required_brain_context: [rules, patterns]
+    required_mcps: []
+
+  - id: validate_deliverables
+    name: Validate Deliverables
+    description: Validate that deliverables meet requirements
+    category: quality
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: d_skills/f_quality/b_validation/deliverable_validator.py
+    tags: [quality, validation, checklist]
+    compatible_agents: [validation_agent]
+    input_schema:
+      - name: requirements
+        data_type: list
+        required: true
+      - name: artifacts
+        data_type: list
+        required: true
+    output_schema:
+      - name: is_valid
+        data_type: boolean
+      - name: coverage
+        data_type: float
+        constraints: { min: 0, max: 100 }
+      - name: gaps
+        data_type: list
+    dependencies: []
+    required_brain_context: [rules]
+    required_mcps: []
+
+  - id: certify_project
+    name: Certify Project
+    description: Certify project readiness for delivery
+    category: quality
+    execution_type: native
+    version: 1.0.0
+    author: AAF
+    source: b_ai_engine/c_certification_engine/certification_engine.py
+    tags: [quality, certification, delivery]
+    compatible_agents: [certification_agent]
+    input_schema:
+      - name: project_artifacts
+        data_type: dict
+        required: true
+      - name: quality_criteria
+        data_type: dict
+        required: false
+    output_schema:
+      - name: certification
+        data_type: dict
+        description: Certification result
+      - name: certificate
+        data_type: object
+        description: Certification certificate
+    dependencies: [validate_deliverables]
+    required_brain_context: [rules]
+    required_mcps: []

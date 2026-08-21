@@ -8,6 +8,7 @@ class ProjectRequest(BaseModel):
     source: str = "cli"
     dataset_source: Optional[str] = None
     dataset_profile: Dict[str, Any] = Field(default_factory=dict)
+    answers: Dict[str, str] = Field(default_factory=dict)
     architecture_constraints: List[str] = Field(default_factory=list)
     technology_preferences: List[str] = Field(default_factory=list)
     constraints: List[str] = Field(default_factory=list)

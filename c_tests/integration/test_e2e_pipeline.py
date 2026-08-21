@@ -17,16 +17,8 @@ def make_mock_run(val_code=0, lint_code=0, sec_code=0):
     return side_effect
 
 @pytest.mark.asyncio
-@patch("a_platform.h_runtime.docker_controller.subprocess.run")
-@patch("a_platform.h_runtime.health_checker.urllib.request.urlopen")
 @patch("subprocess.run")
-async def test_run_pipeline_success(mock_sub_run, mock_url, mock_docker_run, tmp_path):
-    # Setup mocks for runtime
-    mock_docker_run.return_value.returncode = 0
-    class MockResponse:
-        def getcode(self): return 200
-    mock_url.return_value = MockResponse()
-    
+async def test_run_pipeline_success(mock_sub_run, tmp_path):
     # Setup mock for certification (test_runner, linters, scanner)
     mock_sub_run.side_effect = make_mock_run(val_code=0, lint_code=0, sec_code=0)
     

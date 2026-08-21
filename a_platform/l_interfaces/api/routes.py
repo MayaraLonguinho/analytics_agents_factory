@@ -1,34 +1,55 @@
 import uuid
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, List
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
+from c_agents.a_discovery_agent.discovery_agent import DiscoveryAgent
 
 router = APIRouter()
 
 # Global memory for job tracking
 jobs: Dict[str, Any] = {}
 
+class DiscoverRequest(BaseModel):
+    idea: str
+
+class DiscoverResponse(BaseModel):
+    questions: List[str]
+
 class SubmitRequest(BaseModel):
     prompt: str
+    answers: Dict[str, str] = {}
+    profiling_data: Dict[str, Any] = {}
 
 class SubmitResponse(BaseModel):
     job_id: str
     status: str
 
-async def background_run_pipeline(job_id: str, prompt: str):
+async def background_run_pipeline(job_id: str, request_data: SubmitRequest):
     orchestrator = MasterOrchestrator()
     jobs[job_id] = orchestrator.state
-    # Run the pipeline and it updates its own state object
+    # Update orchestrator prompt running
+    prompt = request_data.prompt
+    if request_data.answers:
+        prompt += "\\n\\nRespostas do Questionário:"
+        for q, a in request_data.answers.items():
+            prompt += f"\\n- {q}: {a}"
+    
     await orchestrator.run_pipeline(prompt)
+
+@router.post("/project/discover", response_model=DiscoverResponse)
+async def discover_project(request: DiscoverRequest):
+    discovery = DiscoveryAgent()
+    questions = await discovery.generate_questions(request.idea)
+    return DiscoverResponse(questions=questions)
 
 @router.post("/project/submit", response_model=SubmitResponse)
 async def submit_project(request: SubmitRequest, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
     # Pre-populate state
     jobs[job_id] = {"status": "INITIALIZED"}
-    background_tasks.add_task(background_run_pipeline, job_id, request.prompt)
+    background_tasks.add_task(background_run_pipeline, job_id, request)
     return SubmitResponse(job_id=job_id, status="STARTED")
 
 @router.get("/project/{job_id}/status")
