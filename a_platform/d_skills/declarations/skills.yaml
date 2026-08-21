@@ -1,0 +1,5 @@
+skills:
+  - name: "data_engineering.extract"
+    description: "Extract data from a source"
+  - name: "development.backend"
+    description: "Backend development skill"
