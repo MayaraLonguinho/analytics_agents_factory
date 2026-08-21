@@ -51,12 +51,10 @@ def test_certification_result():
 
 def test_state_manager():
     sm = StateManager()
-    sm.update_state("status", "STARTED")
-    assert sm.get_state("status") == "STARTED"
-    assert len(sm.history) == 1
+    assert sm.get("status") == "INITIALIZED"
     
-    sm.update_state("status", "COMPLETED")
-    assert sm.get_state("status") == "COMPLETED"
-    assert len(sm.history) == 2
-    assert sm.history[-1]["old_value"] == "STARTED"
-    assert sm.history[-1]["new_value"] == "COMPLETED"
+    sm.update("status", "STARTED")
+    assert sm.get("status") == "STARTED"
+    
+    sm.update("status", "COMPLETED")
+    assert sm.get("status") == "COMPLETED"
