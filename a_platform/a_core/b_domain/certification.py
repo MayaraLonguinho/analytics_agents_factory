@@ -5,6 +5,8 @@ class CertificationResult(BaseModel):
     """Result of the certification and quality assurance phase."""
     project_id: str
     passed: bool
+    is_certified: bool = False
+    tier: str = "NONE"
     issues: List[str] = Field(default_factory=list)
     metrics: Dict[str, Any] = Field(default_factory=dict)
     feedback: Optional[str] = None
