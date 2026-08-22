@@ -1,5 +1,5 @@
 import pytest
-from c_agents.a_discovery_agent.discovery_agent import DiscoveryAgent
+from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 
 @pytest.mark.asyncio

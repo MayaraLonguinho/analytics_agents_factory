@@ -1,0 +1,85 @@
+﻿data,descricao,categoria,tipo,valor,conta,instituicao,status
+2026-01-05,Salário mensal janeiro,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-01-06,Aluguel residencial janeiro,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-01-07,Compra de supermercado 1 janeiro,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-08,Plano de saúde janeiro,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-01-09,Curso de especialização janeiro,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-01-10,Internet residencial janeiro,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-11,Conta de energia janeiro,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-01-12,Conta de água janeiro,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-01-14,Transporte e combustível janeiro,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-15,Aporte em CDB janeiro,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-01-18,Compra de supermercado 2 janeiro,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-20,Restaurante e lazer janeiro,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-22,Farmácia e cuidados pessoais janeiro,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-01-25,Aporte em Tesouro Selic janeiro,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado
+2026-02-05,Salário mensal fevereiro,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-02-06,Aluguel residencial fevereiro,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-02-07,Compra de supermercado 1 fevereiro,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-08,Plano de saúde fevereiro,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-02-09,Curso de especialização fevereiro,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-02-10,Internet residencial fevereiro,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-11,Conta de energia fevereiro,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-02-12,Conta de água fevereiro,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-02-14,Transporte e combustível fevereiro,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-15,Aporte em CDB fevereiro,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-02-18,Compra de supermercado 2 fevereiro,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-20,Restaurante e lazer fevereiro,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-22,Farmácia e cuidados pessoais fevereiro,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-02-25,Aporte em Tesouro Selic fevereiro,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado
+2026-03-05,Salário mensal março,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-03-06,Aluguel residencial março,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-03-07,Compra de supermercado 1 março,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-08,Plano de saúde março,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-03-09,Curso de especialização março,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-03-10,Internet residencial março,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-11,Conta de energia março,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-03-12,Conta de água março,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-03-14,Transporte e combustível março,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-15,Aporte em CDB março,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-03-18,Compra de supermercado 2 março,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-20,Restaurante e lazer março,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-22,Farmácia e cuidados pessoais março,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-03-25,Aporte em Tesouro Selic março,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado
+2026-04-05,Salário mensal abril,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-04-06,Aluguel residencial abril,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-04-07,Compra de supermercado 1 abril,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-08,Plano de saúde abril,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-04-09,Curso de especialização abril,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-04-10,Internet residencial abril,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-11,Conta de energia abril,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-04-12,Conta de água abril,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-04-14,Transporte e combustível abril,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-15,Aporte em CDB abril,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-04-18,Compra de supermercado 2 abril,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-20,Restaurante e lazer abril,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-22,Farmácia e cuidados pessoais abril,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-04-25,Aporte em Tesouro Selic abril,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado
+2026-05-05,Salário mensal maio,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-05-06,Aluguel residencial maio,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-05-07,Compra de supermercado 1 maio,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-08,Plano de saúde maio,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-05-09,Curso de especialização maio,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-05-10,Internet residencial maio,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-11,Conta de energia maio,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-05-12,Conta de água maio,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-05-14,Transporte e combustível maio,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-15,Aporte em CDB maio,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-05-18,Compra de supermercado 2 maio,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-20,Restaurante e lazer maio,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-22,Farmácia e cuidados pessoais maio,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-05-25,Aporte em Tesouro Selic maio,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado
+2026-06-05,Salário mensal junho,Salário,entrada,12874.00,Conta corrente,Banco Aurora,confirmado
+2026-06-06,Aluguel residencial junho,Aluguel,saida,2600.00,Conta corrente,Banco Aurora,confirmado
+2026-06-07,Compra de supermercado 1 junho,Alimentação,saida,620.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-08,Plano de saúde junho,Saúde,saida,650.00,Conta corrente,Banco Aurora,confirmado
+2026-06-09,Curso de especialização junho,Educação,saida,500.00,Conta corrente,Banco Horizonte,confirmado
+2026-06-10,Internet residencial junho,Internet,saida,120.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-11,Conta de energia junho,Energia,saida,185.00,Conta corrente,Banco Aurora,confirmado
+2026-06-12,Conta de água junho,Água,saida,85.00,Conta corrente,Banco Aurora,confirmado
+2026-06-14,Transporte e combustível junho,Transporte,saida,380.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-15,Aporte em CDB junho,Investimentos,investimento,1200.00,Conta investimentos,Corretora Atlas,confirmado
+2026-06-18,Compra de supermercado 2 junho,Alimentação,saida,580.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-20,Restaurante e lazer junho,Lazer,saida,280.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-22,Farmácia e cuidados pessoais junho,Saúde,saida,160.00,Cartão de crédito,Banco Horizonte,confirmado
+2026-06-25,Aporte em Tesouro Selic junho,Investimentos,investimento,500.00,Conta investimentos,Corretora Atlas,confirmado

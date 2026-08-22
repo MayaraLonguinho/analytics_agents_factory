@@ -1,5 +1,5 @@
 import pytest
-from c_agents.c_planner_agent.planner_agent import PlannerAgent
+from a_platform.c_agents.d_planner.planner_agent import PlannerAgent
 from a_platform.a_core.b_domain.project_plan import ProjectPlan
 
 @pytest.mark.asyncio

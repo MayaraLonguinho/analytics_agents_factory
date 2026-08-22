@@ -1,39 +1,30 @@
 import asyncio
+import os
+import sys
+import subprocess
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager
-from c_agents.a_discovery_agent.discovery_agent import DiscoveryAgent
-from c_agents.b_architecture_agent.architecture_agent import ArchitectureAgent
-from c_agents.c_planner_agent.planner_agent import PlannerAgent
-from c_agents.d_etl_agent.etl_agent import ETLAgent
-from c_agents.e_db_agent.db_agent import DBAgent
-from c_agents.f_backend_agent.backend_agent import BackendAgent
-from c_agents.g_frontend_agent.frontend_agent import FrontendAgent
-from c_agents.h_devops_agent.devops_agent import DevOpsAgent
-from c_agents.i_qa_agent.qa_agent import QAAgent
-from c_agents.j_documentation_agent.doc_agent import DocumentationAgent
-from a_platform.g_materializer.materializer import Materializer
-from a_platform.h_runtime.runtime_engine import RuntimeEngine
-from a_platform.i_validation.validation_gate import ValidationGate
-from a_platform.k_certification.certification_engine import CertificationEngine
-from a_platform.j_quality.quality_engine import QualityEngine
-from a_platform.m_learning.learning_engine import LearningEngine
+from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
+from a_platform.d_skills.d_data_engineering.profiler import DataProfilerSkill
+from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
+from a_platform.c_agents.d_planner.planner_agent import PlannerAgent
+from a_platform.g_factory.a_project_factory.project_factory import ProjectFactory
+from a_platform.g_factory.d_artifact_materializer.materializer import Materializer
+from a_platform.i_runtime.a_runtime import RuntimeEngine
+from a_platform.j_validation.a_validation_gate import ValidationGate
+from a_platform.k_quality.a_quality_engine import QualityEngine
+from a_platform.l_certification.a_certification_engine import CertificationEngine
+from a_platform.m_learning.a_learning_engine import LearningEngine
 from a_platform.b_brain.g_graph.obsidian.graph_builder import ObsidianGraphBuilder
 
 class MasterOrchestrator:
     def __init__(self):
         self.state = StateManager()
         self.discovery = DiscoveryAgent()
+        self.profiler = DataProfilerSkill()
         self.architecture = ArchitectureAgent()
         self.planner = PlannerAgent()
-        self.specialists = {
-            "etl_pipeline": ETLAgent(),
-            "db_setup": DBAgent(),
-            "backend_api": BackendAgent(),
-            "frontend_dashboard": FrontendAgent(),
-            "devops_infra": DevOpsAgent(),
-            "qa_tests": QAAgent()
-        }
-        self.doc_agent = DocumentationAgent()
+        self.factory = ProjectFactory()
         self.materializer = Materializer()
         self.runtime = RuntimeEngine()
         self.validation = ValidationGate()
@@ -43,71 +34,116 @@ class MasterOrchestrator:
         self.graph_builder = ObsidianGraphBuilder(output_dir="e_generated_projects/.obsidian_graph")
         self.max_repairs = 3
 
-    async def run_pipeline(self, prompt: str):
-        self.state.update("prompt", prompt)
-        self.state.update("status", "DISCOVERY")
+    def run_pipeline(self, prompt: str, dataset_path: str = None):
+        return asyncio.run(self.run_pipeline_async(prompt, dataset_path))
+
+    async def run_pipeline_async(self, prompt: str, dataset_path: str = None):
+        print(f"\\n=== Iniciando AAF Pipeline v1.0 ===")
+        print(f"-> Prompt: {prompt}\\n")
         
-        try:
-            request = ProjectRequest(request=prompt, domain="generic", source="cli")
-            discovery_result = await self.discovery.execute(request)
+        self.state.update("prompt", prompt)
+        
+        # 1. DISCOVERY
+        self.state.update("status", "DISCOVERY")
+        print("[1/10] Executando Discovery Agent...")
+        request = ProjectRequest(request=prompt, domain="analytics" if "dados" in prompt.lower() or "etl" in prompt.lower() else "generic", source="cli")
+        discovery_result = await self.discovery.execute(request)
+        
+        # 2. PROFILING (se dataset fornecido)
+        profiling_data = {}
+        if dataset_path and os.path.exists(dataset_path):
+            self.state.update("status", "PROFILING")
+            print(f"[2/10] Executando Dataset Profiling em {dataset_path}...")
+            profiling_data = self.profiler.profile_dataset(dataset_path)
+        else:
+            print("[2/10] Dataset Profiling: Ignorado (Nenhum dataset fornecido)")
             
-            plan = await self.architecture.execute(discovery_result)
-            self.state.update("project_plan", plan)
+        # 3. BRAIN & ARCHITECTURE
+        print("[3/10] Consultando Brain & Desenhando Arquitetura...")
+        plan = await self.architecture.execute(discovery_result) # simplificado para reuso de schema
+        self.state.update("project_plan", plan)
+        
+        nodes = [{"id": f"Phase_{phase.name}", "content": phase.description} for phase in plan.phases]
+        self.graph_builder.build_graph(nodes)
+        
+        # 4. PLANNER
+        self.state.update("status", "PLANNING")
+        print("[4/10] Executando Project Planner...")
+        plan = await self.planner.execute(plan)
+        
+        # 5. FACTORY & MATERIALIZATION & REPAIR LOOP
+        attempt = 0
+        success = False
+        project_dir = ""
+        
+        while attempt < self.max_repairs and not success:
+            print(f"\\n--- Tentativa {attempt + 1} de {self.max_repairs} ---")
             
-            # Generate Obsidian Graph
-            nodes = [{"id": f"Phase_{phase.name}", "content": phase.description} for phase in plan.phases]
-            self.graph_builder.build_graph(nodes)
+            # FACTORY
+            self.state.update("status", f"FACTORY_ATTEMPT_{attempt+1}")
+            print("[5/10] Factory Agent: Coordenando a geração de código via LLM/Agents...")
+            artifacts = await self.factory.generate_project(plan, discovery_result, profiling_data)
+            self.state.update("artifacts", artifacts)
             
-            self.state.update("status", "PLANNING")
-            plan = await self.planner.execute(plan)
+            # MATERIALIZATION
+            self.state.update("status", f"MATERIALIZING_ATTEMPT_{attempt+1}")
+            print("[6/10] Materializer: Gravando arquivos físicos no disco...")
+            # We override project_id logic slightly for cleaner folders
+            project_id = plan.project_id if hasattr(plan, "project_id") else "arch-plan-001"
+            domain_folder = discovery_result.domain if hasattr(discovery_result, "domain") else "generic"
+            # Ensure proper path
+            import uuid
+            unique_id = str(uuid.uuid4())[:8]
+            project_id = f"{domain_folder}-{unique_id}"
             
-            attempt = 0
-            success = False
-            
-            while attempt < self.max_repairs and not success:
-                self.state.update("status", f"FACTORY_ATTEMPT_{attempt+1}")
-                artifacts = []
-                for task in plan.tasks:
-                    if task in self.specialists:
-                        agent = self.specialists[task]
-                        artifact = await agent.execute(task)
-                        artifacts.append(artifact)
-                        
-                self.state.update("status", f"DOCUMENTING_ATTEMPT_{attempt+1}")
-                doc_artifact = await self.doc_agent.execute(plan, artifacts)
-                artifacts.append(doc_artifact)
-                
-                self.state.update("artifacts", artifacts)
-                
-                self.state.update("status", f"MATERIALIZING_ATTEMPT_{attempt+1}")
-                project_dir = self.materializer.materialize(plan.project_id, artifacts)
-                self.state.update("project_dir", project_dir)
-                
-                self.state.update("status", f"RUNTIME_ATTEMPT_{attempt+1}")
-                runtime_ok = self.runtime.execute_real(project_dir)
-                
-                self.state.update("status", f"VALIDATION_ATTEMPT_{attempt+1}")
-                val_result = self.validation.validate(project_dir)
-                
-                if runtime_ok and val_result["is_valid"]:
-                    success = True
-                else:
-                    attempt += 1
-                    self.learning.record_failure(plan.project_id, val_result)
+            # Manually materialize to ensure proper directory
+            project_dir = os.path.abspath(f"e_generated_projects/{domain_folder}/{project_id}")
+            os.makedirs(project_dir, exist_ok=True)
+            for artifact in artifacts:
+                filepath = os.path.join(project_dir, artifact.path)
+                with open(filepath, "w") as f:
+                    f.write(artifact.content)
                     
-            self.state.update("status", "CERTIFICATION")
-            cert = self.certification.certify_project(plan.project_id, project_dir)
-            self.state.update("certification", cert)
+            self.state.update("project_dir", project_dir)
             
-            is_ready = success and cert.is_certified
+            # RUNTIME
+            self.state.update("status", f"RUNTIME_ATTEMPT_{attempt+1}")
+            print("[7/10] Execution Runtime: Instanciando projeto (venv, pip install, execução)...")
+            runtime_ok = self.runtime.execute_real(project_dir)
             
-            if is_ready:
-                self.state.update("status", "COMPLETED_SUCCESS")
+            # VALIDATION
+            self.state.update("status", f"VALIDATION_ATTEMPT_{attempt+1}")
+            print("[8/10] Validation Gate: Rodando suíte de testes isolada...")
+            val_result = self.validation.validate(project_dir)
+            
+            if runtime_ok and val_result["is_valid"]:
+                print("  [Validation] Sucesso!")
+                success = True
             else:
-                self.state.update("status", "COMPLETED_REJECTED")
+                print("  [Validation] Falha detectada. Acionando Repair Loop e Learning Engine...")
+                attempt += 1
+                self.learning.record_failure(project_id, {"error": val_result["error_payload"]})
                 
-            return self.state
+        # QUALITY & CERTIFICATION
+        self.state.update("status", "CERTIFICATION")
+        print("\\n[9/10] Quality Engine: Realizando linting estático...")
+        q_result = self.quality.run_checks(project_dir)
+        
+        print("[10/10] Certification Engine: Avaliando métricas e score...")
+        cert = self.certification.certify_project(project_id, project_dir)
+        self.state.update("certification", cert)
+        
+        is_ready = success and cert.is_certified and q_result
+        
+        if is_ready:
+            print("\\n========================================================")
+            print(f" 🏭 PROJECT READY = YES | ID: {project_id}")
+            print("========================================================")
+            self.state.update("status", "COMPLETED_SUCCESS")
+        else:
+            print("\\n========================================================")
+            print(" 🏭 PROJECT READY = NO")
+            print("========================================================")
+            self.state.update("status", "COMPLETED_REJECTED")
             
-        except Exception as e:
-            self.state.update("status", "FAILED")
-            return self.state
+        return self.state

@@ -1,10 +1,10 @@
 import pytest
-from c_agents.d_etl_agent.etl_agent import ETLAgent
-from c_agents.e_db_agent.db_agent import DBAgent
-from c_agents.f_backend_agent.backend_agent import BackendAgent
-from c_agents.g_frontend_agent.frontend_agent import FrontendAgent
-from c_agents.h_devops_agent.devops_agent import DevOpsAgent
-from c_agents.i_qa_agent.qa_agent import QAAgent
+from a_platform.c_agents.e_data.etl_agent import ETLAgent
+from a_platform.c_agents.f_database.db_agent import DBAgent
+from a_platform.c_agents.g_backend.backend_agent import BackendAgent
+from a_platform.c_agents.h_frontend.frontend_agent import FrontendAgent
+from a_platform.c_agents.j_infrastructure.devops_agent import DevOpsAgent
+from a_platform.c_agents.k_testing.qa_agent import QAAgent
 
 @pytest.mark.asyncio
 async def test_all_specialists():

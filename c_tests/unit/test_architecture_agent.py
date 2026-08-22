@@ -1,5 +1,5 @@
 import pytest
-from c_agents.b_architecture_agent.architecture_agent import ArchitectureAgent
+from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
 from a_platform.a_core.b_domain.discovery import DiscoveryResult
 
 @pytest.mark.asyncio

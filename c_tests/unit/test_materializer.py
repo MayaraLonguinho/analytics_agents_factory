@@ -1,6 +1,6 @@
 import os
 import pytest
-from a_platform.g_materializer.materializer import Materializer
+from a_platform.g_factory.d_artifact_materializer.materializer import Materializer
 from a_platform.a_core.b_domain.artifact import Artifact
 
 def test_materializer(tmp_path):
