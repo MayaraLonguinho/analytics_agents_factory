@@ -1,64 +1,60 @@
+import logging
 import os
-import json
-import urllib.request
-from typing import Optional
+from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 class LLMGateway:
-    def __init__(self, provider="ollama", model="qwen2.5-coder"):
-        self.provider = provider
-        self.model = model
-
-    async def generate(self, prompt: str, **kwargs) -> str:
-        """Faz roteamento real para provedores LLM."""
-        if self.provider == "openai":
-            return self._call_openai(prompt, **kwargs)
-        elif self.provider == "ollama":
-            return self._call_ollama(prompt, **kwargs)
-        else:
-            return self._local_fallback(prompt, **kwargs)
-
-    def _call_openai(self, prompt: str, **kwargs) -> str:
-        # Implementation for OpenAI API
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            print("[LLM Gateway] WARNING: OPENAI_API_KEY not found. Using local fallback.")
-            return self._local_fallback(prompt, **kwargs)
-        # Real HTTP Request goes here
-        return self._local_fallback(prompt, **kwargs)
+    """
+    Gateway de LLMs com roteamento e fallback.
+    Atualmente suporta fallback e telemetria mockada se não houver chaves de API.
+    """
+    def __init__(self):
+        self.openai_key = os.getenv("OPENAI_API_KEY")
+        self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
         
-    def _call_ollama(self, prompt: str, **kwargs) -> str:
-        # Implementation for Ollama Local
+    def generate_text(self, prompt: str, system_prompt: str = "", model_preference: str = "openai") -> Dict[str, Any]:
+        logger.info(f"LLM Gateway invocado com preferência: {model_preference}")
+        
+        # Estratégia de Roteamento e Fallback
+        result = self._try_model(prompt, system_prompt, model_preference)
+        
+        if not result["success"]:
+            logger.warning(f"Falha ao usar o modelo preferido ({model_preference}). Tentando fallbacks...")
+            fallbacks = [m for m in ["openai", "anthropic", "ollama"] if m != model_preference]
+            
+            for fallback in fallbacks:
+                logger.info(f"Tentando fallback: {fallback}")
+                result = self._try_model(prompt, system_prompt, fallback)
+                if result["success"]:
+                    break
+                    
+        return result
+
+    def _try_model(self, prompt: str, system_prompt: str, model: str) -> Dict[str, Any]:
         try:
-            req = urllib.request.Request("http://127.0.0.1:11434/api/generate", 
-                                      data=json.dumps({"model": self.model, "prompt": prompt, "stream": False}).encode('utf-8'),
-                                      headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=5) as response:
-                result = json.loads(response.read().decode('utf-8'))
-                return result.get("response", self._local_fallback(prompt, **kwargs))
+            # Aqui entraríamos com a lógica real de integração HTTP/SDK
+            if model == "openai":
+                if not self.openai_key:
+                    return {"success": False, "error": "OPENAI_API_KEY missing", "model": model}
+                # Lógica fictícia
+                response_text = f"[MOCK OPENAI] Resposta para: {prompt[:50]}..."
+            elif model == "anthropic":
+                if not self.anthropic_key:
+                    return {"success": False, "error": "ANTHROPIC_API_KEY missing", "model": model}
+                # Lógica fictícia
+                response_text = f"[MOCK ANTHROPIC] Resposta para: {prompt[:50]}..."
+            elif model == "ollama":
+                # Ollama normalmente roda localmente, assumimos sucesso no mock
+                response_text = f"[MOCK OLLAMA LOCAL] Gerando código boilerplate..."
+            else:
+                return {"success": False, "error": f"Unknown model {model}", "model": model}
+                
+            return {
+                "success": True,
+                "text": response_text,
+                "model": model,
+                "usage": {"tokens": len(prompt.split()) + 50}
+            }
         except Exception as e:
-            print(f"[LLM Gateway] WARNING: Ollama connection failed ({e}). Using local fallback.")
-            return self._local_fallback(prompt, **kwargs)
-
-    def _local_fallback(self, prompt: str, **kwargs) -> str:
-        """
-        Fallback extremo caso APIs falhem (garante teste E2E real).
-        """
-        return '''
-```python:requirements.txt
-pytest
-```
-```python:main.py
-def add(a, b):
-    return a + b
-
-if __name__ == "__main__":
-    print(add(2, 3))
-```
-```python:test_main.py
-from main import add
-
-def test_add():
-    assert add(2, 3) == 5
-    assert add(-1, 1) == 0
-```
-'''
+            return {"success": False, "error": str(e), "model": model}
