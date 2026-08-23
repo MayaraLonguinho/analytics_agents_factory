@@ -225,4 +225,4 @@ class MasterOrchestrator:
 
     def _step_certification(self, request: ProjectRequest) -> bool:
         logger.info("Executando Certification Engine...")
-        return self.certification_engine.run_certification(request)
+        return self.certification_engine.run_certification(request, self.state_manager)

@@ -24,7 +24,13 @@ class RepairLoop:
         self.mcp = MCPExecutor()
 
     def run_repair(self, request: ProjectRequest) -> bool:
-        logger.warning("[RepairLoop] Iniciando tentativa de conserto (Repair Loop)...")
+        attempts = request.metadata.get("repair_attempts", 0)
+        if attempts >= 3:
+            logger.error("[RepairLoop] Limite máximo de tentativas de reparo excedido (3). O projeto falhou.")
+            return False
+            
+        request.metadata["repair_attempts"] = attempts + 1
+        logger.warning(f"[RepairLoop] Iniciando tentativa de conserto (Repair Loop) - Tentativa {request.metadata['repair_attempts']}/3...")
         
         # Recupera o erro exato que causou a falha
         exec_err = request.metadata.get("execution_error")
@@ -52,7 +58,7 @@ class RepairLoop:
             "Gere a versão corrigida do arquivo problemático e identifique o agente especialista responsável."
         )
         
-        resp = self.gateway.generate_text(prompt, system_prompt=system_prompt, model_preference="openai")
+        resp = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
         if resp.get("success"):
             text = resp.get("text", "")

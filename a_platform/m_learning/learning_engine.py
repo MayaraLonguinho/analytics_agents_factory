@@ -27,6 +27,7 @@ class LearningEngine:
 
     def _save_memory(self):
         try:
+            os.makedirs(os.path.dirname(self.memory_path), exist_ok=True)
             with open(self.memory_path, "w") as f:
                 json.dump(self.memory, f, indent=2)
         except Exception as e:
