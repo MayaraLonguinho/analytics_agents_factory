@@ -1,5 +1,0 @@
-pandas
-pydantic
-pyyaml
-fastapi
-uvicorn

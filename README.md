@@ -45,7 +45,7 @@ O AAF 2.0 foi arquitetado para ser uma engine embedded. A principal forma de ite
 
 ### Pré-requisitos
 - Python 3.10+
-- OpenAI API Key, Anthropic API Key ou Google Gemini API Key. (Ollama foi **removido** para garantir fidelidade lógica e geração confiável de JSON nos fluxos autônomos).
+- OpenAI API Key, Anthropic API Key ou Google Gemini API Key. (Provedores locais sem fidelity foram removidos para garantir geração confiável de JSON nos fluxos autônomos).
 
 ```bash
 # Clone e entre no diretório
@@ -60,15 +60,16 @@ pip install -r requirements.txt
 ### CLI (Terminal)
 Caso não esteja usando a IDE, você pode acionar o motor via CLI nativo que emulará a interface de chat se necessário:
 ```bash
-python a_platform/main.py create "Crie uma API FastAPI de gestão de usuários"
+python main.py create "Crie uma API FastAPI de gestão de usuários"
 ```
 Se o Discovery Agent precisar de mais detalhes, o motor persistirá em `.aaf_state/` e solicitará que você utilize o comando `continue`:
 ```bash
-python a_platform/main.py continue <project_id> "Os usuários devem ter email e senha."
+python main.py continue <project_id> "Os usuários devem ter email e senha."
 ```
 
 ## 📂 Estrutura de Diretórios Canônica
 - `a_platform/`: O coração do AAF.
+  - `a_interfaces/ide/`: IDE Adapter - o portão oficial de entrada (substitui endpoints obsoletos e cli avulsos).
   - `a_core/`: State Manager, Domain Models, Readiness Gate e Master Orchestrator.
   - `b_brain/`: Graph Builder, Backends Obsidian/Graphify, Memory.
   - `c_agents/`: Agentes especialistas (Discovery, Planner, Architecture).

@@ -1,57 +1,66 @@
 import argparse
-import logging
-import uuid
 import sys
+import logging
+from pprint import pprint
 
-from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
+from a_platform.a_interfaces.ide.adapter import IDEAdapter
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Analytics Agents Factory CLI Adapter")
-    parser.add_argument("--prompt", type=str, required=True, help="O prompt descrevendo o que deve ser criado.")
-    parser.add_argument("--dataset", type=str, default=None, help="Caminho para a base de dados (opcional).")
-    parser.add_argument("--domain", type=str, default=None, help="Domínio do projeto (ex: analytics, ecommerce).")
-    return parser.parse_args()
-
 def main():
-    args = parse_args()
+    parser = argparse.ArgumentParser(description="Analytics Agents Factory CLI via IDE Adapter")
+    subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
     
-    project_id = f"proj_{uuid.uuid4().hex[:8]}"
-    request = ProjectRequest(
-        prompt=args.prompt,
-        dataset_path=args.dataset,
-        domain=args.domain,
-        project_id=project_id
-    )
+    # Comando 'create'
+    create_parser = subparsers.add_parser("create", help="Cria um novo projeto.")
+    create_parser.add_argument("prompt", type=str, help="O prompt descrevendo o que deve ser criado.")
+    create_parser.add_argument("--dataset", type=str, default=None, help="Caminho para a base de dados (opcional).")
+    create_parser.add_argument("--domain", type=str, default=None, help="Domínio do projeto (opcional).")
+    
+    # Comando 'continue'
+    continue_parser = subparsers.add_parser("continue", help="Continua um projeto pausado (Discovery).")
+    continue_parser.add_argument("project_id", type=str, help="ID do projeto em andamento.")
+    continue_parser.add_argument("response", type=str, help="A resposta do usuário à pergunta da IDE.")
+    
+    # Comando 'status'
+    status_parser = subparsers.add_parser("status", help="Verifica o status do projeto.")
+    status_parser.add_argument("project_id", type=str, help="ID do projeto.")
+    
+    args = parser.parse_args()
+    adapter = IDEAdapter()
     
     print("="*50)
-    print("🚀 ANALYTICS AI FACTORY CORE - INICIANDO PIPELINE")
-    print(f"Projeto: {project_id}")
-    print(f"Prompt: {request.prompt}")
+    print("🚀 ANALYTICS AI FACTORY CORE")
     print("="*50)
     
-    orchestrator = MasterOrchestrator()
-    
-    try:
-        success = orchestrator.execute_pipeline(request)
-        
-        print("="*50)
-        if success and request.metadata.get("PROJECT_READY") == "YES":
-            print("✅ PIPELINE CONCLUÍDO COM SUCESSO. PROJECT READY = YES.")
-        else:
-            print("❌ FALHA NO PIPELINE. PROJECT READY = NO.")
-            print(f"Status atual: {orchestrator.state_manager.get_status() if orchestrator.state_manager else 'Unknown'}")
-            sys.exit(1)
-        print("="*50)
-        
-    except Exception as e:
-        print("="*50)
-        print("❌ FALHA CRÍTICA NO PIPELINE. PROJECT READY = NO.")
-        print(f"Erro: {str(e)}")
-        print("="*50)
-        sys.exit(1)
+    if args.command == "create":
+        res = adapter.create_project(args.prompt, args.dataset, args.domain)
+        _print_res(res)
+    elif args.command == "continue":
+        res = adapter.continue_project(args.project_id, args.response)
+        _print_res(res)
+    elif args.command == "status":
+        res = adapter.get_project_status(args.project_id)
+        _print_res(res)
+    else:
+        parser.print_help()
 
+def _print_res(res):
+    print(f"Status: {res.status}")
+    if res.message:
+        print(f"Message: {res.message}")
+    if res.error:
+        print(f"Error: {res.error}")
+        
+    print("="*50)
+    if res.status == "NEEDS_INPUT":
+        print(f"O projeto {res.project_id} está pausado aguardando sua resposta.")
+        print("Use o comando 'continue' passando o ID e a resposta.")
+    elif res.status == "READY":
+        print("✅ PIPELINE CONCLUÍDO COM SUCESSO. PROJECT READY = YES.")
+    elif res.status == "FAILED":
+        print("❌ FALHA NO PIPELINE. PROJECT READY = NO.")
+        sys.exit(1)
+        
 if __name__ == "__main__":
     main()

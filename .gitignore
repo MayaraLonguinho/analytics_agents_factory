@@ -29,3 +29,6 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+e_generated_projects/*
+!e_generated_projects/.gitkeep

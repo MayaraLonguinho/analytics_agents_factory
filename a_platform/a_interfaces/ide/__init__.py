@@ -1,0 +1,1 @@
+# IDE Adapter Interface Module
