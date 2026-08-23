@@ -2,9 +2,9 @@ domains:
   analytics:
     description: "Data analytics and reporting platforms"
     agents:
-      - "ETLAgent"
+      - "DataAgent"
       - "AnalyticsAgent"
-      - "DBAgent"
+      - "DatabaseAgent"
       - "TestingAgent"
     skills:
       - "dataset_profiling"
@@ -18,12 +18,13 @@ domains:
   data_engineering:
     description: "ETL, data pipelines and data warehouse setup"
     agents:
-      - "ETLAgent"
-      - "DBAgent"
+      - "DataAgent"
+      - "DatabaseAgent"
       - "TestingAgent"
     skills:
       - "etl_scripting"
       - "sql_generation"
+      - "dataset_profiling"
     mcps:
       - "database_mcp"
       - "filesystem_mcp"
@@ -35,7 +36,7 @@ domains:
     agents:
       - "BackendAgent"
       - "FrontendAgent"
-      - "DBAgent"
+      - "DatabaseAgent"
     skills:
       - "api_design"
       - "basic_coding"
@@ -49,7 +50,7 @@ domains:
     agents:
       - "BackendAgent"
       - "FrontendAgent"
-      - "DBAgent"
+      - "DatabaseAgent"
     skills:
       - "api_design"
       - "basic_coding"
@@ -63,12 +64,105 @@ domains:
     agents:
       - "BackendAgent"
       - "FrontendAgent"
-      - "DBAgent"
+      - "DatabaseAgent"
     skills:
       - "api_design"
       - "basic_coding"
     mcps:
       - "database_mcp"
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
+  saas:
+    description: "Software as a Service platforms"
+    agents:
+      - "BackendAgent"
+      - "FrontendAgent"
+      - "DatabaseAgent"
+      - "InfrastructureAgent"
+    skills:
+      - "api_design"
+      - "basic_coding"
+      - "sql_generation"
+    mcps:
+      - "database_mcp"
+      - "filesystem_mcp"
+      - "docker_mcp"
+    materializers:
+      - "generic_materializer"
+  erp:
+    description: "Enterprise Resource Planning systems"
+    agents:
+      - "BackendAgent"
+      - "FrontendAgent"
+      - "DatabaseAgent"
+      - "TestingAgent"
+    skills:
+      - "api_design"
+      - "basic_coding"
+      - "sql_generation"
+    mcps:
+      - "database_mcp"
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
+  dashboard:
+    description: "Interactive data dashboards"
+    agents:
+      - "FrontendAgent"
+      - "AnalyticsAgent"
+    skills:
+      - "api_design"
+      - "basic_coding"
+    mcps:
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
+  chatbot:
+    description: "Conversational AI and Chatbots"
+    agents:
+      - "BackendAgent"
+    skills:
+      - "basic_coding"
+      - "api_design"
+    mcps:
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
+  mobile:
+    description: "Mobile Applications"
+    agents:
+      - "FrontendAgent"
+      - "BackendAgent"
+    skills:
+      - "api_design"
+      - "basic_coding"
+    mcps:
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
+  data_lake:
+    description: "Data Lake and Big Data Storage"
+    agents:
+      - "DataAgent"
+      - "InfrastructureAgent"
+    skills:
+      - "dataset_profiling"
+      - "etl_scripting"
+    mcps:
+      - "filesystem_mcp"
+      - "docker_mcp"
+    materializers:
+      - "data_engineering_materializer"
+  vision_score:
+    description: "Computer Vision and Scoring Systems"
+    agents:
+      - "AnalyticsAgent"
+      - "BackendAgent"
+    skills:
+      - "basic_coding"
+      - "api_design"
+    mcps:
       - "filesystem_mcp"
     materializers:
       - "generic_materializer"

@@ -7,17 +7,23 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+from a_platform.e_mcp.a_registry.mcp_registry import MCPRegistry
+
 class MCPExecutor:
     """
     Motor de Model Context Protocol real.
     Executa comandos no sistema host controlados e monitorados.
     """
-    def __init__(self):
-        pass
+    def __init__(self, registry: MCPRegistry = None):
+        self.registry = registry or MCPRegistry()
 
     def execute_tool(self, tool_name: str, **kwargs) -> Dict[str, Any]:
         logger.info(f"[MCP] Invocando tool real: {tool_name}")
         
+        if tool_name not in self.registry.tools:
+            logger.error(f"[MCP] Tool '{tool_name}' não está registrada no MCPRegistry.")
+            return {"success": False, "error": f"Tool '{tool_name}' não implementada ou não autorizada pelo Registry."}
+
         try:
             if tool_name == "filesystem_mcp":
                 return self._execute_filesystem(**kwargs)
