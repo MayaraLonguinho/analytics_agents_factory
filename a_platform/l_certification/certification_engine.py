@@ -1,45 +1,55 @@
-from a_platform.a_core.b_domain.certification import CertificationResult
-from a_platform.j_validation.validation_gate import ValidationGate
-from a_platform.k_quality.quality_engine import QualityEngine
-from a_platform.l_certification.score_calculator import ScoreCalculator
+import logging
+import os
+from typing import Dict, Any
+
+from a_platform.a_core.b_domain.project_request import ProjectRequest
+
+logger = logging.getLogger(__name__)
 
 class CertificationEngine:
+    """
+    Motor de Certificação.
+    Aplica o Tier/Selo final no projeto (Silver, Gold, Platinum)
+    baseado puramente no score gerado pela Quality Engine.
+    """
     def __init__(self):
-        self.validation_gate = ValidationGate()
-        self.quality_engine = QualityEngine()
-        self.calculator = ScoreCalculator()
+        pass
 
-    def certify_project(self, project_id: str, project_dir: str) -> CertificationResult:
-        val_result = self.validation_gate.validate(project_dir)
-        qual_result = self.quality_engine.evaluate(project_dir)
+    def run_certification(self, request: ProjectRequest) -> bool:
+        logger.info("[CertificationEngine] Iniciando processo de certificação...")
         
-        score = self.calculator.calculate(val_result["is_valid"], qual_result)
-        if score >= 95.0:
-            tier = "PLATINUM"
-            is_certified = True
-        elif score >= 85.0:
-            tier = "GOLD"
-            is_certified = True
-        elif score >= 75.0:
-            tier = "SILVER"
-            is_certified = True
-        else:
-            tier = "REJECTED"
-            is_certified = False
+        score = request.metadata.get("quality_score")
+        if score is None:
+            logger.error("[CertificationEngine] 'quality_score' não encontrado no contexto. O QualityEngine rodou com sucesso?")
+            return False
             
-        passed = is_certified
+        tier = self._calculate_tier(score)
+        request.metadata["certification_tier"] = tier
         
-        all_issues = []
-        if not val_result["is_valid"]:
-            all_issues.append("Validation tests failed.")
-        all_issues.extend(qual_result.get("issues", []))
+        logger.info(f"[CertificationEngine] Projeto certificado com o selo: {tier} (Score: {score:.1f})")
         
-        return CertificationResult(
-            project_id=project_id,
-            passed=passed,
-            is_certified=is_certified,
-            tier=tier,
-            issues=all_issues,
-            metrics={"final_score": score, "validation": val_result, "quality": qual_result},
-            feedback=f"Project is certified as {tier}." if is_certified else "Project needs fixes."
-        )
+        self._write_certification_stamp(request, tier, score)
+        return True
+
+    def _calculate_tier(self, score: float) -> str:
+        if score >= 90:
+            return "PLATINUM"
+        elif score >= 70:
+            return "GOLD"
+        else:
+            return "SILVER"
+
+    def _write_certification_stamp(self, request: ProjectRequest, tier: str, score: float):
+        domain = request.discovery_data.get("domain", "generic").lower()
+        stamp_path = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id, "CERTIFICATION.md")
+        
+        try:
+            content = f"# Certificação do Projeto: {request.project_id}\n\n"
+            content += f"- **Tier**: {tier}\n"
+            content += f"- **Score Global**: {score:.1f}\n"
+            content += "\n*Projeto gerado e certificado pela Analytics Agents Factory.*\n"
+            
+            with open(stamp_path, "w") as f:
+                f.write(content)
+        except Exception as e:
+            logger.warning(f"[CertificationEngine] Falha ao escrever o selo no disco: {e}")

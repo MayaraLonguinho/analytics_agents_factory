@@ -15,6 +15,9 @@ from a_platform.g_factory.a_project_factory.project_factory import ProjectFactor
 from a_platform.g_factory.d_artifact_materializer.materializer import ArtifactMaterializer
 from a_platform.e_mcp.mcp_executor import MCPExecutor
 from a_platform.i_runtime.runtime_engine import RuntimeEngine
+from a_platform.j_validation.validation_gate import ValidationGate
+from a_platform.k_quality.quality_engine import QualityEngine
+from a_platform.l_certification.certification_engine import CertificationEngine
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +36,9 @@ class MasterOrchestrator:
         self.project_factory = ProjectFactory(self.agent_factory)
         self.materializer = ArtifactMaterializer(self.mcp)
         self.runtime_engine = RuntimeEngine()
+        self.validation_gate = ValidationGate()
+        self.quality_engine = QualityEngine()
+        self.certification_engine = CertificationEngine()
         
         self.compiled_artifacts = []
         
@@ -157,7 +163,8 @@ class MasterOrchestrator:
 
     def _step_validation(self, request: ProjectRequest) -> bool:
         logger.info("Executando Validation Gate...")
-        return True
+        # Note that validation returns True/False directly affecting loop
+        return self.validation_gate.run_validation(request)
         
     def _step_repair(self, request: ProjectRequest) -> bool:
         logger.info("Executando Repair Loop...")
@@ -165,8 +172,8 @@ class MasterOrchestrator:
 
     def _step_quality(self, request: ProjectRequest) -> bool:
         logger.info("Executando Quality Engine...")
-        return True
+        return self.quality_engine.run_quality(request)
 
     def _step_certification(self, request: ProjectRequest) -> bool:
         logger.info("Executando Certification Engine...")
-        return True
+        return self.certification_engine.run_certification(request)
