@@ -1,23 +1,10 @@
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Any
 
-class ProjectRequest(BaseModel):
-    """Canonical request contract for ingesting project intent."""
-    request: str
+@dataclass
+class ProjectRequest:
+    prompt: str
+    dataset_path: Optional[str] = None
     domain: Optional[str] = None
-    source: str = "cli"
-    dataset_source: Optional[str] = None
-    dataset_profile: Dict[str, Any] = Field(default_factory=dict)
-    answers: Dict[str, str] = Field(default_factory=dict)
-    architecture_constraints: List[str] = Field(default_factory=list)
-    technology_preferences: List[str] = Field(default_factory=list)
-    constraints: List[str] = Field(default_factory=list)
-    preferred_stack: List[str] = Field(default_factory=list)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-    @classmethod
-    def from_raw(cls, raw_request: str, **kwargs) -> "ProjectRequest":
-        normalized = (raw_request or "").strip()
-        if not normalized:
-            raise ValueError("request cannot be empty")
-        return cls(request=normalized, **kwargs)
+    project_id: str = field(default_factory=lambda: "proj_default")
+    metadata: Dict[str, Any] = field(default_factory=dict)
