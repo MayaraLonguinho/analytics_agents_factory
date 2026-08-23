@@ -1,31 +1,14 @@
 import logging
 from typing import Dict, Any
 
-from a_platform.d_skills.skill_contract import CORE_SKILL_CONTRACTS, BaseSkill
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.d_skills.skill_contract import CORE_SKILL_CONTRACTS
+from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
+from a_platform.d_skills.c_analytics.sql_generation import SqlGenerationSkill
+from a_platform.d_skills.d_data_engineering.etl_scripting import EtlScriptingSkill
+from a_platform.d_skills.e_development.basic_coding import BasicCodingSkill
+from a_platform.d_skills.e_development.api_design import ApiDesignSkill
 
 logger = logging.getLogger(__name__)
-
-class GenericLLMSkill(BaseSkill):
-    def __init__(self, contract, system_prompt: str):
-        super().__init__(contract)
-        self.system_prompt = system_prompt
-        self.gateway = LLMGateway()
-
-    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        prompt = f"Context: {context}\nGerar os seguintes artefatos: {self.contract.expected_outputs}"
-        res = self.gateway.generate_text(prompt, system_prompt=self.system_prompt)
-        content = res.get("text", "")
-        # Fallback de mock se falhar
-        if not res.get("success"):
-            content = "Gerado via fallback: " + str(self.contract.expected_outputs)
-            
-        result = {}
-        for out in self.contract.expected_outputs:
-            # Mock extracting content for each expected output
-            result[out] = content
-            
-        return result
 
 class SkillRegistry:
     """
@@ -36,26 +19,11 @@ class SkillRegistry:
         
         # Registra instâncias reais de skills
         self.skills = {
-            "sql_generation": GenericLLMSkill(
-                self.contracts["sql_generation"], 
-                "Você é um DBA. Escreva schemas SQL válidos."
-            ),
-            "api_design": GenericLLMSkill(
-                self.contracts["api_design"], 
-                "Você é um Arquiteto de API. Escreva o Swagger/OpenAPI."
-            ),
-            "dataset_profiling": GenericLLMSkill(
-                self.contracts["dataset_profiling"], 
-                "Você é um Data Scientist. Escreva um JSON com profile dos dados."
-            ),
-            "etl_scripting": GenericLLMSkill(
-                self.contracts["etl_scripting"], 
-                "Você é um Data Engineer. Escreva o script Python ETL."
-            ),
-            "basic_coding": GenericLLMSkill(
-                self.contracts["basic_coding"], 
-                "Você é um Dev Python. Escreva o script de acordo com a solicitação."
-            )
+            "sql_generation": SqlGenerationSkill(),
+            "api_design": ApiDesignSkill(),
+            "dataset_profiling": DatasetProfilingSkill(),
+            "etl_scripting": EtlScriptingSkill(),
+            "basic_coding": BasicCodingSkill()
         }
 
     def run_skill(self, skill_name: str, context: Dict[str, Any]) -> Dict[str, Any]:

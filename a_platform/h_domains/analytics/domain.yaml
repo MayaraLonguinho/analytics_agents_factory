@@ -1,0 +1,31 @@
+name: analytics
+description: "Data analytics and reporting platforms"
+capabilities:
+  - profiling
+  - ingestion
+  - transformation
+  - database
+  - sql
+  - visualization
+required_agents:
+  - "data_agent"
+  - "analytics_agent"
+  - "database_agent"
+required_skills:
+  - "dataset_profiling"
+  - "sql_generation"
+  - "etl_scripting"
+required_mcps:
+  - "database_mcp"
+  - "filesystem_mcp"
+required_artifacts:
+  - "requirements.txt"
+  - "src/pipeline.py"
+  - "schema/init.sql"
+validators:
+  - "structure"
+  - "dependencies"
+  - "code"
+  - "database"
+templates:
+  - "etl_template.py"

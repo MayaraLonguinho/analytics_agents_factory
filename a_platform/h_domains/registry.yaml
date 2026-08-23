@@ -2,57 +2,81 @@ domains:
   analytics:
     description: "Data analytics and reporting platforms"
     agents:
-      - "data_agent"
-      - "analytics_agent"
+      - "ETLAgent"
+      - "AnalyticsAgent"
+      - "DBAgent"
+      - "TestingAgent"
     skills:
       - "dataset_profiling"
       - "sql_generation"
+      - "etl_scripting"
     mcps:
       - "database_mcp"
+      - "filesystem_mcp"
     materializers:
       - "analytics_materializer"
   data_engineering:
     description: "ETL, data pipelines and data warehouse setup"
     agents:
-      - "data_engineer_agent"
+      - "ETLAgent"
+      - "DBAgent"
+      - "TestingAgent"
     skills:
       - "etl_scripting"
-      - "dbt_modeling"
+      - "sql_generation"
     mcps:
       - "database_mcp"
-      - "cloud_storage_mcp"
+      - "filesystem_mcp"
+      - "docker_mcp"
     materializers:
       - "data_engineering_materializer"
   crm:
     description: "Customer Relationship Management systems"
     agents:
-      - "backend_agent"
-      - "frontend_agent"
+      - "BackendAgent"
+      - "FrontendAgent"
+      - "DBAgent"
     skills:
       - "api_design"
-      - "ui_component_generation"
+      - "basic_coding"
     mcps:
       - "database_mcp"
+      - "filesystem_mcp"
     materializers:
       - "crm_materializer"
   ecommerce:
     description: "E-commerce transactional platforms"
     agents:
-      - "backend_agent"
-      - "frontend_agent"
+      - "BackendAgent"
+      - "FrontendAgent"
+      - "DBAgent"
     skills:
-      - "payment_integration"
-      - "inventory_management"
+      - "api_design"
+      - "basic_coding"
     mcps:
       - "database_mcp"
-      - "external_api_mcp"
+      - "filesystem_mcp"
     materializers:
       - "ecommerce_materializer"
+  personal_finance:
+    description: "Personal finance and budgeting systems"
+    agents:
+      - "BackendAgent"
+      - "FrontendAgent"
+      - "DBAgent"
+    skills:
+      - "api_design"
+      - "basic_coding"
+    mcps:
+      - "database_mcp"
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
   generic:
     description: "Generic software project"
     agents:
-      - "backend_agent"
-      - "frontend_agent"
+      - "BackendAgent"
+      - "FrontendAgent"
     skills:
       - "basic_coding"
     mcps:
