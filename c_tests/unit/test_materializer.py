@@ -21,8 +21,8 @@ def test_materializer(tmp_path):
     request.project_plan = plan
     
     artifacts = [
-        Artifact(name="src/main.py", path="src/main.py", content="print('hello')"),
-        Artifact(name="requirements.txt", path="requirements.txt", content="pytest")
+        Artifact(name="src/main.py", content="print('hello')"),
+        Artifact(name="requirements.txt", content="pytest")
     ]
     
     with patch("os.getcwd", return_value=str(tmp_path)):

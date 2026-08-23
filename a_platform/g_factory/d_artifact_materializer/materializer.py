@@ -5,15 +5,26 @@ from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
 from a_platform.e_mcp.mcp_executor import MCPExecutor
 
+from .code_materializer import CodeMaterializer
+from .database_materializer import DatabaseMaterializer
+from .test_materializer import TestMaterializer
+from .documentation_materializer import DocumentationMaterializer
+from .infrastructure_materializer import InfrastructureMaterializer
+
 logger = logging.getLogger(__name__)
 
 class ArtifactMaterializer:
     """
-    Grava os artefatos compilados no sistema de arquivos usando o MCP Executor.
-    Garante que todos os arquivos obrigatórios do projeto sejam escritos baseando-se estritamente no ProjectPlan.
+    Grava os artefatos compilados no sistema de arquivos usando o MCP Executor,
+    delegando para materializadores especializados para garantir integridade.
     """
     def __init__(self, mcp: MCPExecutor):
         self.mcp = mcp
+        self.code_mat = CodeMaterializer(mcp)
+        self.db_mat = DatabaseMaterializer(mcp)
+        self.test_mat = TestMaterializer(mcp)
+        self.doc_mat = DocumentationMaterializer(mcp)
+        self.infra_mat = InfrastructureMaterializer(mcp)
 
     def materialize(self, request: ProjectRequest, artifacts: List[Artifact]) -> bool:
         if not artifacts:
@@ -36,21 +47,36 @@ class ArtifactMaterializer:
             for art in task.expected_artifacts:
                 expected_files.add(art)
                 
-        # requirements.txt é esperado globalmente (a Factory sempre tenta gerar)
+        # requirements.txt é esperado globalmente
         expected_files.add("requirements.txt")
         
         written_files = set()
         
         for artifact in artifacts:
-            file_path = os.path.join(project_dir, artifact.name)
-            res = self.mcp.execute_tool("filesystem_mcp", action="write", path=file_path, content=artifact.content)
-            if res.get("success"):
-                written_files.add(artifact.name)
-                logger.info(f"[ArtifactMaterializer] Escrito: {artifact.name}")
+            name = artifact.name.lower()
+            
+            # Routing
+            if name.endswith(".sql"):
+                success = self.db_mat.materialize(artifact, project_dir)
+            elif name.startswith("test_") or "test" in name and name.endswith(".py"):
+                success = self.test_mat.materialize(artifact, project_dir)
+            elif name.endswith(".py"):
+                success = self.code_mat.materialize(artifact, project_dir)
+            elif name.endswith(".md") or (name.endswith(".txt") and name != "requirements.txt"):
+                success = self.doc_mat.materialize(artifact, project_dir)
+            elif name.endswith(".json") or name.endswith(".yaml") or name.endswith(".yml") or "dockerfile" in name or name == "requirements.txt":
+                success = self.infra_mat.materialize(artifact, project_dir)
             else:
-                logger.error(f"[ArtifactMaterializer] Falha ao escrever {artifact.name}: {res.get('error')}")
+                # Default materialization if not matched
+                file_path = os.path.join(project_dir, artifact.name)
+                res = self.mcp.execute_tool("filesystem_mcp", action="write", path=file_path, content=artifact.content)
+                success = res.get("success", False)
+                if not success:
+                    logger.error(f"[ArtifactMaterializer] Falha ao escrever {artifact.name}: {res.get('error')}")
+
+            if success:
+                written_files.add(artifact.name)
                 
-        # Validação estrita
         missing_files = expected_files - written_files
         
         if not missing_files:

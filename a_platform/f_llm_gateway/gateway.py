@@ -18,7 +18,7 @@ class LLMGateway:
         self.google_key = os.getenv("GOOGLE_API_KEY")
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
         
-    def generate_text(self, prompt: str, system_prompt: str = "", model_preference: str = "openai") -> Dict[str, Any]:
+    def generate(self, prompt: str, system_prompt: str = "", model_preference: str = "openai", **kwargs) -> Dict[str, Any]:
         logger.info(f"[LLM Gateway] Requisitando modelo: {model_preference}")
         
         result = self._try_model(prompt, system_prompt, model_preference)
