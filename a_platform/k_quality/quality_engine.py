@@ -1,6 +1,7 @@
 import logging
 import os
 import yaml
+import ast
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
@@ -40,28 +41,53 @@ class QualityEngine:
         if not os.path.exists(project_dir):
             return False
 
-        # Avaliação mockada de qualidade de código
-        # Num cenário real iteraria pelos arquivos .py
+        # Avaliação com AST
         linting_score = 100
         architecture_score = 100
         doc_score = 100
         
-        # Penálise se não encontrar docs ou tipo
-        py_files = [f for f in os.listdir(project_dir) if f.endswith(".py")]
+        py_files = []
+        for root, _, files in os.walk(project_dir):
+            if "venv" in root: continue
+            for f in files:
+                if f.endswith(".py"):
+                    py_files.append(os.path.join(root, f))
+                    
         if not py_files:
-            logger.warning("[QualityEngine] Nenhum arquivo .py encontrado, nota comprometida.")
+            logger.warning("[QualityEngine] Nenhum arquivo .py encontrado no projeto.")
             architecture_score = 50
         else:
-            has_docstrings = False
+            total_elements = 0
+            documented_elements = 0
+            
             for pf in py_files:
-                with open(os.path.join(project_dir, pf), "r") as code:
-                    content = code.read()
-                    if '"""' in content or "'''" in content:
-                        has_docstrings = True
-                        break
-            if not has_docstrings:
+                try:
+                    with open(pf, "r") as code:
+                        tree = ast.parse(code.read())
+                        
+                    # Check module docstring
+                    total_elements += 1
+                    if ast.get_docstring(tree):
+                        documented_elements += 1
+                        
+                    for node in ast.walk(tree):
+                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                            total_elements += 1
+                            if ast.get_docstring(node):
+                                documented_elements += 1
+                                
+                except SyntaxError:
+                    linting_score -= 20 # Penaliza erros de sintaxe graves que não foram pegos ou arquivos mortos
+                except Exception as e:
+                    logger.error(f"[QualityEngine] Erro ao analisar {pf}: {e}")
+                    
+            if total_elements > 0:
+                doc_ratio = documented_elements / total_elements
+                doc_score = int(doc_ratio * 100)
+                if doc_score < 50:
+                    logger.warning(f"[QualityEngine] Baixa proporção de docstrings: {doc_score}%")
+            else:
                 doc_score = 50
-                logger.warning("[QualityEngine] Ausência de docstrings detectada. Penalizando doc_score.")
 
         # Calcula final
         final_score = (

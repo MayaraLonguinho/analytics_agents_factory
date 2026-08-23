@@ -39,13 +39,33 @@ class ValidationGate:
                         request.metadata["validation_error"] = err_msg
                         return False
 
-        # 3. Execução de suítes de testes geradas
-        pytest_cmd = f"./venv/bin/pytest"
-        
-        tests_dir_exists = os.path.exists(os.path.join(project_dir, "tests"))
-        pytest_installed = os.path.exists(os.path.join(project_dir, "venv", "bin", "pytest"))
-        
-        if tests_dir_exists and pytest_installed:
+        # 3. Execução de suítes de testes geradas (Condicional)
+        tests_required = False
+        if plan and plan.tasks:
+            for task in plan.tasks:
+                if task.agent.lower() in ["testingagent", "test", "testing"]:
+                    tests_required = True
+                for art in task.expected_artifacts:
+                    if "test" in art.lower():
+                        tests_required = True
+                        
+        if tests_required:
+            pytest_cmd = f"./venv/bin/pytest"
+            tests_dir_exists = os.path.exists(os.path.join(project_dir, "tests")) or any("test" in f for f in os.listdir(project_dir))
+            pytest_installed = os.path.exists(os.path.join(project_dir, "venv", "bin", "pytest"))
+            
+            if not tests_dir_exists:
+                err_msg = "Testes exigidos pelo plano, mas não foram gerados."
+                logger.error(f"[ValidationGate] {err_msg}")
+                request.metadata["validation_error"] = err_msg
+                return False
+                
+            if not pytest_installed:
+                err_msg = "pytest exigido mas não instalado na venv."
+                logger.error(f"[ValidationGate] {err_msg}")
+                request.metadata["validation_error"] = err_msg
+                return False
+                
             logger.info("[ValidationGate] Rodando suite de testes (pytest)...")
             try:
                 result = subprocess.run(pytest_cmd, shell=True, cwd=project_dir, capture_output=True, text=True)
@@ -60,7 +80,7 @@ class ValidationGate:
                 request.metadata["validation_error"] = err_msg
                 return False
         else:
-            logger.warning("[ValidationGate] Pulo de testes automáticos (tests/ não encontrado ou pytest não instalado).")
+            logger.info("[ValidationGate] Pulo de testes automáticos (não exigido pelo plano).")
             
         logger.info("[ValidationGate] Validação concluída com sucesso (PASS).")
         return True

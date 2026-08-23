@@ -37,46 +37,67 @@ class RuntimeEngine:
         # 1. Setup Venv
         venv_path = os.path.join(project_dir, "venv")
         if not os.path.exists(venv_path):
-            success, err = self._run_subprocess(f"python3 -m venv venv", cwd=project_dir, desc="Criar venv")
+            success, stdout, stderr = self._run_subprocess(f"python3 -m venv venv", cwd=project_dir, desc="Criar venv")
             if not success:
-                request.metadata["execution_error"] = f"Falha ao criar venv: {err}"
+                request.metadata["execution_error"] = f"Falha ao criar venv: {stderr}"
                 return False
             
         # 2. Pip Install
         req_path = os.path.join(project_dir, "requirements.txt")
         if os.path.exists(req_path):
             pip_cmd = f"./venv/bin/pip install -r requirements.txt"
-            success, err = self._run_subprocess(pip_cmd, cwd=project_dir, desc="Instalar dependências")
+            success, stdout, stderr = self._run_subprocess(pip_cmd, cwd=project_dir, desc="Instalar dependências")
             if not success:
-                request.metadata["execution_error"] = f"Falha no pip install: {err}"
+                request.metadata["execution_error"] = f"Falha no pip install: {stderr}"
                 return False
         
         # 3. Execução dos comandos definidos no Plano
         plan = request.project_plan
         if not plan or not plan.run_commands:
             logger.warning("[RuntimeEngine] Nenhum comando de execução definido no ProjectPlan.")
+            request.metadata["runtime_payload"] = {
+                "exit_code": 0,
+                "command": None,
+                "stdout": "Nenhum comando",
+                "stderr": "",
+                "failed_component": None
+            }
             return True
             
         for cmd in plan.run_commands:
-            success, err = self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}")
+            success, stdout, stderr = self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}")
             if not success:
                 logger.error(f"[RuntimeEngine] Falha ao executar o comando de runtime: {cmd}")
-                request.metadata["execution_error"] = f"Falha na execução do comando '{cmd}': {err}"
+                request.metadata["execution_error"] = f"Falha na execução do comando '{cmd}': {stderr}"
+                request.metadata["runtime_payload"] = {
+                    "exit_code": 1,
+                    "command": cmd,
+                    "stdout": stdout,
+                    "stderr": stderr,
+                    "failed_component": "runtime_command"
+                }
                 return False
 
         logger.info("[RuntimeEngine] Todos os comandos executados com sucesso (Exit Code 0).")
+        request.metadata["runtime_payload"] = {
+            "exit_code": 0,
+            "command": "multiple",
+            "stdout": "All commands succeeded",
+            "stderr": "",
+            "failed_component": None
+        }
         return True
 
-    def _run_subprocess(self, cmd: str, cwd: str, desc: str) -> tuple[bool, str]:
+    def _run_subprocess(self, cmd: str, cwd: str, desc: str) -> tuple[bool, str, str]:
         logger.info(f"[RuntimeEngine] {desc}")
         try:
             result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
             if result.returncode != 0:
                 logger.error(f"[RuntimeEngine] '{cmd}' falhou com código {result.returncode}")
-                err_out = result.stderr.strip() or result.stdout.strip()
+                err_out = result.stderr.strip()
                 logger.error(f"[RuntimeEngine] STDERR: {err_out}")
-                return False, err_out
-            return True, ""
+                return False, result.stdout.strip(), err_out
+            return True, result.stdout.strip(), ""
         except Exception as e:
             logger.error(f"[RuntimeEngine] Exceção ao executar '{cmd}': {e}")
-            return False, str(e)
+            return False, "", str(e)

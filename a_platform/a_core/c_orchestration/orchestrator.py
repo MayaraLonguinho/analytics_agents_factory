@@ -155,6 +155,7 @@ class MasterOrchestrator:
                 return False
             raise Exception(f"Phase {phase.name} returned failure.")
             
+        self.state_manager.phases[phase].status = PhaseStatus.COMPLETED
         return result
 
     def _step_discovery(self, request: ProjectRequest) -> bool:

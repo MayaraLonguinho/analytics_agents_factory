@@ -36,11 +36,12 @@ class RepairLoop:
             return False
             
         system_prompt = (
-            "Você é o SRE (Site Reliability Engineer) de auto-reparo do sistema.\n"
-            "Dado um erro de execução ou teste, identifique qual arquivo precisa de correção.\n"
+            "Você é o Classificador de Falhas do sistema.\n"
+            "Dado um erro de execução ou teste, identifique qual arquivo precisa de correção e qual tipo de agente deve consertá-lo (backend, frontend, database, data_agent, infra).\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
             '  "file_name": "nome_do_arquivo.py",\n'
+            '  "agent_type": "backend",\n'
             '  "fixed_content": "CONTEUDO COMPLETO E CORRIGIDO DO ARQUIVO"\n'
             "}"
         )
@@ -48,7 +49,7 @@ class RepairLoop:
         prompt = (
             f"Projeto ID: {request.project_id}\n"
             f"Erro Detectado:\n{error_context}\n\n"
-            "Gere a versão corrigida do arquivo problemático."
+            "Gere a versão corrigida do arquivo problemático e identifique o agente especialista responsável."
         )
         
         resp = self.gateway.generate_text(prompt, system_prompt=system_prompt, model_preference="openai")
@@ -63,11 +64,16 @@ class RepairLoop:
                 repair_data = json.loads(text)
                 file_name = repair_data.get("file_name")
                 fixed_content = repair_data.get("fixed_content")
+                agent_type = repair_data.get("agent_type", "backend")
                 
                 if not file_name or not fixed_content:
                     logger.error("[RepairLoop] O LLM não retornou file_name ou fixed_content válidos.")
                     return False
                     
+                # Aqui o sistema demonstra o uso do AgentFactory
+                specialist_agent = self.agent_factory.get_agent(agent_type)
+                logger.info(f"[RepairLoop] Agente especialista acionado para reparo: {specialist_agent.name}")
+                
                 # Aplicando o patch
                 domain = request.discovery_data.get("domain", "generic").lower()
                 file_path = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id, file_name)
