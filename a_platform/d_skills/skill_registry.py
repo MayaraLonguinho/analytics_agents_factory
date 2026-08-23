@@ -1,39 +1,52 @@
 import logging
 from typing import Dict, Any
 
+from a_platform.d_skills.skill_contract import CORE_SKILL_CONTRACTS
+
 logger = logging.getLogger(__name__)
 
 class SkillRegistry:
     """
-    Centraliza a execução das Skills que os agentes podem solicitar.
+    Centraliza a execução das Skills que os agentes podem solicitar, agora validando contratos.
     """
     def __init__(self):
-        pass
+        self.contracts = CORE_SKILL_CONTRACTS
 
     def run_skill(self, skill_name: str, context: Dict[str, Any]) -> Dict[str, Any]:
         logger.info(f"[SkillRegistry] Invocando skill: {skill_name}")
         
         try:
+            if skill_name not in self.contracts:
+                return {"success": False, "error": f"Skill '{skill_name}' desconhecida."}
+                
+            contract = self.contracts[skill_name]
+            contract.validate_inputs(context)
+            
+            # Executa a implementação baseada no nome
             if skill_name == "sql_generation":
                 return self._skill_sql_generation(context)
             elif skill_name == "api_design":
                 return self._skill_api_design(context)
             elif skill_name == "dataset_profiling":
-                # Já executada globalmente antes, mas pode reexecutar
                 return {"success": True, "artifact": "dataset_profile.json", "content": "{}"}
             elif skill_name == "etl_scripting":
                 return self._skill_etl_scripting(context)
             elif skill_name == "basic_coding":
-                return {"success": True, "artifact": "app.py", "content": "print('Hello World')"}
+                script_name = context.get("script_name", "script.py")
+                return {"success": True, "artifact": script_name, "content": "print('Hello World')"}
             else:
-                return {"success": False, "error": f"Skill '{skill_name}' desconhecida."}
+                return {"success": False, "error": f"Skill '{skill_name}' não possui implementação conectada."}
+        except ValueError as ve:
+            logger.error(f"[SkillRegistry] Erro de contrato: {ve}")
+            return {"success": False, "error": str(ve)}
         except Exception as e:
             logger.error(f"[SkillRegistry] Falha na skill {skill_name}: {e}")
             return {"success": False, "error": str(e)}
 
     def _skill_sql_generation(self, context: Dict[str, Any]) -> Dict[str, Any]:
         db_type = context.get("database_technology", "PostgreSQL")
-        sql = f"-- Gerado para {db_type}\nCREATE TABLE main (id INT, data VARCHAR);"
+        schema_def = context.get("schema_definition", "CREATE TABLE main (id INT);")
+        sql = f"-- Gerado para {db_type}\n{schema_def}"
         return {"success": True, "artifact": "schema.sql", "content": sql}
 
     def _skill_api_design(self, context: Dict[str, Any]) -> Dict[str, Any]:
