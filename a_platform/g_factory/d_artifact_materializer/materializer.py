@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class ArtifactMaterializer:
     """
     Grava os artefatos compilados no sistema de arquivos usando o MCP Executor.
-    Garante que todos os arquivos obrigatórios do projeto sejam escritos.
+    Garante que todos os arquivos obrigatórios do projeto sejam escritos baseando-se estritamente no ProjectPlan.
     """
     def __init__(self, mcp: MCPExecutor):
         self.mcp = mcp
@@ -20,26 +20,42 @@ class ArtifactMaterializer:
             logger.error("[ArtifactMaterializer] Nenhum artefato recebido para materialização.")
             return False
             
+        plan = request.project_plan
+        if not plan:
+            logger.error("[ArtifactMaterializer] ProjectPlan não encontrado. Não é possível validar a materialização.")
+            return False
+            
         domain = request.discovery_data.get("domain", "generic").lower()
         project_dir = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id)
         
         logger.info(f"[ArtifactMaterializer] Iniciando materialização em: {project_dir}")
-        success_count = 0
+        
+        # Agrupa os artefatos esperados pelo plano
+        expected_files = set()
+        for task in plan.tasks:
+            for art in task.expected_artifacts:
+                expected_files.add(art)
+                
+        # requirements.txt é esperado globalmente (a Factory sempre tenta gerar)
+        expected_files.add("requirements.txt")
+        
+        written_files = set()
         
         for artifact in artifacts:
             file_path = os.path.join(project_dir, artifact.name)
             res = self.mcp.execute_tool("filesystem_mcp", action="write", path=file_path, content=artifact.content)
             if res.get("success"):
-                success_count += 1
+                written_files.add(artifact.name)
                 logger.info(f"[ArtifactMaterializer] Escrito: {artifact.name}")
             else:
                 logger.error(f"[ArtifactMaterializer] Falha ao escrever {artifact.name}: {res.get('error')}")
                 
-        # Materialization = SUCCESS se pelo menos a maior parte for escrita.
-        # Aqui podemos aplicar regras estritas (ex: success_count == len(artifacts))
-        if success_count == len(artifacts):
-            logger.info("[ArtifactMaterializer] Todos os artefatos gravados com sucesso.")
+        # Validação estrita
+        missing_files = expected_files - written_files
+        
+        if not missing_files:
+            logger.info("[ArtifactMaterializer] Materialização concluída com sucesso. Todos os artefatos esperados foram gravados.")
             return True
         else:
-            logger.error(f"[ArtifactMaterializer] Apenas {success_count} de {len(artifacts)} artefatos foram escritos.")
+            logger.error(f"[ArtifactMaterializer] FALHA NA MATERIALIZAÇÃO. Artefatos ausentes: {missing_files}")
             return False

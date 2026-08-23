@@ -1,5 +1,7 @@
 import subprocess
 import os
+import sqlite3
+import urllib.request
 import logging
 from typing import Dict, Any
 
@@ -23,6 +25,10 @@ class MCPExecutor:
                 return self._execute_git(**kwargs)
             elif tool_name == "docker_mcp":
                 return self._execute_docker(**kwargs)
+            elif tool_name == "database_mcp":
+                return self._execute_database(**kwargs)
+            elif tool_name == "browser_mcp":
+                return self._execute_browser(**kwargs)
             else:
                 return {"success": False, "error": f"Tool '{tool_name}' não implementada ou não autorizada."}
         except Exception as e:
@@ -37,6 +43,8 @@ class MCPExecutor:
                 f.write(content or "")
             return {"success": True, "message": f"File written to {full_path}"}
         elif action == "read":
+            if not os.path.exists(full_path):
+                return {"success": False, "error": f"File not found: {full_path}"}
             with open(full_path, 'r') as f:
                 content = f.read()
             return {"success": True, "content": content}
@@ -70,3 +78,34 @@ class MCPExecutor:
             "stdout": result.stdout,
             "stderr": result.stderr
         }
+
+    def _execute_database(self, query: str, db_path: str = "local.db") -> Dict[str, Any]:
+        """
+        Executa uma query em um banco local SQLite para fins de materialização e testes de Schema.
+        """
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute(query)
+            if query.strip().upper().startswith("SELECT"):
+                rows = cursor.fetchall()
+                conn.close()
+                return {"success": True, "data": rows}
+            else:
+                conn.commit()
+                conn.close()
+                return {"success": True, "message": "Query executada com sucesso."}
+        except sqlite3.Error as e:
+            return {"success": False, "error": str(e)}
+
+    def _execute_browser(self, url: str) -> Dict[str, Any]:
+        """
+        Lê o conteúdo raw de uma URL via HTTP.
+        """
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                html = response.read().decode('utf-8')
+                return {"success": True, "content": html}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
