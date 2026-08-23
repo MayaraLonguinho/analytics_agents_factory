@@ -1,54 +1,37 @@
-from typing import Optional, List
+import logging
+from typing import Any
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.a_core.b_domain.discovery import DiscoveryResult
-from a_platform.f_llm_gateway.gateway import LLMGateway
-import json
+
+logger = logging.getLogger(__name__)
 
 class DiscoveryAgent:
-    def __init__(self, gateway: Optional[LLMGateway] = None):
-        self.gateway = gateway or LLMGateway()
+    def __init__(self):
+        self.required_fields = {
+            "domain": "Qual é o domínio/assunto principal do projeto? (ex: Ecommerce, Finanças, Saúde)",
+            "database": "Qual banco de dados devemos usar? (ex: PostgreSQL, MongoDB, SQLite)",
+            "restrictions": "Existe alguma restrição técnica ou arquitetural? (ex: Apenas Python 3.10, Sem Docker, Nenhuma)"
+        }
 
-    async def generate_questions(self, idea: str) -> List[str]:
-        prompt = f"Given this project idea: '{idea}', generate 3 to 5 strategic questions to refine the requirements. Return ONLY a JSON list of strings."
-        try:
-            result_text = await self.gateway.generate(prompt, complexity="low", system_prompt="You are a data architect. Output only valid JSON list of strings.")
+    def run_discovery(self, request: ProjectRequest) -> bool:
+        logger.info("Iniciando Discovery Interativo...")
+        
+        if request.domain and "domain" not in request.discovery_data:
+            request.discovery_data["domain"] = request.domain
             
-            if "mocked response" in result_text.lower():
-                return ["Qual é o banco de dados preferido?", "Qual é o volume estimado de dados?", "Existem restrições de segurança específicas?"]
+        for field, question in self.required_fields.items():
+            if field not in request.discovery_data or not request.discovery_data[field]:
+                print(f"\n[DISCOVERY AGENT] 🔎 Precisamos de mais informações:")
+                print(question)
+                try:
+                    answer = input("Resposta: ").strip()
+                except EOFError:
+                    answer = ""
                 
-            return json.loads(result_text)
-        except Exception:
-            return ["Qual é o banco de dados preferido?", "Qual é o volume estimado de dados?", "Existem restrições de segurança específicas?"]
+                if not answer:
+                    logger.error(f"O campo '{field}' é obrigatório para avançar.")
+                    return False
+                request.discovery_data[field] = answer
 
-    async def execute(self, request: ProjectRequest) -> DiscoveryResult:
-        context = request.request
-        
-        # Make Discovery interactive
-        print(f"\\n[Discovery] Analisando sua solicitação: '{context}'")
-        questions = await self.generate_questions(context)
-        
-        if not request.answers:
-            request.answers = {}
-            
-        if questions:
-            for q in questions:
-                # Perguntar ao usuário no terminal
-                ans = input(f"\\n[Discovery] Responda: {q}\\n-> ")
-                request.answers[q] = ans
-                
-        if request.answers:
-            context += "\\n\\nRespostas do Questionário:\\n"
-            for q, a in request.answers.items():
-                context += f"- {q}: {a}\\n"
-                
-        prompt = f"Analyze this project context and requirements: {context}"
-        result_text = await self.gateway.generate(prompt, complexity="low", system_prompt="You are a data architect extracting objectives.")
-        
-        result = DiscoveryResult(
-            project_objective=f"Extracted objective based on: {context}",
-            domain=request.domain,
-            request=context,
-            source=request.source,
-            dataset_source=request.dataset_source
-        )
-        return result
+        request.discovery_data["status"] = "COMPLETE"
+        logger.info("Discovery concluído com sucesso.")
+        return True

@@ -3,12 +3,16 @@ from typing import Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase
+from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
+from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfiler
 
 logger = logging.getLogger(__name__)
 
 class MasterOrchestrator:
     def __init__(self):
         self.state_manager = None
+        self.discovery_agent = DiscoveryAgent()
+        self.dataset_profiler = DatasetProfiler()
         
     def execute_pipeline(self, request: ProjectRequest) -> bool:
         self.state_manager = StateManager(request.project_id)
@@ -78,15 +82,30 @@ class MasterOrchestrator:
             raise Exception(f"Phase {phase.name} returned failure.")
         return result
 
-    # Mocks para as etapas (a serem implementados nas próximas etapas)
     def _step_discovery(self, request: ProjectRequest) -> bool:
         logger.info("Executando Discovery...")
-        return True
+        return self.discovery_agent.run_discovery(request)
 
     def _step_dataset_profiling(self, request: ProjectRequest) -> bool:
         logger.info("Executando Dataset Profiling...")
+        if request.dataset_path:
+            logger.info(f"Analisando dataset em {request.dataset_path}")
+            try:
+                profile = self.dataset_profiler.profile_dataset(request.dataset_path)
+                request.dataset_profile = profile
+                if profile.get("status") == "failed":
+                    logger.warning(f"Falha ao realizar profiling: {profile.get('error')}")
+                else:
+                    logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('column_count')} colunas.")
+            except Exception as e:
+                logger.error(f"Erro no Profiling: {str(e)}")
+                return False
+        else:
+            logger.info("Nenhum dataset fornecido, pulando profiling...")
+        
         return True
 
+    # Mocks para as demais etapas
     def _step_brain(self, request: ProjectRequest) -> bool:
         logger.info("Executando Brain (Knowledge Retrieval)...")
         return True
@@ -113,7 +132,6 @@ class MasterOrchestrator:
 
     def _step_validation(self, request: ProjectRequest) -> bool:
         logger.info("Executando Validation Gate...")
-        # Simula sucesso imediato
         return True
         
     def _step_repair(self, request: ProjectRequest) -> bool:
