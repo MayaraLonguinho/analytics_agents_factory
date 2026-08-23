@@ -7,7 +7,7 @@ from a_platform.e_mcp.mcp_executor import MCPExecutor
 
 from .code_materializer import CodeMaterializer
 from .database_materializer import DatabaseMaterializer
-from .test_materializer import TestMaterializer
+from .materializer_test_support import TestMaterializer
 from .documentation_materializer import DocumentationMaterializer
 from .infrastructure_materializer import InfrastructureMaterializer
 

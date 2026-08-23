@@ -32,3 +32,5 @@ dist/
 
 e_generated_projects/*
 !e_generated_projects/.gitkeep
+.aaf_state/*
+!.aaf_state/.gitkeep
