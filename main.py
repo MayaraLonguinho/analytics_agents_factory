@@ -9,7 +9,7 @@ from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Analytics Agents Factory CLI")
+    parser = argparse.ArgumentParser(description="Analytics Agents Factory CLI Adapter")
     parser.add_argument("--prompt", type=str, required=True, help="O prompt descrevendo o que deve ser criado.")
     parser.add_argument("--dataset", type=str, default=None, help="Caminho para a base de dados (opcional).")
     parser.add_argument("--domain", type=str, default=None, help="Domínio do projeto (ex: analytics, ecommerce).")
@@ -27,22 +27,31 @@ def main():
     )
     
     print("="*50)
-    print("🚀 ANALYTICS AI FACTORY - INICIANDO PIPELINE")
+    print("🚀 ANALYTICS AI FACTORY CORE - INICIANDO PIPELINE")
     print(f"Projeto: {project_id}")
     print(f"Prompt: {request.prompt}")
     print("="*50)
     
     orchestrator = MasterOrchestrator()
-    success = orchestrator.execute_pipeline(request)
     
-    print("="*50)
-    if success:
-        print("✅ PIPELINE CONCLUÍDO COM SUCESSO. PROJECT READY = YES.")
-    else:
-        print("❌ FALHA NO PIPELINE. PROJECT READY = NO.")
-        print(orchestrator.state_manager.get_status())
+    try:
+        success = orchestrator.execute_pipeline(request)
+        
+        print("="*50)
+        if success and request.metadata.get("PROJECT_READY") == "YES":
+            print("✅ PIPELINE CONCLUÍDO COM SUCESSO. PROJECT READY = YES.")
+        else:
+            print("❌ FALHA NO PIPELINE. PROJECT READY = NO.")
+            print(f"Status atual: {orchestrator.state_manager.get_status() if orchestrator.state_manager else 'Unknown'}")
+            sys.exit(1)
+        print("="*50)
+        
+    except Exception as e:
+        print("="*50)
+        print("❌ FALHA CRÍTICA NO PIPELINE. PROJECT READY = NO.")
+        print(f"Erro: {str(e)}")
+        print("="*50)
         sys.exit(1)
-    print("="*50)
 
 if __name__ == "__main__":
     main()

@@ -19,19 +19,17 @@ class DomainRegistry:
             with open(self.registry_path, 'r') as f:
                 data = yaml.safe_load(f)
                 self.domains = data.get("domains", {})
+                if not self.domains:
+                    raise ValueError("Registry vazio ou estrutura 'domains' ausente.")
                 logger.info(f"Carregados {len(self.domains)} domínios do registry.")
         except Exception as e:
-            logger.error(f"Erro ao carregar registry de domínios: {e}")
+            logger.error(f"Erro CRÍTICO ao carregar registry de domínios: {e}")
+            raise RuntimeError(f"Falha na fundação AAF Core: Não foi possível carregar {self.registry_path}") from e
 
     def get_domain_config(self, domain_name: str) -> Dict[str, Any]:
         domain_name = domain_name.lower().strip()
         if domain_name in self.domains:
             return self.domains[domain_name]
-        logger.warning(f"Domínio '{domain_name}' não encontrado. Usando 'generic'.")
-        return self.domains.get("generic", {
-            "description": "Generic fallback",
-            "agents": ["backend_agent"],
-            "skills": ["basic_coding"],
-            "mcps": ["filesystem_mcp"],
-            "materializers": ["generic_materializer"]
-        })
+            
+        logger.error(f"Domínio '{domain_name}' não encontrado e fallback não é permitido.")
+        raise ValueError(f"Domínio '{domain_name}' estritamente não suportado pela Factory.")

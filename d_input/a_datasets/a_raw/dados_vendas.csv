@@ -1,0 +1,5 @@
+id,data,produto,categoria,valor,status
+1,2026-08-20,Notebook,Eletronicos,4500.00,Pago
+2,2026-08-21,Cadeira,Moveis,850.00,Pendente
+3,2026-08-22,Monitor,Eletronicos,,Cancelado
+4,2026-08-23,Mesa,Moveis,1200.00,Pago
