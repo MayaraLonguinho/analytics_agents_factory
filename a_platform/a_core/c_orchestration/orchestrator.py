@@ -14,6 +14,7 @@ from a_platform.c_agents.agent_factory import AgentFactory
 from a_platform.g_factory.a_project_factory.project_factory import ProjectFactory
 from a_platform.g_factory.d_artifact_materializer.materializer import ArtifactMaterializer
 from a_platform.e_mcp.mcp_executor import MCPExecutor
+from a_platform.i_runtime.runtime_engine import RuntimeEngine
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class MasterOrchestrator:
         self.agent_factory = AgentFactory()
         self.project_factory = ProjectFactory(self.agent_factory)
         self.materializer = ArtifactMaterializer(self.mcp)
+        self.runtime_engine = RuntimeEngine()
         
         self.compiled_artifacts = []
         
@@ -151,7 +153,7 @@ class MasterOrchestrator:
 
     def _step_execution(self, request: ProjectRequest) -> bool:
         logger.info("Executando Execution Runtime...")
-        return True
+        return self.runtime_engine.run_project(request)
 
     def _step_validation(self, request: ProjectRequest) -> bool:
         logger.info("Executando Validation Gate...")

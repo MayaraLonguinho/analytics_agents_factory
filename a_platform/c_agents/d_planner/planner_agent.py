@@ -24,7 +24,6 @@ class PlannerAgent:
             materializer=domain_config.get("materializers", ["generic_materializer"])[0]
         )
         
-        # Cria tarefas baseadas nos agentes e skills definidos no registry
         task_id = 1
         for agent in domain_config.get("agents", []):
             task = Task(
@@ -38,9 +37,11 @@ class PlannerAgent:
                 expected_artifacts=[f"{agent}_output.py"]
             )
             plan.add_task(task)
+            
+            # Infer run command based on generated script
+            plan.run_commands.append(f"./venv/bin/python {agent}_output.py")
             task_id += 1
             
-        # O Planning só é COMPLETE se o plano for validado
         if not plan.tasks:
             logger.error("Plano gerado está vazio. Falha na validação do plano.")
             return False
