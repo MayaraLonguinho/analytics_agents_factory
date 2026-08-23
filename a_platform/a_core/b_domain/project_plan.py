@@ -1,13 +1,24 @@
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
 
-class ProjectPlan(BaseModel):
-    """Canonical plan contract for execution sequencing."""
-    project_id: str
+@dataclass
+class Task:
+    id: str
     name: str
+    description: str
+    agent: str
+    skills: List[str] = field(default_factory=list)
+    mcps: List[str] = field(default_factory=list)
+    dependencies: List[str] = field(default_factory=list)
+    expected_artifacts: List[str] = field(default_factory=list)
+
+@dataclass
+class ProjectPlan:
+    project_id: str
     domain: str
-    phases: List[str] = Field(default_factory=list)
-    tasks: List[str] = Field(default_factory=list)
-    milestones: List[str] = Field(default_factory=list)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-    generated_by: Optional[str] = None
+    tasks: List[Task] = field(default_factory=list)
+    materializer: str = "generic_materializer"
+    validated: bool = False
+    
+    def add_task(self, task: Task):
+        self.tasks.append(task)

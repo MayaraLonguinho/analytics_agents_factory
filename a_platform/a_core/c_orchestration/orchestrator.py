@@ -8,6 +8,8 @@ from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProf
 from a_platform.b_brain.brain import Brain
 from a_platform.b_brain.g_graph.graph_builder import GraphBuilder
 from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
+from a_platform.h_domains.domain_registry import DomainRegistry
+from a_platform.c_agents.d_planner.planner_agent import PlannerAgent
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,8 @@ class MasterOrchestrator:
         self.brain = Brain()
         self.graph_builder = GraphBuilder()
         self.architecture_agent = ArchitectureAgent(self.brain, self.graph_builder)
+        self.domain_registry = DomainRegistry()
+        self.planner_agent = PlannerAgent(self.domain_registry)
         
     def execute_pipeline(self, request: ProjectRequest) -> bool:
         self.state_manager = StateManager(request.project_id)
@@ -113,8 +117,6 @@ class MasterOrchestrator:
 
     def _step_brain(self, request: ProjectRequest) -> bool:
         logger.info("Executando Brain (Knowledge Retrieval)...")
-        # O Brain atua passivamente como provedor de conhecimento.
-        # A injeção real acontece no ArchitectureAgent.
         logger.info("Brain instanciado e pronto para consultas.")
         return True
 
@@ -122,11 +124,11 @@ class MasterOrchestrator:
         logger.info("Executando Architecture Decisions...")
         return self.architecture_agent.generate_architecture(request)
 
-    # Mocks para as demais etapas
     def _step_planner(self, request: ProjectRequest) -> bool:
         logger.info("Executando Planner (Project Plan)...")
-        return True
+        return self.planner_agent.generate_plan(request)
 
+    # Mocks para as demais etapas
     def _step_project_factory(self, request: ProjectRequest) -> bool:
         logger.info("Executando Project Factory...")
         return True

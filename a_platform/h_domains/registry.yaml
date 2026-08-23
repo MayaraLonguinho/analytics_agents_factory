@@ -1,21 +1,61 @@
 domains:
   analytics:
-    description: "Plataforma de Analytics e ETL (Data Warehouse, ELT, Scripts Python)."
-    templates: ["etl_script", "sql_models"]
-    rules: ["pep8", "data_quality_checks", "sql_linting"]
-    materializer: "analytics"
+    description: "Data analytics and reporting platforms"
+    agents:
+      - "data_agent"
+      - "analytics_agent"
+    skills:
+      - "dataset_profiling"
+      - "sql_generation"
+    mcps:
+      - "database_mcp"
+    materializers:
+      - "analytics_materializer"
   data_engineering:
-    description: "Pipeline de Dados pesado, ingestão, Airflow, Spark."
-    templates: ["airflow_dag", "spark_job"]
-    rules: ["pyspark_standards", "airflow_standards"]
-    materializer: "data_engineering"
-  personal_finance:
-    description: "Aplicativo ou painel de finanças pessoais (Categorização, Transações)."
-    templates: ["dashboard", "transaction_parser"]
-    rules: ["privacy_anonymization", "currency_formatting"]
-    materializer: "personal_finance"
+    description: "ETL, data pipelines and data warehouse setup"
+    agents:
+      - "data_engineer_agent"
+    skills:
+      - "etl_scripting"
+      - "dbt_modeling"
+    mcps:
+      - "database_mcp"
+      - "cloud_storage_mcp"
+    materializers:
+      - "data_engineering_materializer"
+  crm:
+    description: "Customer Relationship Management systems"
+    agents:
+      - "backend_agent"
+      - "frontend_agent"
+    skills:
+      - "api_design"
+      - "ui_component_generation"
+    mcps:
+      - "database_mcp"
+    materializers:
+      - "crm_materializer"
+  ecommerce:
+    description: "E-commerce transactional platforms"
+    agents:
+      - "backend_agent"
+      - "frontend_agent"
+    skills:
+      - "payment_integration"
+      - "inventory_management"
+    mcps:
+      - "database_mcp"
+      - "external_api_mcp"
+    materializers:
+      - "ecommerce_materializer"
   generic:
-    description: "Projeto de software genérico."
-    templates: ["default"]
-    rules: ["pep8", "pytest"]
-    materializer: "generic"
+    description: "Generic software project"
+    agents:
+      - "backend_agent"
+      - "frontend_agent"
+    skills:
+      - "basic_coding"
+    mcps:
+      - "filesystem_mcp"
+    materializers:
+      - "generic_materializer"
