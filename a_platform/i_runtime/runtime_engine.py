@@ -26,6 +26,23 @@ class RuntimeEngine:
         if "validation_error" in request.metadata:
             del request.metadata["validation_error"]
         
+        plan = request.project_plan
+        if not plan:
+            logger.error("[RuntimeEngine] Plano não encontrado no request. Falha.")
+            request.metadata["execution_error"] = "ProjectPlan ausente."
+            return False
+
+        if not getattr(plan, "execution_required", True):
+            logger.info("[RuntimeEngine] execution_required é falso. Execução NOT_APPLICABLE/COMPLETED sem rodar comandos.")
+            request.metadata["runtime_payload"] = {
+                "exit_code": 0,
+                "command": None,
+                "stdout": "Execução desativada no plano (execution_required=False)",
+                "stderr": "",
+                "failed_component": None
+            }
+            return True
+
         if not os.path.exists(project_dir):
             error_msg = f"Diretório do projeto não existe: {project_dir}"
             logger.error(f"[RuntimeEngine] {error_msg}")
@@ -52,17 +69,18 @@ class RuntimeEngine:
                 return False
         
         # 3. Execução dos comandos definidos no Plano
-        plan = request.project_plan
-        if not plan or not plan.run_commands:
-            logger.warning("[RuntimeEngine] Nenhum comando de execução definido no ProjectPlan.")
+
+        if not plan.run_commands:
+            logger.error("[RuntimeEngine] execution_required=True mas run_commands está vazio.")
+            request.metadata["execution_error"] = "Sem run_commands quando execution_required=True."
             request.metadata["runtime_payload"] = {
-                "exit_code": 0,
+                "exit_code": 1,
                 "command": None,
-                "stdout": "Nenhum comando",
-                "stderr": "",
-                "failed_component": None
+                "stdout": "",
+                "stderr": "Comandos de execução ausentes.",
+                "failed_component": "runtime_engine"
             }
-            return True
+            return False
             
         for cmd in plan.run_commands:
             success, stdout, stderr = self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}")

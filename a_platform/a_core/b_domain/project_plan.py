@@ -21,6 +21,7 @@ class ProjectPlan:
     tasks: List[Task] = field(default_factory=list)
     materializer: str = "generic_materializer"
     run_commands: List[str] = field(default_factory=list)
+    execution_required: bool = True
     validated: bool = False
     
     def add_task(self, task: Task):

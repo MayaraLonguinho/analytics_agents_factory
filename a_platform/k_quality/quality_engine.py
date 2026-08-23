@@ -153,9 +153,25 @@ class QualityEngine:
         
         request.metadata["quality_score"] = final_score
         
-        if final_score >= self.passing_score and linting_score > 0:
-            logger.info(f"[QualityEngine] Qualidade aprovada com score {final_score:.1f}")
-            return True
-        else:
-            logger.error(f"[QualityEngine] Qualidade reprovada. Score: {final_score:.1f}, Linting: {linting_score}")
+        # Consome resultado do test runner (se Execution falhou, Runtime payload = exit_code != 0 ou validation_error está presente)
+        tests_failed = False
+        if request.metadata.get("runtime_payload", {}).get("exit_code", 0) != 0:
+            tests_failed = True
+        if "execution_error" in request.metadata or "validation_error" in request.metadata:
+            tests_failed = True
+
+        if tests_failed:
+            logger.error("[QualityEngine] Qualidade reprovada: Falha nos testes ou no runtime detectada.")
             return False
+
+        # Compara com o threshold do arquivo yaml
+        if final_score < self.passing_score:
+            logger.error(f"[QualityEngine] Qualidade reprovada. Score ({final_score:.1f}) abaixo do limite mínimo ({self.passing_score}).")
+            return False
+            
+        if linting_score == 0:
+            logger.error(f"[QualityEngine] Qualidade reprovada. Erros graves de sintaxe (Linting: 0).")
+            return False
+            
+        logger.info(f"[QualityEngine] Qualidade aprovada com score {final_score:.1f}")
+        return True
