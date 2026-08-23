@@ -18,6 +18,8 @@ from a_platform.i_runtime.runtime_engine import RuntimeEngine
 from a_platform.j_validation.validation_gate import ValidationGate
 from a_platform.k_quality.quality_engine import QualityEngine
 from a_platform.l_certification.certification_engine import CertificationEngine
+from a_platform.m_learning.learning_engine import LearningEngine
+from a_platform.m_learning.repair.repair_loop import RepairLoop
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,8 @@ class MasterOrchestrator:
         self.validation_gate = ValidationGate()
         self.quality_engine = QualityEngine()
         self.certification_engine = CertificationEngine()
+        self.learning_engine = LearningEngine()
+        self.repair_loop = RepairLoop(self.agent_factory, self.learning_engine)
         
         self.compiled_artifacts = []
         
@@ -47,66 +51,84 @@ class MasterOrchestrator:
         logger.info(f"Iniciando pipeline para {request.project_id}")
         
         try:
-            # Discovery
+            # 1. Discovery
             self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request)
             
-            # Dataset Profiling
+            # 2. Dataset Profiling
             self._run_phase(ProjectPhase.DATASET_PROFILING, self._step_dataset_profiling, request)
             
-            # Brain
+            # 3. Brain
             self._run_phase(ProjectPhase.BRAIN, self._step_brain, request)
             
-            # Architecture
+            # 4. Architecture
             self._run_phase(ProjectPhase.ARCHITECTURE, self._step_architecture, request)
             
-            # Planner
+            # 5. Planner
             self._run_phase(ProjectPhase.PLANNER, self._step_planner, request)
             
-            # Project Factory
+            # 6. Project Factory
             self._run_phase(ProjectPhase.PROJECT_FACTORY, self._step_project_factory, request)
             
-            # Materializer
+            # 7. Materializer
             self._run_phase(ProjectPhase.MATERIALIZATION, self._step_materialization, request)
             
-            # Execution & Validation Loop
+            # 8. Execution & Validation Loop
             validated = False
             while not validated and self.state_manager.repair_attempts <= self.state_manager.max_repair_attempts:
-                # Execution Runtime
-                self._run_phase(ProjectPhase.EXECUTION, self._step_execution, request)
+                # 8a. Execution Runtime
+                exec_success = self._run_phase(ProjectPhase.EXECUTION, self._step_execution, request)
                 
-                # Validation Gate
+                # 8b. Validation Gate
                 validation_passed = self._run_phase(ProjectPhase.VALIDATION, self._step_validation, request)
                 
-                if validation_passed:
+                if exec_success and validation_passed:
                     validated = True
                 else:
                     self.state_manager.repair_attempts += 1
-                    logger.warning(f"Validation failed. Repair attempt {self.state_manager.repair_attempts}")
+                    logger.warning(f"Execução/Validação falhou. Tentativa de reparo {self.state_manager.repair_attempts}")
                     if self.state_manager.repair_attempts <= self.state_manager.max_repair_attempts:
-                        self._run_phase(ProjectPhase.REPAIR_LOOP, self._step_repair, request)
+                        # Aciona o Repair Loop
+                        repair_success = self._run_phase(ProjectPhase.REPAIR_LOOP, self._step_repair, request)
+                        if not repair_success:
+                            raise Exception("Falha crítica no Repair Loop.")
             
             if not validated:
-                raise Exception("Validation failed after max repair attempts.")
+                raise Exception("Validação falhou após o limite máximo de tentativas de reparo.")
             
-            # Quality Engine
+            # 9. Quality Engine
             self._run_phase(ProjectPhase.QUALITY, self._step_quality, request)
             
-            # Certification Engine
+            # 10. Certification Engine
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
-            # Conclusão
+            # A REGRA ABSOLUTA:
+            # Se chegamos até aqui sem levantar exceções, todos os passos acima foram PASS/SUCCESS.
+            request.metadata["PROJECT_READY"] = "YES"
+            logger.info("===============================================")
+            logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
+            logger.info("===============================================")
+            
             self.state_manager.complete_project()
             return True
             
         except Exception as e:
             self.state_manager.fail_phase(self.state_manager.current_phase, str(e))
             logger.error(f"Pipeline interrompido: {e}")
+            
+            # A REGRA ABSOLUTA (FALHA):
+            request.metadata["PROJECT_READY"] = "NO"
+            logger.error("===============================================")
+            logger.error(f"❌ PROJECT READY = NO ({request.project_id})")
+            logger.error("===============================================")
             return False
 
     def _run_phase(self, phase: ProjectPhase, step_func, request: ProjectRequest) -> Any:
         self.state_manager.transition_to(phase)
         result = step_func(request)
-        if result is False: # Explicit failure
+        if result is False:
+            if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION]:
+                # Estes retornam false para triggerar o loop de repair, não abortam o pipeline inteiro imediatamente
+                return False
             raise Exception(f"Phase {phase.name} returned failure.")
         return result
 
@@ -128,14 +150,10 @@ class MasterOrchestrator:
             except Exception as e:
                 logger.error(f"Erro no Profiling: {str(e)}")
                 return False
-        else:
-            logger.info("Nenhum dataset fornecido, pulando profiling...")
-        
         return True
 
     def _step_brain(self, request: ProjectRequest) -> bool:
         logger.info("Executando Brain (Knowledge Retrieval)...")
-        logger.info("Brain instanciado e pronto para consultas.")
         return True
 
     def _step_architecture(self, request: ProjectRequest) -> bool:
@@ -163,12 +181,13 @@ class MasterOrchestrator:
 
     def _step_validation(self, request: ProjectRequest) -> bool:
         logger.info("Executando Validation Gate...")
-        # Note that validation returns True/False directly affecting loop
         return self.validation_gate.run_validation(request)
         
     def _step_repair(self, request: ProjectRequest) -> bool:
         logger.info("Executando Repair Loop...")
-        return True
+        # Simula extração de erro para alimentar o repair
+        error_context = "Pytest execution failed in validation gate."
+        return self.repair_loop.run_repair(request, error_context)
 
     def _step_quality(self, request: ProjectRequest) -> bool:
         logger.info("Executando Quality Engine...")
