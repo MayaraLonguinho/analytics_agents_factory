@@ -43,7 +43,7 @@ def test_repair_loop_e2e():
         with open(cert_path, "r") as f:
             cert_content = f.read()
             # Certificar que teve tentativa de reparo
-            assert "Tentativas de Reparo**: 1/3" in cert_content or "Tentativas de Reparo**: 2/3" in cert_content
+            assert "- Repair Attempts: 1" in cert_content or "- Repair Attempts: 2" in cert_content
         
         # Limpeza
         shutil.rmtree(gen_path, ignore_errors=True)

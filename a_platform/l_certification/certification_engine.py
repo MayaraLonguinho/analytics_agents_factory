@@ -19,18 +19,18 @@ class CertificationEngine:
     def run_certification(self, request: ProjectRequest, state_manager: StateManager = None) -> bool:
         logger.info("[CertificationEngine] Iniciando processo de certificação auditável...")
         
-        # Se Validation ou Quality falharam, Certification falha imediatamente.
+        score = request.metadata.get("quality_score", 0.0)
+        
         if state_manager:
+            exec_status = state_manager.phases[ProjectPhase.EXECUTION].status
             val_status = state_manager.phases[ProjectPhase.VALIDATION].status
             qual_status = state_manager.phases[ProjectPhase.QUALITY].status
             
-            if val_status == PhaseStatus.FAILED or qual_status == PhaseStatus.FAILED:
-                logger.error("[CertificationEngine] Projeto reprovado porque Validation ou Quality falharam.")
-                self._write_certification_stamp(request, "FAILED", 0.0, state_manager, False)
+            if exec_status != PhaseStatus.COMPLETED or val_status != PhaseStatus.COMPLETED or qual_status != PhaseStatus.COMPLETED:
+                logger.error("[CertificationEngine] Projeto reprovado porque Execution, Validation ou Quality falharam.")
+                self._write_certification_stamp(request, "FAILED", score, state_manager, False)
                 return False
                 
-        score = request.metadata.get("quality_score", 0.0)
-        
         if score < 60:
             logger.error("[CertificationEngine] Quality Score muito baixo.")
             self._write_certification_stamp(request, "FAILED", score, state_manager, False)
@@ -58,23 +58,47 @@ class CertificationEngine:
         
         try:
             os.makedirs(os.path.dirname(stamp_path), exist_ok=True)
-            content = f"# Certificação Auditável do Projeto: {request.project_id}\n\n"
-            content += f"## Veredito Final: {'✅ APROVADO' if success else '❌ REPROVADO'}\n"
-            content += f"- **Selo (Tier)**: {tier}\n"
-            content += f"- **Score Global (Quality)**: {score:.1f}\n"
-            content += f"- **Tentativas de Reparo**: {request.metadata.get('repair_attempts', 0)}/3\n\n"
             
-            content += "## Status dos Portões (Gates)\n"
             if state_manager:
-                for phase in [ProjectPhase.DISCOVERY, ProjectPhase.PLANNER, ProjectPhase.MATERIALIZATION, 
-                              ProjectPhase.EXECUTION, ProjectPhase.VALIDATION, ProjectPhase.QUALITY]:
-                    status = state_manager.phases[phase].status.name
-                    emoji = "🟢" if status == "COMPLETED" else "🔴" if status == "FAILED" else "⚪"
-                    content += f"- {phase.name}: {emoji} {status}\n"
+                status_map = {
+                    ProjectPhase.DISCOVERY: state_manager.phases[ProjectPhase.DISCOVERY].status.name,
+                    ProjectPhase.PLANNER: state_manager.phases[ProjectPhase.PLANNER].status.name,
+                    ProjectPhase.MATERIALIZATION: state_manager.phases[ProjectPhase.MATERIALIZATION].status.name,
+                    ProjectPhase.EXECUTION: state_manager.phases[ProjectPhase.EXECUTION].status.name,
+                    ProjectPhase.VALIDATION: state_manager.phases[ProjectPhase.VALIDATION].status.name,
+                    ProjectPhase.QUALITY: state_manager.phases[ProjectPhase.QUALITY].status.name
+                }
+                def _to_pass_fail(s):
+                    return "PASS" if s == "COMPLETED" else "FAIL"
             else:
-                content += "*(Dados de orquestração indisponíveis)*\n"
-                
-            content += "\n*Documento gerado automaticamente pela Analytics Agents Factory (A.A.F.).*\n"
+                status_map = {}
+                def _to_pass_fail(s):
+                    return "UNKNOWN"
+            
+            disc_st = _to_pass_fail(status_map.get(ProjectPhase.DISCOVERY))
+            plan_st = _to_pass_fail(status_map.get(ProjectPhase.PLANNER))
+            mat_st = _to_pass_fail(status_map.get(ProjectPhase.MATERIALIZATION))
+            exec_st = _to_pass_fail(status_map.get(ProjectPhase.EXECUTION))
+            val_st = _to_pass_fail(status_map.get(ProjectPhase.VALIDATION))
+            qual_st = _to_pass_fail(status_map.get(ProjectPhase.QUALITY))
+            
+            repair_attempts = request.metadata.get("repair_attempts", 0)
+            
+            content = f"# CERTIFICATION REPORT\n"
+            content += f"- Project ID: {request.project_id}\n"
+            content += f"- Domain: {domain}\n"
+            content += f"- Discovery: {disc_st}\n"
+            content += f"- Planning: {plan_st}\n"
+            content += f"- Materialization: {mat_st}\n"
+            content += f"- Execution: {exec_st}\n"
+            content += f"- Validation: {val_st}\n"
+            content += f"- Quality: {qual_st}\n"
+            content += f"- Repair Attempts: {repair_attempts}\n"
+            content += f"- Final Score: {score:.1f}\n"
+            content += f"- Tier: {tier}\n"
+            content += f"---\n"
+            content += f"- VERDICT: {'CERTIFIED' if success else 'REJECTED'}\n"
+            content += f"- PROJECT READY: {'YES' if success else 'NO'}\n"
             
             with open(stamp_path, "w") as f:
                 f.write(content)

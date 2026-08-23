@@ -32,5 +32,5 @@ class ReadinessGate:
                 logger.error(f"[ReadinessGate] ❌ Projeto não está pronto. A fase {phase.name} está com status {status.name}.")
                 return False
                 
-        logger.info("[ReadinessGate] ✅ Todas as fases mandatórias foram completadas com sucesso.")
+        logger.info("[ReadinessGate] ✅ Todas as fases mandatórias foram completadas com sucesso. PROJECT READY = YES")
         return True

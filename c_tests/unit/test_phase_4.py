@@ -50,6 +50,16 @@ def test_quality_and_certification():
     state_manager.phases[ProjectPhase.CERTIFICATION].status = PhaseStatus.COMPLETED
     assert ReadinessGate.evaluate(state_manager) is True
 
+    # Test Execution Failure blocks Certification and Readiness
+    state_manager.phases[ProjectPhase.EXECUTION].status = PhaseStatus.FAILED
+    with patch("os.makedirs", return_value=True):
+        with patch("builtins.open", return_value=MagicMock()):
+            res_fail = cert.run_certification(request, state_manager)
+            assert res_fail is False
+    
+    state_manager.phases[ProjectPhase.CERTIFICATION].status = PhaseStatus.FAILED
+    assert ReadinessGate.evaluate(state_manager) is False
+
 def test_repair_loop_max_attempts():
     repair = RepairLoop(agent_factory=MagicMock(), learning_engine=MagicMock())
     repair.gateway.generate = MagicMock(return_value={"success": True, "text": '{"file_name": "test.py", "agent_type": "backend", "fixed_content": "print()"}', "provider": "mock"})
