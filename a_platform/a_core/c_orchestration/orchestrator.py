@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
+from a_platform.a_core.b_domain.readiness import ReadinessGate
 from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
 from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfiler
 from a_platform.b_brain.brain import Brain
@@ -113,12 +114,16 @@ class MasterOrchestrator:
             # 10. Certification Engine
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
-            request.metadata["PROJECT_READY"] = "YES"
-            logger.info("===============================================")
-            logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
-            logger.info("===============================================")
-            
-            self.state_manager.complete_project()
+            # 11. Readiness Gate (Regra Absoluta)
+            if ReadinessGate.evaluate(self.state_manager):
+                request.metadata["PROJECT_READY"] = "YES"
+                logger.info("===============================================")
+                logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
+                logger.info("===============================================")
+                self.state_manager.complete_project()
+            else:
+                raise Exception("ReadinessGate rejeitou o projeto por fases incompletas.")
+                
             self.state_manager.save_state(request)
             return "SUCCESS"
             
@@ -207,8 +212,7 @@ class MasterOrchestrator:
         
     def _step_repair(self, request: ProjectRequest) -> bool:
         logger.info("Executando Repair Loop...")
-        error_context = "Pytest execution failed in validation gate."
-        return self.repair_loop.run_repair(request, error_context)
+        return self.repair_loop.run_repair(request)
 
     def _step_quality(self, request: ProjectRequest) -> bool:
         logger.info("Executando Quality Engine...")

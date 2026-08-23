@@ -11,6 +11,7 @@ class ValidationGate:
     """
     Portão de Validação.
     Garante estruturalmente que os testes gerados passem no ambiente real (venv).
+    Se o Runtime falhou, o Validation falha obrigatoriamente.
     """
     def __init__(self):
         pass
@@ -21,21 +22,26 @@ class ValidationGate:
         
         logger.info(f"[ValidationGate] Iniciando validação em {project_dir}")
         
-        # 1. Checagem estrutural baseada no plano
+        # 1. Verificar se houve erro de execução
+        if "execution_error" in request.metadata and request.metadata["execution_error"]:
+            logger.error("[ValidationGate] Falha de Validação devido à Falha de Execução prévia.")
+            return False
+        
+        # 2. Checagem estrutural baseada no plano
         plan = request.project_plan
         if plan and plan.tasks:
             for task in plan.tasks:
                 for expected_art in task.expected_artifacts:
                     expected_path = os.path.join(project_dir, expected_art)
                     if not os.path.exists(expected_path):
-                        logger.error(f"[ValidationGate] Artefato mandatório ausente: {expected_art}")
+                        err_msg = f"Artefato mandatório ausente após materialização e execução: {expected_art}"
+                        logger.error(f"[ValidationGate] {err_msg}")
+                        request.metadata["validation_error"] = err_msg
                         return False
 
-        # 2. Execução de suítes de testes geradas
+        # 3. Execução de suítes de testes geradas
         pytest_cmd = f"./venv/bin/pytest"
         
-        # Só rodamos pytest se houver arquivos de teste e se houver pytest no venv
-        # Para ser rigoroso mas à prova de falhas:
         tests_dir_exists = os.path.exists(os.path.join(project_dir, "tests"))
         pytest_installed = os.path.exists(os.path.join(project_dir, "venv", "bin", "pytest"))
         
@@ -44,11 +50,14 @@ class ValidationGate:
             try:
                 result = subprocess.run(pytest_cmd, shell=True, cwd=project_dir, capture_output=True, text=True)
                 if result.returncode != 0:
+                    err_out = result.stderr.strip() or result.stdout.strip()
                     logger.error(f"[ValidationGate] Testes falharam. Código: {result.returncode}")
-                    logger.error(f"STDERR/STDOUT: {result.stdout}\n{result.stderr}")
+                    request.metadata["validation_error"] = f"Pytest falhou:\n{err_out}"
                     return False
             except Exception as e:
-                logger.error(f"[ValidationGate] Falha ao rodar testes: {e}")
+                err_msg = f"Falha ao rodar testes: {e}"
+                logger.error(f"[ValidationGate] {err_msg}")
+                request.metadata["validation_error"] = err_msg
                 return False
         else:
             logger.warning("[ValidationGate] Pulo de testes automáticos (tests/ não encontrado ou pytest não instalado).")

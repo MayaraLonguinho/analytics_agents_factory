@@ -1,84 +1,82 @@
-# Analytics AI Factory (AAF) 🏭 v1.0 Real
+# Analytics AI Factory (AAF) 🏭 v2.0 Real
 
-A Analytics AI Factory é uma plataforma autônoma projetada para criar pipelines de dados, arquiteturas analíticas e dashboards de forma end-to-end. Ela não apenas gera o código, mas materializa, valida localmente, entra em um loop de autocorreção (Repair Loop) e emite um certificado final de prontidão.
+A Analytics AI Factory é uma plataforma autônoma projetada para criar pipelines de dados, arquiteturas analíticas e web apps de forma end-to-end. Ela não apenas gera o código, mas materializa, valida localmente via MCP, entra em um loop de autocorreção (Repair Loop) e emite um certificado final de prontidão de acordo com a Regra Absoluta do Projeto Pronto.
 
 ## 🌟 Visão Geral e Proposta
 
-A AAF substitui a geração de templates estáticos por uma fábrica inteira baseada em Agentes de IA Especialistas. Você entra com um prompt e, opcionalmente, um dataset (CSV, JSON, Parquet). O motor infere requisitos, faz perguntas de refinamento (Discovery), desenha o plano arquitetural, materializa os arquivos Python/SQL e executa testes locais reais para garantir que o projeto funciona!
+A AAF substitui a geração de templates estáticos por uma fábrica inteira baseada em Agentes de IA Especialistas. Você entra com um prompt na IDE Chat, o motor infere requisitos, faz perguntas de refinamento iterativas na mesma thread (Discovery), desenha o plano arquitetural, materializa os arquivos Python/SQL e executa testes locais reais (Runtime Engine) para garantir que o projeto funciona!
 
 ## 🗺️ Fluxo de Execução E2E (Diagrama de Arquitetura)
 
 ```mermaid
 graph TD;
-    User((Usuário)) -->|Ideia + Dataset| UI[Streamlit UI];
-    UI -->|1. POST /discover| API[FastAPI];
-    API -->|Questions| UI;
-    UI -->|2. POST /submit| Master[Master Orchestrator];
+    User((Usuário)) -->|Ideia + Dataset| IDE[IDE Chat Extension];
+    IDE -->|IDE Adapter| Master[Master Orchestrator];
     Master --> DA[Discovery Agent];
+    DA -.->|Needs Input| IDE;
+    Master --> Brain[(Platform Brain)];
     Master --> AA[Architecture Agent];
     Master --> PA[Planner Agent];
-    Master --> Factory{Agent Factory};
-    Factory --> ETL[ETL Agent];
-    Factory --> DB[DB Agent];
-    Factory --> BE[Backend Agent];
-    Factory --> FE[Frontend Agent];
-    Master --> MAT[Materializer];
+    Master --> Factory{Project Factory};
+    Factory --> Agents[Especialistas via LLM Gateway];
+    Factory --> MAT[Artifact Materializer];
+    MAT --> MCP[Internal MCP Executor];
+    MCP --> Disk[(Local FS & DB)];
     Master --> RE[Runtime Engine];
-    Master --> VG[Validation & Quality];
+    Master --> VG[Validation Gate];
     VG -->|Falha| Learning[Learning Engine / Repair Loop];
     Learning -.-> Factory;
-    VG -->|Passa| Cert[Certification Engine];
-    Cert -->|Ready=YES| Fim((Concluído));
+    VG -->|Passa| Cert[Readiness Gate];
+    Cert -->|Ready=YES| Fim((PROJECT READY = YES));
 ```
 
 ## ⚖️ A Regra Absoluta de Certificação
 `PROJECT READY = YES` **SOMENTE SE**:
-1. Todos os agentes terminarem a geração com sucesso.
-2. O código for materializado e testado localmente pelo **RuntimeEngine**.
-3. O **ValidationGate** não encontrar exceções nem quebras de dependência.
-4. O **QualityEngine** aprovar as regras estáticas de linting.
+1. Discovery e Planejamento forem completamente aprovados pelo usuário e LLM.
+2. A fábrica construir o projeto através de MCP de verdade e os artefatos obrigatórios existirem (`Materialization = SUCCESS`).
+3. O código for executado localmente de verdade pelo **RuntimeEngine** sem exceptions.
+4. O **ValidationGate** comprovar que o ambiente suporta o código.
+5. Se houver falha de execução, o **Repair Loop** usar LLM para patchear arquivos automaticamente até 3 vezes.
 
-Se o código gerado falhar (ex: erro de import), o **Repair Loop** é acionado. A falha vai para o `LearningEngine`, que instrui a Fábrica a refazer a etapa errada. Após 3 tentativas falhas, `PROJECT READY = NO`.
+## 🚀 Guia de Uso
 
-## 🚀 Guia de Instalação e Execução
+### Interface Principal: IDE Chat
+O AAF 2.0 foi arquitetado para ser uma engine embedded. A principal forma de iteração é acionar o **IDE Adapter** via IDE Chat, que mantém o `project_id` instanciado na pasta `.aaf_state/`, permitindo retomadas e iterações ao longo dos dias.
 
 ### Pré-requisitos
-- Python 3.11+
-- Uma chave de API (Ollama ou LLM compatível configurado no `.env`)
+- Python 3.10+
+- OpenAI API Key, Anthropic API Key ou Google Gemini API Key. (Ollama foi **removido** para garantir fidelidade lógica e geração confiável de JSON nos fluxos autônomos).
 
 ```bash
 # Clone e entre no diretório
 cd analytics_agents_factory
 
-# Instale dependências
+# Instale dependências core
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 1. API Backend
-Inicie a orquestração e a API REST FastAPI:
+### CLI (Terminal)
+Caso não esteja usando a IDE, você pode acionar o motor via CLI nativo que emulará a interface de chat se necessário:
 ```bash
-python main.py serve-api
+python a_platform/main.py create "Crie uma API FastAPI de gestão de usuários"
 ```
-(A API ficará disponível em `http://127.0.0.1:8000`)
-
-### 2. Interface Web (UI)
-Com a API rodando, abra um novo terminal e inicie a interface interativa:
+Se o Discovery Agent precisar de mais detalhes, o motor persistirá em `.aaf_state/` e solicitará que você utilize o comando `continue`:
 ```bash
-python main.py serve-ui
-```
-(A UI ficará disponível no navegador via Streamlit)
-
-### 3. CLI (Terminal)
-Se quiser rodar a fábrica diretamente via script sem UI:
-```bash
-python main.py cli "Crie um pipeline ETL simples para análise de vendas" --dataset path/to/data.csv
+python a_platform/main.py continue <project_id> "Os usuários devem ter email e senha."
 ```
 
-## 📂 Estrutura de Diretórios
-- `a_platform/`: Motores de execução física, testes reais, materializador, API e UI.
-- `b_brain/`: Grafos (Obsidian Graph), Padrões de arquitetura, Regras absolutas.
-- `c_agents/`: Os Agentes LLM Especialistas (Discovery, Planner, ETL, DevOps, QA, etc.).
-- `d_skills/`: Funcionalidades estáticas plugáveis, como o Profiler Estatístico (`profiler.py`).
+## 📂 Estrutura de Diretórios Canônica
+- `a_platform/`: O coração do AAF.
+  - `a_core/`: State Manager, Domain Models, Readiness Gate e Master Orchestrator.
+  - `b_brain/`: Graph Builder, Backends Obsidian/Graphify, Memory.
+  - `c_agents/`: Agentes especialistas (Discovery, Planner, Architecture).
+  - `d_skills/`: Funcionalidades plugáveis estritas com validação por Contrato (`SkillContract`).
+  - `e_mcp/`: Executores de sistema real (Database SQLite, Git, Filesystem).
+  - `f_llm_gateway/`: O provedor único de LLM da plataforma.
+  - `g_factory/`: A orquestradora de criação e o Materializador.
+  - `i_runtime/`, `j_validation/`, `k_quality/`, `l_certification/`: As catracas da Prova de Fogo.
+  - `m_learning/`: Repair loop de correção automatizada em falhas.
 - `e_generated_projects/`: Onde seu código pronto, testado e certificado aparece magicamente.
+- `.aaf_state/`: Ponto de salvamento dos projetos em andamento.

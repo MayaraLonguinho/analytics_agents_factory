@@ -19,48 +19,64 @@ class RuntimeEngine:
         domain = request.discovery_data.get("domain", "generic").lower()
         project_dir = os.path.abspath(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
         
+        # Limpa erros anteriores, se houver
+        if "execution_error" in request.metadata:
+            del request.metadata["execution_error"]
+            
+        if "validation_error" in request.metadata:
+            del request.metadata["validation_error"]
+        
         if not os.path.exists(project_dir):
-            logger.error(f"[RuntimeEngine] Diretório do projeto não existe: {project_dir}")
+            error_msg = f"Diretório do projeto não existe: {project_dir}"
+            logger.error(f"[RuntimeEngine] {error_msg}")
+            request.metadata["execution_error"] = error_msg
             return False
             
         logger.info(f"[RuntimeEngine] Iniciando execução isolada em {project_dir}")
         
         # 1. Setup Venv
         venv_path = os.path.join(project_dir, "venv")
-        if not self._run_subprocess(f"python3 -m venv {venv_path}", cwd=project_dir, desc="Criar venv"):
-            return False
+        if not os.path.exists(venv_path):
+            success, err = self._run_subprocess(f"python3 -m venv venv", cwd=project_dir, desc="Criar venv")
+            if not success:
+                request.metadata["execution_error"] = f"Falha ao criar venv: {err}"
+                return False
             
         # 2. Pip Install
         req_path = os.path.join(project_dir, "requirements.txt")
         if os.path.exists(req_path):
             pip_cmd = f"./venv/bin/pip install -r requirements.txt"
-            if not self._run_subprocess(pip_cmd, cwd=project_dir, desc="Instalar dependências"):
+            success, err = self._run_subprocess(pip_cmd, cwd=project_dir, desc="Instalar dependências")
+            if not success:
+                request.metadata["execution_error"] = f"Falha no pip install: {err}"
                 return False
         
         # 3. Execução dos comandos definidos no Plano
         plan = request.project_plan
         if not plan or not plan.run_commands:
             logger.warning("[RuntimeEngine] Nenhum comando de execução definido no ProjectPlan.")
-            # Assume success if nothing to run but files exist
             return True
             
         for cmd in plan.run_commands:
-            if not self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}"):
+            success, err = self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}")
+            if not success:
                 logger.error(f"[RuntimeEngine] Falha ao executar o comando de runtime: {cmd}")
+                request.metadata["execution_error"] = f"Falha na execução do comando '{cmd}': {err}"
                 return False
 
         logger.info("[RuntimeEngine] Todos os comandos executados com sucesso (Exit Code 0).")
         return True
 
-    def _run_subprocess(self, cmd: str, cwd: str, desc: str) -> bool:
+    def _run_subprocess(self, cmd: str, cwd: str, desc: str) -> tuple[bool, str]:
         logger.info(f"[RuntimeEngine] {desc}")
         try:
             result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
             if result.returncode != 0:
                 logger.error(f"[RuntimeEngine] '{cmd}' falhou com código {result.returncode}")
-                logger.error(f"[RuntimeEngine] STDERR: {result.stderr.strip()}")
-                return False
-            return True
+                err_out = result.stderr.strip() or result.stdout.strip()
+                logger.error(f"[RuntimeEngine] STDERR: {err_out}")
+                return False, err_out
+            return True, ""
         except Exception as e:
             logger.error(f"[RuntimeEngine] Exceção ao executar '{cmd}': {e}")
-            return False
+            return False, str(e)
