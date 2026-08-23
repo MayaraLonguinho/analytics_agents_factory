@@ -22,10 +22,24 @@ class DiscoveryAgent:
 
     async def execute(self, request: ProjectRequest) -> DiscoveryResult:
         context = request.request
+        
+        # Make Discovery interactive
+        print(f"\\n[Discovery] Analisando sua solicitação: '{context}'")
+        questions = await self.generate_questions(context)
+        
+        if not request.answers:
+            request.answers = {}
+            
+        if questions:
+            for q in questions:
+                # Perguntar ao usuário no terminal
+                ans = input(f"\\n[Discovery] Responda: {q}\\n-> ")
+                request.answers[q] = ans
+                
         if request.answers:
-            context += "\n\nRespostas do Questionário:\n"
+            context += "\\n\\nRespostas do Questionário:\\n"
             for q, a in request.answers.items():
-                context += f"- {q}: {a}\n"
+                context += f"- {q}: {a}\\n"
                 
         prompt = f"Analyze this project context and requirements: {context}"
         result_text = await self.gateway.generate(prompt, complexity="low", system_prompt="You are a data architect extracting objectives.")

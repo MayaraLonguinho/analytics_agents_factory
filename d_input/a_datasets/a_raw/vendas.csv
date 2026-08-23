@@ -1,0 +1,6 @@
+id_transacao,data,categoria,valor,status
+1,2023-10-01,Alimentacao,150.50,Concluido
+2,2023-10-02,Transporte,45.00,Concluido
+3,2023-10-02,Assinaturas,29.90,Pendente
+4,2023-10-03,Alimentacao,,Cancelado
+5,2023-10-04,Lazer,200.00,Concluido
