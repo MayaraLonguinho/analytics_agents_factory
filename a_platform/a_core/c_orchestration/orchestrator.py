@@ -1,8 +1,8 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase
+from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
 from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfiler
 from a_platform.b_brain.brain import Brain
@@ -46,13 +46,21 @@ class MasterOrchestrator:
         
         self.compiled_artifacts = []
         
-    def execute_pipeline(self, request: ProjectRequest) -> bool:
-        self.state_manager = StateManager(request.project_id)
-        logger.info(f"Iniciando pipeline para {request.project_id}")
+    def execute_pipeline(self, request: ProjectRequest, existing_state: Optional[StateManager] = None) -> str:
+        if existing_state:
+            self.state_manager = existing_state
+            logger.info(f"Retomando pipeline para {request.project_id}")
+        else:
+            self.state_manager = StateManager(request.project_id)
+            logger.info(f"Iniciando novo pipeline para {request.project_id}")
         
         try:
             # 1. Discovery
-            self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request)
+            if not self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request):
+                if self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
+                    self.state_manager.save_state(request)
+                    return "PAUSED"
+                raise Exception("Discovery falhou.")
             
             # 2. Dataset Profiling
             self._run_phase(ProjectPhase.DATASET_PROFILING, self._step_dataset_profiling, request)
@@ -91,6 +99,10 @@ class MasterOrchestrator:
                         repair_success = self._run_phase(ProjectPhase.REPAIR_LOOP, self._step_repair, request)
                         if not repair_success:
                             raise Exception("Falha crítica no Repair Loop.")
+                            
+                    # Remove COMPLETION da execution e validation para rodar dnv
+                    self.state_manager.phases[ProjectPhase.EXECUTION].status = PhaseStatus.PENDING
+                    self.state_manager.phases[ProjectPhase.VALIDATION].status = PhaseStatus.PENDING
             
             if not validated:
                 raise Exception("Validação falhou após o limite máximo de tentativas de reparo.")
@@ -101,40 +113,50 @@ class MasterOrchestrator:
             # 10. Certification Engine
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
-            # A REGRA ABSOLUTA:
-            # Se chegamos até aqui sem levantar exceções, todos os passos acima foram PASS/SUCCESS.
             request.metadata["PROJECT_READY"] = "YES"
             logger.info("===============================================")
             logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
             logger.info("===============================================")
             
             self.state_manager.complete_project()
-            return True
+            self.state_manager.save_state(request)
+            return "SUCCESS"
             
         except Exception as e:
-            self.state_manager.fail_phase(self.state_manager.current_phase, str(e))
-            logger.error(f"Pipeline interrompido: {e}")
-            
-            # A REGRA ABSOLUTA (FALHA):
-            request.metadata["PROJECT_READY"] = "NO"
-            logger.error("===============================================")
-            logger.error(f"❌ PROJECT READY = NO ({request.project_id})")
-            logger.error("===============================================")
-            return False
+            if self.state_manager.current_phase != ProjectPhase.NEEDS_INPUT:
+                self.state_manager.fail_phase(self.state_manager.current_phase, str(e))
+                logger.error(f"Pipeline interrompido: {e}")
+                request.metadata["PROJECT_READY"] = "NO"
+                logger.error("===============================================")
+                logger.error(f"❌ PROJECT READY = NO ({request.project_id})")
+                logger.error("===============================================")
+                self.state_manager.save_state(request)
+            return "FAILED"
 
-    def _run_phase(self, phase: ProjectPhase, step_func, request: ProjectRequest) -> Any:
+    def _run_phase(self, phase: ProjectPhase, step_func, request: ProjectRequest) -> bool:
+        if self.state_manager.phases[phase].status == PhaseStatus.COMPLETED:
+            logger.info(f"[Orchestrator] Fase {phase.name} já concluída, pulando...")
+            return True
+            
         self.state_manager.transition_to(phase)
         result = step_func(request)
+        
         if result is False:
             if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION]:
-                # Estes retornam false para triggerar o loop de repair, não abortam o pipeline inteiro imediatamente
+                return False
+            # O Discovery retorna False se precisar de Input, isso é capturado lá fora
+            if phase == ProjectPhase.DISCOVERY and self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
                 return False
             raise Exception(f"Phase {phase.name} returned failure.")
+            
         return result
 
     def _step_discovery(self, request: ProjectRequest) -> bool:
         logger.info("Executando Discovery...")
-        return self.discovery_agent.run_discovery(request)
+        result = self.discovery_agent.run_discovery(request)
+        if not result and "missing_info_question" in request.discovery_data:
+            self.state_manager.pause_for_input()
+        return result
 
     def _step_dataset_profiling(self, request: ProjectRequest) -> bool:
         logger.info("Executando Dataset Profiling...")
@@ -185,7 +207,6 @@ class MasterOrchestrator:
         
     def _step_repair(self, request: ProjectRequest) -> bool:
         logger.info("Executando Repair Loop...")
-        # Simula extração de erro para alimentar o repair
         error_context = "Pytest execution failed in validation gate."
         return self.repair_loop.run_repair(request, error_context)
 
