@@ -1,6 +1,6 @@
 from typing import Dict, Any
-from a_platform.j_quality.linters import Linter
-from a_platform.j_quality.security_scanner import SecurityScanner
+from a_platform.k_quality.linters import Linter
+from a_platform.k_quality.security_scanner import SecurityScanner
 
 class QualityEngine:
     def __init__(self):

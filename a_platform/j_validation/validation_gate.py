@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from a_platform.i_validation.test_runner import TestRunner
+from a_platform.j_validation.test_runner import TestRunner
 
 class ValidationGate:
     def __init__(self):

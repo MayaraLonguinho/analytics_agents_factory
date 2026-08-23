@@ -1,7 +1,7 @@
 from a_platform.a_core.b_domain.certification import CertificationResult
-from a_platform.i_validation.validation_gate import ValidationGate
-from a_platform.j_quality.quality_engine import QualityEngine
-from a_platform.k_certification.score_calculator import ScoreCalculator
+from a_platform.j_validation.validation_gate import ValidationGate
+from a_platform.k_quality.quality_engine import QualityEngine
+from a_platform.l_certification.score_calculator import ScoreCalculator
 
 class CertificationEngine:
     def __init__(self):

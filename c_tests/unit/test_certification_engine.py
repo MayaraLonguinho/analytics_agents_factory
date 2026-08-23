@@ -1,5 +1,5 @@
 from unittest.mock import patch, MagicMock
-from a_platform.k_certification.certification_engine import CertificationEngine
+from a_platform.l_certification.certification_engine import CertificationEngine
 
 def make_mock_run(val_code=0, lint_code=0, sec_code=0):
     def side_effect(args, **kwargs):
