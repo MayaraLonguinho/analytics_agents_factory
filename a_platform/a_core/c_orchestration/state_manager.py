@@ -110,6 +110,7 @@ class StateManager:
             "dataset_profile": request.dataset_profile,
             "architecture_decision": request.architecture_decision,
             "graph_representation": request.graph_representation,
+            "artifacts": request.artifacts,
             "project_plan": None
         }
         
@@ -177,6 +178,7 @@ class StateManager:
             dataset_profile=req_data.get("dataset_profile", {}),
             architecture_decision=req_data.get("architecture_decision", {}),
             graph_representation=req_data.get("graph_representation", {}),
+            artifacts=req_data.get("artifacts", []),
             project_plan=plan
         )
         

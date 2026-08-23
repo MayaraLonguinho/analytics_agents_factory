@@ -20,3 +20,6 @@ class ProjectRequest:
     
     # Phase 5
     project_plan: Optional[ProjectPlan] = None
+    
+    # Storage
+    artifacts: list = field(default_factory=list)

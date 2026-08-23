@@ -4,7 +4,7 @@ from typing import Any, Optional
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.b_domain.readiness import ReadinessGate
-from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent
+from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfiler
 from a_platform.b_brain.brain import Brain
 from a_platform.b_brain.g_graph.graph_builder import GraphBuilder
@@ -57,7 +57,8 @@ class MasterOrchestrator:
         
         try:
             # 1. Discovery
-            if not self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request):
+            discovery_success = self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request)
+            if not discovery_success:
                 if self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
                     self.state_manager.save_state(request)
                     return "PAUSED"
@@ -158,10 +159,13 @@ class MasterOrchestrator:
 
     def _step_discovery(self, request: ProjectRequest) -> bool:
         logger.info("Executando Discovery...")
-        result = self.discovery_agent.run_discovery(request)
-        if not result and "missing_info_question" in request.discovery_data:
+        status = self.discovery_agent.run_discovery(request)
+        if status == DiscoveryStatus.NEEDS_INPUT:
             self.state_manager.pause_for_input()
-        return result
+            return False
+        elif status == DiscoveryStatus.FAILED:
+            return False
+        return True
 
     def _step_dataset_profiling(self, request: ProjectRequest) -> bool:
         logger.info("Executando Dataset Profiling...")

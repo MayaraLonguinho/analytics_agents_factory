@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+from enum import Enum, auto
 from typing import Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
@@ -8,30 +9,54 @@ from a_platform.f_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
+class DiscoveryStatus(Enum):
+    COMPLETE = auto()
+    NEEDS_INPUT = auto()
+    FAILED = auto()
+
 class DiscoveryAgent:
     def __init__(self):
         self.gateway = LLMGateway()
 
-    def run_discovery(self, request: ProjectRequest) -> bool:
+    def run_discovery(self, request: ProjectRequest) -> DiscoveryStatus:
         logger.info("[DiscoveryAgent] Iniciando Discovery Interativo via LLM...")
         
         history = request.discovery_data.get("history", [])
         
         system_prompt = (
-            "Você é o Discovery Agent. Sua tarefa é analisar o prompt inicial do usuário e o histórico de chat para extrair as seguintes informações cruciais sobre o projeto:\n"
-            "- domain: (ex: Ecommerce, Finanças, Saude, Analytics, etc)\n"
-            "- database: (ex: PostgreSQL, MongoDB, SQLite)\n"
-            "- restrictions: (ex: Apenas Python 3.10, Sem Docker)\n"
-            "- objective: (Breve resumo do que o projeto faz)\n\n"
-            "Verifique inconsistências entre o prompt e as respostas recentes no histórico.\n"
-            "Se qualquer campo vital estiver faltando OU houver inconsistência (ex: prompt era 'Analytics' mas a conversa mudou para 'Ecommerce'), retorne uma pergunta clara e objetiva para o usuário no campo 'missing_info_question'.\n"
+            "Você é o Discovery Agent, um analista de sistemas responsável por mapear requisitos antes de qualquer desenvolvimento.\n"
+            "Sua tarefa é analisar o prompt inicial do usuário e o histórico de chat para extrair de forma OBRIGATÓRIA as seguintes informações cruciais sobre o projeto:\n"
+            "- domain\n"
+            "- objective\n"
+            "- users\n"
+            "- data_sources\n"
+            "- functional_requirements\n"
+            "- technical_requirements\n"
+            "- database\n"
+            "- backend\n"
+            "- frontend\n"
+            "- infrastructure\n"
+            "- testing\n"
+            "- documentation\n"
+            "- constraints\n\n"
+            "Verifique inconsistências entre o prompt e as respostas recentes no histórico. Se o prompt inicial era 'Analytics' e o usuário responder pedindo um carrinho de compras ('Ecommerce'), detecte a inconsistência.\n"
+            "Se *qualquer* campo vital estiver faltando OU houver uma inconsistência que precise ser resolvida, retorne uma pergunta clara e objetiva para o usuário no campo 'missing_info_question'.\n"
             "Retorne APENAS um JSON válido no seguinte formato e nada mais:\n"
             "{\n"
             '  "domain": "...",\n'
-            '  "database": "...",\n'
-            '  "restrictions": "...",\n'
             '  "objective": "...",\n'
-            '  "missing_info_question": "Pergunta se algo faltar, senao null"\n'
+            '  "users": "...",\n'
+            '  "data_sources": "...",\n'
+            '  "functional_requirements": "...",\n'
+            '  "technical_requirements": "...",\n'
+            '  "database": "...",\n'
+            '  "backend": "...",\n'
+            '  "frontend": "...",\n'
+            '  "infrastructure": "...",\n'
+            '  "testing": "...",\n'
+            '  "documentation": "...",\n'
+            '  "constraints": "...",\n'
+            '  "missing_info_question": "Pergunta se faltar algo ou houver inconsistência, senão null"\n'
             "}"
         )
         
@@ -41,10 +66,9 @@ class DiscoveryAgent:
         
         if not response.get("success"):
             logger.error("[DiscoveryAgent] Falha de LLM durante o Discovery.")
-            return False
+            return DiscoveryStatus.FAILED
             
         text = response.get("text", "")
-        # Extrair JSON do retorno (tratando possíveis blocos de código)
         json_str = text
         match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
         if match:
@@ -54,23 +78,21 @@ class DiscoveryAgent:
             data = json.loads(json_str)
         except Exception as e:
             logger.error(f"[DiscoveryAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
-            return False
+            return DiscoveryStatus.FAILED
             
-        # Merge no request
-        request.discovery_data["domain"] = data.get("domain")
-        request.discovery_data["database"] = data.get("database")
-        request.discovery_data["restrictions"] = data.get("restrictions")
-        request.discovery_data["objective"] = data.get("objective")
+        for key in ["domain", "objective", "users", "data_sources", "functional_requirements", 
+                   "technical_requirements", "database", "backend", "frontend", "infrastructure", 
+                   "testing", "documentation", "constraints"]:
+            request.discovery_data[key] = data.get(key)
         
         if data.get("missing_info_question"):
             request.discovery_data["missing_info_question"] = data.get("missing_info_question")
-            logger.info(f"[DiscoveryAgent] Faltam informações: {data.get('missing_info_question')}")
-            return False # False aqui significa "não completou, pause" pois "missing_info_question" será lido pelo Orchestrator
+            logger.info(f"[DiscoveryAgent] Faltam informações ou há inconsistência: {data.get('missing_info_question')}")
+            return DiscoveryStatus.NEEDS_INPUT
             
-        # Se não há pergunta, o Discovery está completo
         if "missing_info_question" in request.discovery_data:
             del request.discovery_data["missing_info_question"]
             
         request.discovery_data["status"] = "COMPLETE"
         logger.info("[DiscoveryAgent] Discovery concluído com sucesso.")
-        return True
+        return DiscoveryStatus.COMPLETE
