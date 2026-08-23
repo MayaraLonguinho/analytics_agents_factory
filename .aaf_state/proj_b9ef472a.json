@@ -1,0 +1,187 @@
+{
+  "state_manager": {
+    "current_phase": "READY",
+    "project_ready": true,
+    "repair_attempts": 2,
+    "phases": {
+      "INIT": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "NEEDS_INPUT": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "DISCOVERY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "DATASET_PROFILING": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "BRAIN": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "ARCHITECTURE": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PLANNER": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PROJECT_FACTORY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "MATERIALIZATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "EXECUTION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "VALIDATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "REPAIR_LOOP": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "QUALITY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "CERTIFICATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "READY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "FAILED": {
+        "status": "PENDING",
+        "details": {}
+      }
+    }
+  },
+  "request": {
+    "prompt": "Crie um projeto de analytics sujeito a falha.",
+    "dataset_path": "d_input/a_datasets/a_raw/vendas.csv",
+    "domain": "analytics",
+    "project_id": "proj_b9ef472a",
+    "metadata": {
+      "runtime_payload": {
+        "exit_code": 0,
+        "command": "multiple",
+        "stdout": "All commands succeeded",
+        "stderr": "",
+        "failed_component": null
+      },
+      "repair_attempts": 1,
+      "quality_score": 70.0,
+      "certification_tier": "GOLD",
+      "PROJECT_READY": "YES"
+    },
+    "discovery_data": {
+      "history": [],
+      "domain": "analytics",
+      "objective": null,
+      "users": null,
+      "data_sources": null,
+      "functional_requirements": null,
+      "technical_requirements": null,
+      "database": null,
+      "backend": null,
+      "frontend": null,
+      "infrastructure": null,
+      "testing": null,
+      "documentation": null,
+      "constraints": null,
+      "status": "COMPLETE"
+    },
+    "dataset_profile": {
+      "dataset_profile.json": "{\"schema\": [\"id\", \"name\"], \"row_count\": 100, \"nulls\": 0, \"metrics\": {}, \"quality_score\": 0.95}"
+    },
+    "architecture_decision": {
+      "is_complete": true,
+      "domain": "analytics",
+      "features": [
+        "etl",
+        "reporting"
+      ],
+      "dataset_path": "d_input/a_datasets/a_raw/vendas.csv",
+      "status": "APPROVED",
+      "rules_applied": []
+    },
+    "graph_representation": {
+      "nodes": [
+        {
+          "id": "proj_b9ef472a",
+          "type": "Project",
+          "label": "analytics"
+        },
+        {
+          "id": "dataset_proj_b9ef472a",
+          "type": "Dataset",
+          "label": "Raw Data"
+        },
+        {
+          "id": "req_domain",
+          "type": "Requirement",
+          "label": "analytics"
+        },
+        {
+          "id": "arch_proj_b9ef472a",
+          "type": "Architecture",
+          "label": "Unknown"
+        }
+      ],
+      "edges": [
+        {
+          "source": "proj_b9ef472a",
+          "target": "dataset_proj_b9ef472a",
+          "relation": "CONSUMES"
+        },
+        {
+          "source": "proj_b9ef472a",
+          "target": "req_domain",
+          "relation": "HAS_CONSTRAINT"
+        },
+        {
+          "source": "proj_b9ef472a",
+          "target": "arch_proj_b9ef472a",
+          "relation": "USES_ARCHITECTURE"
+        }
+      ]
+    },
+    "artifacts": [],
+    "project_plan": {
+      "tasks": [
+        {
+          "id": "t1",
+          "name": "ETL",
+          "description": "Crie o ETL principal",
+          "agent": "data",
+          "skills": [],
+          "mcps": [],
+          "dependencies": [],
+          "expected_artifacts": [
+            "main.py",
+            "test_main.py"
+          ],
+          "commands": [],
+          "validators": []
+        }
+      ],
+      "run_commands": [
+        "python3 main.py"
+      ]
+    }
+  }
+}

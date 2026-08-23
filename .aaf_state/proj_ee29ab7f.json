@@ -1,0 +1,102 @@
+{
+  "state_manager": {
+    "current_phase": "NEEDS_INPUT",
+    "project_ready": false,
+    "repair_attempts": 0,
+    "phases": {
+      "INIT": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "NEEDS_INPUT": {
+        "status": "IN_PROGRESS",
+        "details": {}
+      },
+      "DISCOVERY": {
+        "status": "PAUSED",
+        "details": {}
+      },
+      "DATASET_PROFILING": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "BRAIN": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "ARCHITECTURE": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "PLANNER": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "PROJECT_FACTORY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "MATERIALIZATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "EXECUTION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "VALIDATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "REPAIR_LOOP": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "QUALITY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "CERTIFICATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "READY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "FAILED": {
+        "status": "PENDING",
+        "details": {}
+      }
+    }
+  },
+  "request": {
+    "prompt": "Analise.",
+    "dataset_path": null,
+    "domain": "analytics",
+    "project_id": "proj_ee29ab7f",
+    "metadata": {},
+    "discovery_data": {
+      "history": [],
+      "domain": "generic",
+      "objective": null,
+      "users": null,
+      "data_sources": null,
+      "functional_requirements": null,
+      "technical_requirements": null,
+      "database": null,
+      "backend": null,
+      "frontend": null,
+      "infrastructure": null,
+      "testing": null,
+      "documentation": null,
+      "constraints": null,
+      "missing_info_question": "Qual o dom\u00ednio do projeto?"
+    },
+    "dataset_profile": {},
+    "architecture_decision": {},
+    "graph_representation": {},
+    "artifacts": [],
+    "project_plan": null
+  }
+}

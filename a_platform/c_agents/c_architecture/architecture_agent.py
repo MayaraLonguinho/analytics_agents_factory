@@ -52,7 +52,7 @@ class ArchitectureAgent:
             f"Brain Context: {json.dumps(brain_context, ensure_ascii=False)}\n"
         )
         
-        response = self.gateway.generate_text(prompt, system_prompt=system_prompt, model_preference="openai")
+        response = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
         if not response.get("success"):
             logger.error(f"[ArchitectureAgent] LLM falhou ao gerar arquitetura: {response.get('error')}")

@@ -83,7 +83,7 @@ class ProjectFactory:
         
         prompt = f"Decisão de Arquitetura: {json.dumps(request.architecture_decision)}"
         
-        resp = self.gateway.generate_text(prompt, system_prompt=system_prompt)
+        resp = self.gateway.generate(prompt, system_prompt=system_prompt)
         content = "pandas\n" # fallback
         if resp.get("success"):
             content = resp.get("text", "").strip()

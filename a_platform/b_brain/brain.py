@@ -112,5 +112,5 @@ class Brain:
         self.project_knowledge[project_id][key] = value
 
     def get_rules(self, category: str) -> list:
-        rules = self.rule_registry.search_by_category(category)
+        rules = self.rule_registry.search_by_tags([category])
         return [r.get("rule") for r in rules]

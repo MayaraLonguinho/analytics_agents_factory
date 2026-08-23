@@ -62,7 +62,7 @@ class DiscoveryAgent:
         
         prompt = f"Prompt Original: {request.prompt}\nHistórico da Conversa: {json.dumps(history, ensure_ascii=False)}"
         
-        response = self.gateway.generate_text(prompt, system_prompt=system_prompt, model_preference="openai")
+        response = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
         if not response.get("success"):
             logger.error("[DiscoveryAgent] Falha de LLM durante o Discovery.")

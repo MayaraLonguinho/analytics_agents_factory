@@ -49,7 +49,7 @@ class BaseAgent:
                     logger.warning(f"[{self.name}] Faltam inputs para a skill {skill_name}: {missing}. LLM tentará inferir.")
                     system_prompt = f"Gere um JSON preenchendo os seguintes campos: {missing} baseando-se no contexto."
                     prompt = f"Task: {task.description}\nArch: {json.dumps(base_context['architecture'])}"
-                    resp = self.gateway.generate_text(prompt, system_prompt=system_prompt)
+                    resp = self.gateway.generate(prompt, system_prompt=system_prompt)
                     if resp.get("success"):
                         try:
                             text = resp.get("text", "")
@@ -76,7 +76,7 @@ class BaseAgent:
         
         for art in missing_artifacts:
             prompt = f"Gere código final para {task.name} no contexto de {base_context['architecture'].get('architecture_pattern')}\nDeve produzir o arquivo: {art}"
-            llm_resp = self.gateway.generate_text(prompt, system_prompt=f"Você é o {self.name}", model_preference="openai")
+            llm_resp = self.gateway.generate(prompt, system_prompt=f"Você é o {self.name}", model_preference="openai")
             if llm_resp.get("success"):
                 content = llm_resp.get("text")
                 artifacts.append(Artifact(name=art, content=content, type="source_code", metadata={"generator": "llm", "agent_name": self.name}))

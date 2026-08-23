@@ -5,7 +5,7 @@ from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.b_domain.readiness import ReadinessGate
 from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent, DiscoveryStatus
-from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfiler
+from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
 from a_platform.b_brain.brain import Brain
 from a_platform.b_brain.g_graph.graph_builder import GraphBuilder
 from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
@@ -29,7 +29,7 @@ class MasterOrchestrator:
         self.state_manager = None
         self.mcp = MCPExecutor()
         self.discovery_agent = DiscoveryAgent()
-        self.dataset_profiler = DatasetProfiler()
+        self.dataset_profiler = DatasetProfilingSkill()
         self.brain = Brain()
         self.graph_builder = GraphBuilder()
         self.architecture_agent = ArchitectureAgent(self.brain, self.graph_builder)
@@ -173,7 +173,7 @@ class MasterOrchestrator:
         if request.dataset_path:
             logger.info(f"Analisando dataset em {request.dataset_path}")
             try:
-                profile = self.dataset_profiler.profile_dataset(request.dataset_path)
+                profile = self.dataset_profiler.execute({"dataset_path": request.dataset_path})
                 request.dataset_profile = profile
                 if profile.get("status") == "failed":
                     logger.warning(f"Falha ao realizar profiling: {profile.get('error')}")

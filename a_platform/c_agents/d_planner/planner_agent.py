@@ -62,7 +62,7 @@ class PlannerAgent:
             f"MCPs Permitidos: {allowed_mcps}\n"
         )
         
-        response = self.gateway.generate_text(prompt, system_prompt=system_prompt, model_preference="openai")
+        response = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
         if not response.get("success"):
             logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano: {response.get('error')}")
@@ -86,6 +86,7 @@ class PlannerAgent:
             materializer=domain_config.get("materializers", ["generic_materializer"])[0]
         )
         
+        print(f"DEBUG DATA: {data}")
         for t_data in data.get("tasks", []):
             task = Task(
                 id=t_data.get("id"),

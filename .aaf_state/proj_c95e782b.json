@@ -1,0 +1,158 @@
+{
+  "state_manager": {
+    "current_phase": "FAILED",
+    "project_ready": false,
+    "repair_attempts": 0,
+    "phases": {
+      "INIT": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "NEEDS_INPUT": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "DISCOVERY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "DATASET_PROFILING": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "BRAIN": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "ARCHITECTURE": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PLANNER": {
+        "status": "FAILED",
+        "details": {
+          "error": "Phase PLANNER returned failure."
+        }
+      },
+      "PROJECT_FACTORY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "MATERIALIZATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "EXECUTION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "VALIDATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "REPAIR_LOOP": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "QUALITY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "CERTIFICATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "READY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "FAILED": {
+        "status": "PENDING",
+        "details": {}
+      }
+    }
+  },
+  "request": {
+    "prompt": "Crie um projeto de analytics para analisar vendas baseado no dataset vendas.csv.",
+    "dataset_path": "d_input/a_datasets/a_raw/vendas.csv",
+    "domain": "analytics",
+    "project_id": "proj_c95e782b",
+    "metadata": {
+      "PROJECT_READY": "NO"
+    },
+    "discovery_data": {
+      "history": [],
+      "domain": "analytics",
+      "objective": null,
+      "users": null,
+      "data_sources": null,
+      "functional_requirements": null,
+      "technical_requirements": null,
+      "database": null,
+      "backend": null,
+      "frontend": null,
+      "infrastructure": null,
+      "testing": null,
+      "documentation": null,
+      "constraints": null,
+      "status": "COMPLETE"
+    },
+    "dataset_profile": {
+      "dataset_profile.json": "{\"schema\": [\"id\", \"name\"], \"row_count\": 100, \"nulls\": 0, \"metrics\": {}, \"quality_score\": 0.95}"
+    },
+    "architecture_decision": {
+      "is_complete": true,
+      "domain": "analytics",
+      "features": [
+        "etl",
+        "reporting"
+      ],
+      "dataset_path": "d_input/a_datasets/a_raw/vendas.csv",
+      "status": "APPROVED",
+      "rules_applied": []
+    },
+    "graph_representation": {
+      "nodes": [
+        {
+          "id": "proj_c95e782b",
+          "type": "Project",
+          "label": "analytics"
+        },
+        {
+          "id": "dataset_proj_c95e782b",
+          "type": "Dataset",
+          "label": "Raw Data"
+        },
+        {
+          "id": "req_domain",
+          "type": "Requirement",
+          "label": "analytics"
+        },
+        {
+          "id": "arch_proj_c95e782b",
+          "type": "Architecture",
+          "label": "Unknown"
+        }
+      ],
+      "edges": [
+        {
+          "source": "proj_c95e782b",
+          "target": "dataset_proj_c95e782b",
+          "relation": "CONSUMES"
+        },
+        {
+          "source": "proj_c95e782b",
+          "target": "req_domain",
+          "relation": "HAS_CONSTRAINT"
+        },
+        {
+          "source": "proj_c95e782b",
+          "target": "arch_proj_c95e782b",
+          "relation": "USES_ARCHITECTURE"
+        }
+      ]
+    },
+    "artifacts": [],
+    "project_plan": null
+  }
+}

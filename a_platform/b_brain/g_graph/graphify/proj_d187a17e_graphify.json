@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {
+      "id": "proj_d187a17e",
+      "type": "Project",
+      "label": "analytics"
+    },
+    {
+      "id": "dataset_proj_d187a17e",
+      "type": "Dataset",
+      "label": "Raw Data"
+    },
+    {
+      "id": "req_domain",
+      "type": "Requirement",
+      "label": "analytics"
+    },
+    {
+      "id": "arch_proj_d187a17e",
+      "type": "Architecture",
+      "label": "Unknown"
+    }
+  ],
+  "edges": [
+    {
+      "source": "proj_d187a17e",
+      "target": "dataset_proj_d187a17e",
+      "relation": "CONSUMES"
+    },
+    {
+      "source": "proj_d187a17e",
+      "target": "req_domain",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_d187a17e",
+      "target": "arch_proj_d187a17e",
+      "relation": "USES_ARCHITECTURE"
+    }
+  ]
+}

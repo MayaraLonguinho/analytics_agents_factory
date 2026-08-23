@@ -1,0 +1,184 @@
+{
+  "state_manager": {
+    "current_phase": "READY",
+    "project_ready": true,
+    "repair_attempts": 2,
+    "phases": {
+      "INIT": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "NEEDS_INPUT": {
+        "status": "IN_PROGRESS",
+        "details": {}
+      },
+      "DISCOVERY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "DATASET_PROFILING": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "BRAIN": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "ARCHITECTURE": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PLANNER": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PROJECT_FACTORY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "MATERIALIZATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "EXECUTION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "VALIDATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "REPAIR_LOOP": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "QUALITY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "CERTIFICATION": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "READY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "FAILED": {
+        "status": "PENDING",
+        "details": {}
+      }
+    }
+  },
+  "request": {
+    "prompt": "Analise.",
+    "dataset_path": null,
+    "domain": "analytics",
+    "project_id": "proj_11de8f21",
+    "metadata": {
+      "runtime_payload": {
+        "exit_code": 0,
+        "command": "multiple",
+        "stdout": "All commands succeeded",
+        "stderr": "",
+        "failed_component": null
+      },
+      "repair_attempts": 1,
+      "quality_score": 70.0,
+      "certification_tier": "GOLD",
+      "PROJECT_READY": "YES"
+    },
+    "discovery_data": {
+      "history": [
+        {
+          "role": "assistant",
+          "content": "Qual o dom\u00ednio do projeto?"
+        },
+        {
+          "role": "user",
+          "content": "O dom\u00ednio \u00e9 analytics"
+        }
+      ],
+      "domain": "analytics",
+      "objective": null,
+      "users": null,
+      "data_sources": null,
+      "functional_requirements": null,
+      "technical_requirements": null,
+      "database": null,
+      "backend": null,
+      "frontend": null,
+      "infrastructure": null,
+      "testing": null,
+      "documentation": null,
+      "constraints": null,
+      "status": "COMPLETE"
+    },
+    "dataset_profile": {},
+    "architecture_decision": {
+      "is_complete": true,
+      "domain": "analytics",
+      "features": [
+        "etl",
+        "reporting"
+      ],
+      "dataset_path": "d_input/a_datasets/a_raw/vendas.csv",
+      "status": "APPROVED",
+      "rules_applied": []
+    },
+    "graph_representation": {
+      "nodes": [
+        {
+          "id": "proj_11de8f21",
+          "type": "Project",
+          "label": "analytics"
+        },
+        {
+          "id": "req_domain",
+          "type": "Requirement",
+          "label": "analytics"
+        },
+        {
+          "id": "arch_proj_11de8f21",
+          "type": "Architecture",
+          "label": "Unknown"
+        }
+      ],
+      "edges": [
+        {
+          "source": "proj_11de8f21",
+          "target": "req_domain",
+          "relation": "HAS_CONSTRAINT"
+        },
+        {
+          "source": "proj_11de8f21",
+          "target": "arch_proj_11de8f21",
+          "relation": "USES_ARCHITECTURE"
+        }
+      ]
+    },
+    "artifacts": [],
+    "project_plan": {
+      "tasks": [
+        {
+          "id": "t1",
+          "name": "ETL",
+          "description": "Crie o ETL principal",
+          "agent": "data",
+          "skills": [],
+          "mcps": [],
+          "dependencies": [],
+          "expected_artifacts": [
+            "main.py",
+            "test_main.py"
+          ],
+          "commands": [],
+          "validators": []
+        }
+      ],
+      "run_commands": [
+        "python3 main.py"
+      ]
+    }
+  }
+}

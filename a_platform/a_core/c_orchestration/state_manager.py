@@ -117,7 +117,6 @@ class StateManager:
         if request.project_plan:
             req_dict["project_plan"] = {
                 "tasks": [asdict(t) for t in request.project_plan.tasks],
-                "global_dependencies": request.project_plan.global_dependencies,
                 "run_commands": request.project_plan.run_commands
             }
             
