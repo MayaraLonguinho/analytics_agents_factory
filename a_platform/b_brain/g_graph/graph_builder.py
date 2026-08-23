@@ -49,6 +49,30 @@ class GraphBuilder:
             pattern = request.architecture_decision.get("architecture_pattern", "Unknown")
             nodes.append({"id": arch_id, "type": "Architecture", "label": pattern})
             edges.append({"source": request.project_id, "target": arch_id, "relation": "USES_ARCHITECTURE"})
+            
+        # 5. Project Plan Nodes (Tasks, Agents, Artifacts)
+        if request.project_plan and request.project_plan.tasks:
+            for task in request.project_plan.tasks:
+                task_id = f"task_{task.id}"
+                nodes.append({"id": task_id, "type": "Task", "label": task.name})
+                edges.append({"source": request.project_id, "target": task_id, "relation": "HAS_TASK"})
+                
+                if task.agent:
+                    agent_id = f"agent_{task.agent}"
+                    # Avoid duplicate agent nodes
+                    if not any(n["id"] == agent_id for n in nodes):
+                        nodes.append({"id": agent_id, "type": "Agent", "label": task.agent})
+                    edges.append({"source": task_id, "target": agent_id, "relation": "ASSIGNED_TO"})
+                    
+                for dep in task.dependencies:
+                    dep_id = f"task_{dep}"
+                    edges.append({"source": task_id, "target": dep_id, "relation": "DEPENDS_ON"})
+                    
+                for artifact in task.expected_artifacts:
+                    art_id = f"artifact_{artifact}"
+                    if not any(n["id"] == art_id for n in nodes):
+                        nodes.append({"id": art_id, "type": "Artifact", "label": artifact})
+                    edges.append({"source": task_id, "target": art_id, "relation": "PRODUCES"})
 
         graph_data = {
             "nodes": nodes,

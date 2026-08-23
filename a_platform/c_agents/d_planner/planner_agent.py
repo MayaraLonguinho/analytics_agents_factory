@@ -29,8 +29,11 @@ class PlannerAgent:
         system_prompt = (
             "Você é o Planner Agent, um TPM e Arquiteto Técnico.\n"
             "Sua tarefa é criar um plano de execução detalhado (DAG de tarefas) para a fábrica construir o projeto especificado.\n"
-            "Utilize os Agentes, Skills e MCPs permitidos. Cada tarefa DEVE ser associada a UM agente, podendo chamar múltiplas skills.\n"
-            "As tarefas devem seguir uma ordem lógica. A dependência de uma tarefa deve listar os IDs das tarefas anteriores que devem terminar primeiro.\n"
+            "O plano DEVE ser de ponta a ponta (E2E), específico para o domínio do projeto:\n"
+            "- Se o domínio for 'Analytics': O plano DEVE conter Ingestão, Profiling, ETL, DB, Queries, Engine de Métricas, Testes e Infraestrutura.\n"
+            "- Se for 'Ecommerce' ou 'CRM': O plano DEVE conter Modelagem de Banco, APIs, Lógica de Negócios e Testes.\n"
+            "Utilize os Agentes, Skills e MCPs permitidos. Cada tarefa DEVE ser associada a UM agente e pode chamar múltiplas skills.\n"
+            "As tarefas devem seguir uma ordem lógica rigorosa sem ciclos. A dependência de uma tarefa deve listar os IDs exatos das tarefas anteriores que devem terminar primeiro.\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
             '  "tasks": [\n'
@@ -42,7 +45,9 @@ class PlannerAgent:
             '      "skills": ["skill_1", "skill_2"],\n'
             '      "mcps": ["mcp_1"],\n'
             '      "dependencies": [],\n'
-            '      "expected_artifacts": ["app.py", "schema.sql"]\n'
+            '      "expected_artifacts": ["app.py", "schema.sql"],\n'
+            '      "commands": ["comando1"],\n'
+            '      "validators": ["validator_pytest"]\n'
             '    }\n'
             '  ],\n'
             '  "run_commands": ["Comandos finais para executar o projeto"]\n'
@@ -90,7 +95,9 @@ class PlannerAgent:
                 skills=t_data.get("skills", []),
                 mcps=t_data.get("mcps", []),
                 dependencies=t_data.get("dependencies", []),
-                expected_artifacts=t_data.get("expected_artifacts", [])
+                expected_artifacts=t_data.get("expected_artifacts", []),
+                commands=t_data.get("commands", []),
+                validators=t_data.get("validators", [])
             )
             plan.add_task(task)
             
@@ -100,7 +107,12 @@ class PlannerAgent:
             logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")
             return False
             
-        plan.validated = True
+        try:
+            plan.validate_dag()
+        except ValueError as e:
+            logger.error(f"[PlannerAgent] DAG inválido detectado: {e}")
+            return False
+            
         request.project_plan = plan
         
         logger.info(f"[PlannerAgent] Plano estruturado com sucesso via LLM. Total de tarefas: {len(plan.tasks)}")
