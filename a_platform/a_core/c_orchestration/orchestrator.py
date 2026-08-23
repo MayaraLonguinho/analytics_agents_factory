@@ -11,12 +11,16 @@ from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAg
 from a_platform.h_domains.domain_registry import DomainRegistry
 from a_platform.c_agents.d_planner.planner_agent import PlannerAgent
 from a_platform.c_agents.agent_factory import AgentFactory
+from a_platform.g_factory.a_project_factory.project_factory import ProjectFactory
+from a_platform.g_factory.d_artifact_materializer.materializer import ArtifactMaterializer
+from a_platform.e_mcp.mcp_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
 
 class MasterOrchestrator:
     def __init__(self):
         self.state_manager = None
+        self.mcp = MCPExecutor()
         self.discovery_agent = DiscoveryAgent()
         self.dataset_profiler = DatasetProfiler()
         self.brain = Brain()
@@ -25,6 +29,10 @@ class MasterOrchestrator:
         self.domain_registry = DomainRegistry()
         self.planner_agent = PlannerAgent(self.domain_registry)
         self.agent_factory = AgentFactory()
+        self.project_factory = ProjectFactory(self.agent_factory)
+        self.materializer = ArtifactMaterializer(self.mcp)
+        
+        self.compiled_artifacts = []
         
     def execute_pipeline(self, request: ProjectRequest) -> bool:
         self.state_manager = StateManager(request.project_id)
@@ -132,25 +140,14 @@ class MasterOrchestrator:
 
     def _step_project_factory(self, request: ProjectRequest) -> bool:
         logger.info("Executando Project Factory...")
-        plan = request.project_plan
-        if not plan or not plan.tasks:
-            logger.error("ProjectPlan ausente ou vazio.")
+        self.compiled_artifacts = self.project_factory.assemble_project(request)
+        if not self.compiled_artifacts:
             return False
-            
-        for task in plan.tasks:
-            agent = self.agent_factory.get_agent(task.agent)
-            success = agent.execute_task(task, request)
-            if not success:
-                logger.error(f"Task {task.id} ({task.name}) falhou ao ser executada pelo {agent.name}.")
-                return False
-                
-        logger.info("Todas as tarefas da Project Factory concluídas com sucesso.")
         return True
 
-    # Mocks para as demais etapas
     def _step_materialization(self, request: ProjectRequest) -> bool:
         logger.info("Executando Materializer...")
-        return True
+        return self.materializer.materialize(request, self.compiled_artifacts)
 
     def _step_execution(self, request: ProjectRequest) -> bool:
         logger.info("Executando Execution Runtime...")

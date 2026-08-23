@@ -1,9 +1,13 @@
-from datetime import datetime, timezone
-from pydantic import BaseModel, Field
+from dataclasses import dataclass
+from typing import Dict, Any
 
-class Artifact(BaseModel):
-    """Represents a generated code artifact."""
+@dataclass
+class Artifact:
     name: str
-    path: str
     content: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    type: str = "source_code"  # source_code, script, config, sql, etc.
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}

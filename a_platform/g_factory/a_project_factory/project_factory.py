@@ -1,53 +1,56 @@
-import os
-import re
+import logging
 from typing import List
+from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.c_agents.agent_factory import AgentFactory
+
+logger = logging.getLogger(__name__)
 
 class ProjectFactory:
-    def __init__(self):
-        self.gateway = LLMGateway()
+    """
+    Fábrica Dinâmica de Projetos.
+    Lê o ProjectPlan, orquestra a chamada aos Agents/Skills e compila os Artifacts.
+    Não possui lógica de geração de negócios hardcoded.
+    """
+    def __init__(self, agent_factory: AgentFactory):
+        self.agent_factory = agent_factory
 
-    async def generate_project(self, plan, discovery, profiling) -> List[Artifact]:
-        """
-        Orchestrates code generation by dynamically calling the LLM Gateway 
-        using the context (discovery, profiling, plan tasks).
-        """
-        prompt = f"""
-        Generate Python code for this project based on:
-        Objective: {getattr(discovery, 'project_objective', 'Unknown')}
-        Domain: {getattr(discovery, 'domain', 'generic')}
-        Plan Tasks: {getattr(plan, 'tasks', [])}
-        
-        Please return the files formatted in markdown code blocks with the filename in the header.
-        Example:
-        ```python:requirements.txt
-        pandas
-        ```
-        """
-        
-        response_text = await self.gateway.generate(prompt)
-        artifacts = self._parse_llm_response(response_text)
-        
-        # Se falhou por algum motivo (LLM retornou algo invalido), injetamos um basico
-        if not artifacts:
-            print("[Factory] LLM parsing yielded no artifacts. Using strict fallback to pass validation.")
-            artifacts.extend([
-                Artifact(name="requirements.txt", path="requirements.txt", content="pytest\\n"),
-                Artifact(name="main.py", path="main.py", content="def process_data():\\n    return \\"success\\"\\n"),
-                Artifact(name="test_main.py", path="test_main.py", content="from main import process_data\\n\\ndef test_process():\\n    assert process_data() == \\"success\\"\\n")
-            ])
-            
-        return artifacts
+    def assemble_project(self, request: ProjectRequest) -> List[Artifact]:
+        plan = request.project_plan
+        if not plan or not plan.tasks:
+            logger.error("[ProjectFactory] ProjectPlan ausente ou vazio. Não há como montar o projeto.")
+            return []
 
-    def _parse_llm_response(self, text: str) -> List[Artifact]:
-        artifacts = []
-        # Procura por blocos do tipo ```python:arquivo.py
-        pattern = re.compile(r'```[a-z]*:?([\\w\\.-]+)\\n(.*?)```', re.DOTALL)
-        matches = pattern.findall(text)
+        logger.info(f"[ProjectFactory] Iniciando montagem do projeto {request.project_id} ({plan.domain})")
+        compiled_artifacts = []
         
-        for filename, content in matches:
-            # Garante que as linhas vazias/novas linhas passem certas
-            artifacts.append(Artifact(name=filename, path=filename, content=content))
+        for task in plan.tasks:
+            logger.info(f"[ProjectFactory] Despachando task {task.id} para {task.agent}...")
+            agent = self.agent_factory.get_agent(task.agent)
             
-        return artifacts
+            # Agent executa a task e devolve artefatos em memória
+            task_artifacts = agent.execute_task(task, request)
+            
+            if not task_artifacts:
+                logger.warning(f"[ProjectFactory] O agente {task.agent} não gerou artefatos para a task {task.id}.")
+            else:
+                compiled_artifacts.extend(task_artifacts)
+
+        # Adiciona artefatos universais (requirements.txt, etc.) gerados dinamicamente
+        reqs = self._generate_requirements(request)
+        if reqs:
+            compiled_artifacts.append(reqs)
+            
+        logger.info(f"[ProjectFactory] Montagem finalizada. {len(compiled_artifacts)} artefatos compilados.")
+        return compiled_artifacts
+
+    def _generate_requirements(self, request: ProjectRequest) -> Artifact:
+        domain = request.discovery_data.get("domain", "generic").lower()
+        pkgs = ["pandas", "pydantic", "pyyaml"]
+        if domain == "data_engineering":
+            pkgs.extend(["dbt-core", "sqlalchemy"])
+        elif domain in ["crm", "ecommerce"]:
+            pkgs.extend(["fastapi", "uvicorn"])
+            
+        content = "\n".join(pkgs)
+        return Artifact(name="requirements.txt", content=content, type="config")
