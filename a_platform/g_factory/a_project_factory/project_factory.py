@@ -1,5 +1,6 @@
 import logging
 import json
+import ast
 from typing import List
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
@@ -46,8 +47,31 @@ class ProjectFactory:
         if reqs:
             compiled_artifacts.append(reqs)
             
+        # Validação Sintática
+        for artifact in compiled_artifacts:
+            if not self._validate_syntax(artifact):
+                logger.error(f"[ProjectFactory] Artefato gerado falhou na validação de sintaxe: {artifact.name}")
+                raise SyntaxError(f"O artefato '{artifact.name}' contém erros sintáticos. Materialização abortada.")
+                
         logger.info(f"[ProjectFactory] Montagem finalizada. {len(compiled_artifacts)} artefatos compilados.")
         return compiled_artifacts
+
+    def _validate_syntax(self, artifact: Artifact) -> bool:
+        if artifact.name.endswith(".py"):
+            try:
+                ast.parse(artifact.content)
+                return True
+            except SyntaxError as e:
+                logger.error(f"[ProjectFactory] Erro de sintaxe Python em {artifact.name}: {e}")
+                return False
+        elif artifact.name.endswith(".json"):
+            try:
+                json.loads(artifact.content)
+                return True
+            except json.JSONDecodeError as e:
+                logger.error(f"[ProjectFactory] Erro de sintaxe JSON em {artifact.name}: {e}")
+                return False
+        return True
 
     def _generate_requirements(self, request: ProjectRequest) -> Artifact:
         logger.info("[ProjectFactory] Gerando requirements.txt dinâmico via LLM...")

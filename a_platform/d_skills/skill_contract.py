@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
+from abc import ABC, abstractmethod
 
 @dataclass
 class SkillContract:
@@ -15,6 +16,24 @@ class SkillContract:
         missing = [req for req in self.required_inputs if req not in context]
         if missing:
             raise ValueError(f"Skill '{self.name}' falhou na validação de contrato. Faltam os inputs: {missing}")
+        return True
+
+class BaseSkill(ABC):
+    def __init__(self, contract: SkillContract):
+        self.contract = contract
+
+    def validate_input(self, context: Dict[str, Any]) -> bool:
+        return self.contract.validate_inputs(context)
+        
+    @abstractmethod
+    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Executa a skill com o contexto validado."""
+        pass
+
+    def validate_output(self, result: Dict[str, Any]) -> bool:
+        missing = [req for req in self.contract.expected_outputs if req not in result]
+        if missing:
+            raise ValueError(f"Skill '{self.contract.name}' falhou na validação de output. Faltam os retornos: {missing}")
         return True
 
 # Registro estático dos contratos das skills base da plataforma
