@@ -1,7 +1,7 @@
 {
   "state_manager": {
-    "current_phase": "FAILED",
-    "project_ready": false,
+    "current_phase": "READY",
+    "project_ready": true,
     "repair_attempts": 0,
     "phases": {
       "INIT": {
@@ -9,7 +9,7 @@
         "details": {}
       },
       "NEEDS_INPUT": {
-        "status": "IN_PROGRESS",
+        "status": "PENDING",
         "details": {}
       },
       "DISCOVERY": {
@@ -29,25 +29,23 @@
         "details": {}
       },
       "PLANNER": {
-        "status": "FAILED",
-        "details": {
-          "error": "Phase PLANNER returned failure."
-        }
+        "status": "COMPLETED",
+        "details": {}
       },
       "PROJECT_FACTORY": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "MATERIALIZATION": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "EXECUTION": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "VALIDATION": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "REPAIR_LOOP": {
@@ -55,15 +53,15 @@
         "details": {}
       },
       "QUALITY": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "CERTIFICATION": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "READY": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "FAILED": {
@@ -73,38 +71,15 @@
     }
   },
   "request": {
-    "prompt": "Crie um sistema",
-    "dataset_path": null,
+    "prompt": "Quero um projeto de analytics simples",
+    "dataset_path": "e2e_test_proj",
     "domain": null,
-    "project_id": "proj_5195687d",
+    "project_id": "proj_9e3300bc",
     "metadata": {
-      "PROJECT_READY": "NO"
+      "PROJECT_READY": "YES"
     },
     "discovery_data": {
-      "history": [
-        {
-          "role": "assistant",
-          "content": "Qual \u00e9 o objetivo principal do sistema?"
-        },
-        {
-          "role": "user",
-          "content": "O objetivo \u00e9 analisar vendas"
-        }
-      ],
-      "domain": "Analytics",
-      "objective": "Analisar vendas",
-      "users": "Admins",
-      "data_sources": "PostgreSQL",
-      "functional_requirements": "Dashboard",
-      "technical_requirements": "Python 3.10",
-      "database": "PostgreSQL",
-      "backend": "FastAPI",
-      "frontend": "Streamlit",
-      "infrastructure": "Docker",
-      "testing": "Pytest",
-      "documentation": "Swagger",
-      "constraints": "Nenhuma",
-      "status": "COMPLETE"
+      "history": []
     },
     "dataset_profile": {},
     "architecture_decision": {},

@@ -2,7 +2,7 @@
   "state_manager": {
     "current_phase": "READY",
     "project_ready": true,
-    "repair_attempts": 1,
+    "repair_attempts": 0,
     "phases": {
       "INIT": {
         "status": "COMPLETED",
@@ -49,7 +49,7 @@
         "details": {}
       },
       "REPAIR_LOOP": {
-        "status": "COMPLETED",
+        "status": "PENDING",
         "details": {}
       },
       "QUALITY": {
@@ -71,10 +71,10 @@
     }
   },
   "request": {
-    "prompt": "Quero analytics e vai falhar",
+    "prompt": "Quero um projeto de analytics simples",
     "dataset_path": "e2e_test_proj",
     "domain": null,
-    "project_id": "proj_a90d0207",
+    "project_id": "proj_dfce9222",
     "metadata": {
       "PROJECT_READY": "YES"
     },

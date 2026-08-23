@@ -1,7 +1,7 @@
 {
   "state_manager": {
-    "current_phase": "FAILED",
-    "project_ready": false,
+    "current_phase": "READY",
+    "project_ready": true,
     "repair_attempts": 1,
     "phases": {
       "INIT": {
@@ -57,13 +57,11 @@
         "details": {}
       },
       "CERTIFICATION": {
-        "status": "FAILED",
-        "details": {
-          "error": "ReadinessGate rejeitou o projeto por fases incompletas."
-        }
+        "status": "COMPLETED",
+        "details": {}
       },
       "READY": {
-        "status": "PENDING",
+        "status": "COMPLETED",
         "details": {}
       },
       "FAILED": {
@@ -76,9 +74,9 @@
     "prompt": "Quero analytics e vai falhar",
     "dataset_path": "e2e_test_proj",
     "domain": null,
-    "project_id": "proj_689128b4",
+    "project_id": "proj_49ee3a75",
     "metadata": {
-      "PROJECT_READY": "NO"
+      "PROJECT_READY": "YES"
     },
     "discovery_data": {
       "history": []
