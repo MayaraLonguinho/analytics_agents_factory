@@ -26,9 +26,21 @@ class PlannerAgent:
         allowed_skills = domain_config.get("skills", [])
         allowed_mcps = domain_config.get("mcps", [])
         
+        # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
+        from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
+        k_registry = KnowledgeRegistry()
+        learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
+        
+        learned_rules_text = ""
+        if learned_rules:
+            learned_rules_text = "\nATENÇÃO - LIÇÕES APRENDIDAS DE FALHAS ANTERIORES NESTE DOMÍNIO:\n"
+            for idx, rule in enumerate(learned_rules, 1):
+                learned_rules_text += f"{idx}. Padrão de Erro: {rule.get('pattern')} -> Recomendação: {rule.get('recommendation')}\n"
+        
         system_prompt = (
             "Você é o Planner Agent, um TPM e Arquiteto Técnico.\n"
             "Sua tarefa é criar um plano de execução detalhado (DAG de tarefas) para a fábrica construir o projeto especificado.\n"
+            f"{learned_rules_text}\n"
             "O plano DEVE ser de ponta a ponta (E2E), específico para o domínio do projeto:\n"
             "- Se o domínio for 'Analytics': O plano DEVE conter Ingestão, Profiling, ETL, DB, Queries, Engine de Métricas, Testes e Infraestrutura.\n"
             "- Se for 'Ecommerce' ou 'CRM': O plano DEVE conter Modelagem de Banco, APIs, Lógica de Negócios e Testes.\n"

@@ -81,4 +81,15 @@ class LearningEngine:
         logger.info("[LearningEngine] Salvando no BrainUpdater/KnowledgeRegistry...")
         self.memory.append(entry)
         self._save_memory()
+        
+        # Etapa 7: Estruturar no BrainUpdater
+        from a_platform.m_learning.brain_updater import BrainUpdater, KnowledgeItem
+        updater = BrainUpdater()
+        k_item = KnowledgeItem(
+            domain=domain,
+            pattern=lesson.get("causa_raiz", "Desconhecida"),
+            recommendation=lesson.get("patch_aplicado", correction)
+        )
+        updater.save_lesson(k_item)
+        
         logger.info("[LearningEngine] Correção memorizada com sucesso.")

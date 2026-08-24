@@ -1,3 +1,5 @@
+import os
+import yaml
 from typing import Any, Dict, List, Optional
 
 class KnowledgeRegistry:
@@ -20,3 +22,20 @@ class KnowledgeRegistry:
 
     def search_by_domain(self, domain: str) -> List[Dict[str, Any]]:
         return [kb for kb in self.knowledge_base.values() if kb.get("domain") == domain]
+        
+    def get_learned_rules_for_domain(self, domain: str) -> List[Dict[str, Any]]:
+        domain = domain.lower()
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        rules_path = os.path.join(base_dir, "a_knowledge", "domains", domain, "learned_rules.yaml")
+        
+        if os.path.exists(rules_path):
+            try:
+                with open(rules_path, "r") as f:
+                    data = yaml.safe_load(f)
+                    if isinstance(data, dict) and "rules" in data:
+                        return data["rules"]
+                    elif isinstance(data, list):
+                        return data
+            except Exception:
+                pass
+        return []

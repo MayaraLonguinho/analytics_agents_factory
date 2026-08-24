@@ -34,10 +34,23 @@ class ArchitectureAgent:
         request.graph_representation = graph
         logger.info(f"[ArchitectureAgent] Grafo de contexto gerado com {len(graph['nodes'])} nós.")
         
-        # 3. Invocar LLM para Decisão Arquitetural
+        domain_name = request.discovery_data.get("domain", "generic")
+        
+        # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
+        from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
+        k_registry = KnowledgeRegistry()
+        learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
+        
+        learned_rules_text = ""
+        if learned_rules:
+            learned_rules_text = "\nATENÇÃO - LIÇÕES APRENDIDAS DE FALHAS ANTERIORES NESTE DOMÍNIO:\n"
+            for idx, rule in enumerate(learned_rules, 1):
+                learned_rules_text += f"{idx}. Padrão de Erro: {rule.get('pattern')} -> Recomendação: {rule.get('recommendation')}\n"
+        
         system_prompt = (
-            "Você é o Architecture Agent, um arquiteto de software principal.\n"
-            "Sua tarefa é definir a pilha de tecnologia e a arquitetura para o projeto com base nos dados do Discovery, no Perfil do Dataset e no Conhecimento da Plataforma (Brain).\n"
+            "Você é o Architecture Agent, um Principal Software Engineer.\n"
+            "Sua tarefa é definir o stack tecnológico e o padrão arquitetural ideal para o projeto descrito.\n"
+            f"{learned_rules_text}\n"
             "Retorne APENAS um JSON válido contendo as seguintes chaves:\n"
             "- core_stack (ex: Python 3.10, Node.js, etc)\n"
             "- database_technology (A tecnologia de banco de dados escolhida)\n"
