@@ -3,7 +3,7 @@ import pytest
 import os
 import shutil
 from unittest.mock import patch
-from a_platform.a_interfaces.ide.adapter import IDEAdapter
+from a_platform.b_interfaces.a_ide.adapter import IDEAdapter
 from c_tests.end_to_end.mock_gateway import get_mocked_generate_function
 
 def test_repair_loop_e2e():
@@ -15,7 +15,7 @@ def test_repair_loop_e2e():
     
     mock_func = get_mocked_generate_function(interactive=False, repair_error=True)
     
-    with patch("a_platform.f_llm_gateway.gateway.LLMGateway.generate", side_effect=mock_func):
+    with patch("a_platform.g_llm_gateway.gateway.LLMGateway.generate", side_effect=mock_func):
         prompt = "Crie um projeto de analytics sujeito a falha."
         dataset = "d_input/a_datasets/a_raw/vendas.csv"
         

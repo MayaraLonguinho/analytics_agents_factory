@@ -2,11 +2,11 @@ import pytest
 import time
 import shutil
 import os
-from a_platform.b_brain.e_memory.memory_manager import MemoryManager
-from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
-from a_platform.b_brain.f_registry.rule_registry import RuleRegistry
-from a_platform.b_brain.f_registry.pattern_registry import PatternRegistry
-from a_platform.b_brain.g_graph.obsidian.graph_builder import ObsidianGraphBuilder
+from a_platform.c_brain.e_memory.memory_manager import MemoryManager
+from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
+from a_platform.c_brain.f_registry.rule_registry import RuleRegistry
+from a_platform.c_brain.f_registry.pattern_registry import PatternRegistry
+from a_platform.c_brain.g_graph.obsidian.graph_builder import ObsidianGraphBuilder
 
 def test_memory_manager():
     mm = MemoryManager()

@@ -5,10 +5,10 @@ import os
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.m_learning.learning_engine import LearningEngine
-from a_platform.f_llm_gateway.gateway import LLMGateway
-from a_platform.c_agents.agent_factory import AgentFactory
-from a_platform.e_mcp.mcp_executor import MCPExecutor
+from a_platform.n_learning.learning_engine import LearningEngine
+from a_platform.g_llm_gateway.gateway import LLMGateway
+from a_platform.d_agents.agent_factory import AgentFactory
+from a_platform.f_mcp.mcp_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
 

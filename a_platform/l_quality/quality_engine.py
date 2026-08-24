@@ -6,8 +6,8 @@ import subprocess
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.k_quality.linters import Linter
-from a_platform.k_quality.security_scanner import SecurityScanner
+from a_platform.l_quality.linters import Linter
+from a_platform.l_quality.security_scanner import SecurityScanner
 
 logger = logging.getLogger(__name__)
 

@@ -3,13 +3,13 @@ import json
 import re
 from typing import Dict, Any, List
 
-from a_platform.f_llm_gateway.gateway import LLMGateway
-from a_platform.e_mcp.mcp_executor import MCPExecutor
-from a_platform.d_skills.skill_registry import SkillRegistry
+from a_platform.g_llm_gateway.gateway import LLMGateway
+from a_platform.f_mcp.mcp_executor import MCPExecutor
+from a_platform.e_skills.skill_registry import SkillRegistry
 from a_platform.a_core.b_domain.project_plan import Task
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
-from a_platform.d_skills.skill_contract import CORE_SKILL_CONTRACTS
+from a_platform.e_skills.skill_contract import CORE_SKILL_CONTRACTS
 
 logger = logging.getLogger(__name__)
 

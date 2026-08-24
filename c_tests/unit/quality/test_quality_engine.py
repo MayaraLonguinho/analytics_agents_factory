@@ -2,7 +2,7 @@
 import pytest
 import os
 from unittest.mock import MagicMock, patch, mock_open
-from a_platform.k_quality.quality_engine import QualityEngine
+from a_platform.l_quality.quality_engine import QualityEngine
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 
 @pytest.fixture
@@ -18,10 +18,10 @@ def mock_quality_engine():
     engine.passing_score = 60
     return engine
 
-@patch("a_platform.k_quality.quality_engine.os.path.exists", return_value=True)
-@patch("a_platform.k_quality.quality_engine.os.walk")
-@patch("a_platform.k_quality.quality_engine.Linter")
-@patch("a_platform.k_quality.quality_engine.SecurityScanner")
+@patch("a_platform.l_quality.quality_engine.os.path.exists", return_value=True)
+@patch("a_platform.l_quality.quality_engine.os.walk")
+@patch("a_platform.l_quality.quality_engine.Linter")
+@patch("a_platform.l_quality.quality_engine.SecurityScanner")
 def test_quality_engine_security_failure(mock_sec_cls, mock_lint_cls, mock_walk, mock_exists, mock_quality_engine, tmp_path):
     # Setup mocks
     mock_walk.return_value = [("/mock/dir", [], ["main.py", "test_main.py"])]
@@ -45,10 +45,10 @@ def test_quality_engine_security_failure(mock_sec_cls, mock_lint_cls, mock_walk,
     assert result is False
     assert mock_sec.run_scan.called
 
-@patch("a_platform.k_quality.quality_engine.os.path.exists", return_value=True)
-@patch("a_platform.k_quality.quality_engine.os.walk")
-@patch("a_platform.k_quality.quality_engine.Linter")
-@patch("a_platform.k_quality.quality_engine.SecurityScanner")
+@patch("a_platform.l_quality.quality_engine.os.path.exists", return_value=True)
+@patch("a_platform.l_quality.quality_engine.os.walk")
+@patch("a_platform.l_quality.quality_engine.Linter")
+@patch("a_platform.l_quality.quality_engine.SecurityScanner")
 def test_quality_engine_linter_penalty(mock_sec_cls, mock_lint_cls, mock_walk, mock_exists, mock_quality_engine, tmp_path):
     mock_walk.return_value = [("/mock/dir", [], ["main.py", "test_main.py"])]
     

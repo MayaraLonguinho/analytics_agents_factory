@@ -1,9 +1,9 @@
 import logging
-from a_platform.c_agents.base_agent import BaseAgent
-from a_platform.f_llm_gateway.gateway import LLMGateway
-from a_platform.e_mcp.mcp_executor import MCPExecutor
-from a_platform.d_skills.skill_registry import SkillRegistry
-from a_platform.c_agents.specialized_agents import (
+from a_platform.d_agents.base_agent import BaseAgent
+from a_platform.g_llm_gateway.gateway import LLMGateway
+from a_platform.f_mcp.mcp_executor import MCPExecutor
+from a_platform.e_skills.skill_registry import SkillRegistry
+from a_platform.d_agents.specialized_agents import (
     DataAgent, DatabaseAgent, AnalyticsAgent, TestingAgent, InfrastructureAgent,
     BackendAgent, FrontendAgent
 )

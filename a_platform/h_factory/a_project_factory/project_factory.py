@@ -4,8 +4,8 @@ import ast
 from typing import List
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
-from a_platform.c_agents.agent_factory import AgentFactory
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.d_agents.agent_factory import AgentFactory
+from a_platform.g_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ import os
 from typing import List
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.artifact import Artifact
-from a_platform.e_mcp.mcp_executor import MCPExecutor
+from a_platform.f_mcp.mcp_executor import MCPExecutor
 
 from .code_materializer import CodeMaterializer
 from .database_materializer import DatabaseMaterializer

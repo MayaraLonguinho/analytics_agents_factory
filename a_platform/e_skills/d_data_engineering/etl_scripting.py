@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from a_platform.d_skills.skill_contract import BaseSkill, CORE_SKILL_CONTRACTS
+from a_platform.e_skills.skill_contract import BaseSkill, CORE_SKILL_CONTRACTS
 
 logger = logging.getLogger(__name__)
 

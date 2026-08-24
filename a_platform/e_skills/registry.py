@@ -1,5 +1,5 @@
 from typing import Dict, Type
-from a_platform.d_skills.skill_contract import BaseSkill
+from a_platform.e_skills.skill_contract import BaseSkill
 
 class SkillRegistry:
     def __init__(self):

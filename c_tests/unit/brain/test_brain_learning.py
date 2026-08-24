@@ -3,9 +3,9 @@ import pytest
 import os
 import yaml
 from unittest.mock import MagicMock, patch, mock_open
-from a_platform.m_learning.brain_updater import BrainUpdater, KnowledgeItem
-from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
-from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
+from a_platform.n_learning.brain_updater import BrainUpdater, KnowledgeItem
+from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
+from a_platform.d_agents.c_architecture.architecture_agent import ArchitectureAgent
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 
 def test_brain_updater_saves_lesson(tmp_path):
@@ -25,8 +25,8 @@ def test_brain_updater_saves_lesson(tmp_path):
     assert len(data["rules"]) == 1
     assert data["rules"][0]["pattern"] == "SyntaxError in Pandas"
 
-@patch("a_platform.b_brain.f_registry.knowledge_registry.KnowledgeRegistry")
-@patch("a_platform.c_agents.c_architecture.architecture_agent.LLMGateway")
+@patch("a_platform.c_brain.f_registry.knowledge_registry.KnowledgeRegistry")
+@patch("a_platform.d_agents.c_architecture.architecture_agent.LLMGateway")
 def test_architecture_agent_uses_learned_rules(mock_gateway_cls, mock_registry_cls):
     mock_gateway = MagicMock()
     # Mock LLM generation

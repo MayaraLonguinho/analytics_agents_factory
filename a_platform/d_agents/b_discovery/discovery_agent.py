@@ -5,7 +5,7 @@ from enum import Enum, auto
 from typing import Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.g_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

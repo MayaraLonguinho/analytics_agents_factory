@@ -13,7 +13,7 @@ def test_registry_integrity():
     assert "analytics" in domains
     
     # Check if all MCPS in registry exist in mcp_executor
-    from a_platform.e_mcp.mcp_executor import MCPExecutor
+    from a_platform.f_mcp.mcp_executor import MCPExecutor
     executor = MCPExecutor()
     valid_mcps = ["filesystem_mcp", "git_mcp", "docker_mcp", "database_mcp", "browser_mcp"]
     
@@ -22,7 +22,7 @@ def test_registry_integrity():
             assert mcp in valid_mcps, f"MCP {mcp} not valid"
             
     # Check if all skills in registry exist in SkillRegistry
-    from a_platform.d_skills.skill_registry import SkillRegistry
+    from a_platform.e_skills.skill_registry import SkillRegistry
     skill_registry = SkillRegistry()
     
     for domain, data in domains.items():

@@ -1,6 +1,6 @@
 import os
 from typing import Optional, Type, Any
-from a_platform.f_llm_gateway.a_interfaces.base_provider import BaseLLMProvider
+from a_platform.g_llm_gateway.a_interfaces.base_provider import BaseLLMProvider
 
 try:
     import google.generativeai as genai  # type: ignore

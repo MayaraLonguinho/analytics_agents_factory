@@ -1,8 +1,8 @@
 import logging
 from typing import Dict, Any, List
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.j_validation.b_validators.execution.execution import ExecutionValidator
-from a_platform.j_validation.b_validators.tests.tests import TestsValidator
+from a_platform.k_validation.b_validators.execution.execution import ExecutionValidator
+from a_platform.k_validation.b_validators.tests.tests import TestsValidator
 
 logger = logging.getLogger(__name__)
 

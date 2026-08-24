@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any
 
-from a_platform.e_mcp.a_registry.mcp_registry import MCPRegistry
+from a_platform.f_mcp.a_registry.mcp_registry import MCPRegistry
 
 logger = logging.getLogger(__name__)
 

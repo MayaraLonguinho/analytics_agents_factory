@@ -4,9 +4,9 @@ import yaml
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.j_validation.c_gates.pre_execution import PreExecutionGate
-from a_platform.j_validation.c_gates.post_execution import PostExecutionGate
-from a_platform.j_validation.c_gates.project_ready import ProjectReadyGate
+from a_platform.k_validation.c_gates.pre_execution import PreExecutionGate
+from a_platform.k_validation.c_gates.post_execution import PostExecutionGate
+from a_platform.k_validation.c_gates.project_ready import ProjectReadyGate
 
 logger = logging.getLogger(__name__)
 

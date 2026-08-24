@@ -5,8 +5,8 @@ from dataclasses import asdict
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
-from a_platform.a_interfaces.ide.protocol import ProjectResponseDTO
-from a_platform.a_interfaces.ide.session import IDESession
+from a_platform.b_interfaces.a_ide.protocol import ProjectResponseDTO
+from a_platform.b_interfaces.a_ide.session import IDESession
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,11 @@
 import logging
 from typing import Dict, Any, List
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.j_validation.b_validators.structure.structure import StructureValidator
-from a_platform.j_validation.b_validators.dependencies.dependencies import DependenciesValidator
-from a_platform.j_validation.b_validators.code.code import CodeValidator
-from a_platform.j_validation.b_validators.security.security import SecurityValidator
-from a_platform.j_validation.b_validators.database.database import DatabaseValidator
+from a_platform.k_validation.b_validators.structure.structure import StructureValidator
+from a_platform.k_validation.b_validators.dependencies.dependencies import DependenciesValidator
+from a_platform.k_validation.b_validators.code.code import CodeValidator
+from a_platform.k_validation.b_validators.security.security import SecurityValidator
+from a_platform.k_validation.b_validators.database.database import DatabaseValidator
 
 logger = logging.getLogger(__name__)
 

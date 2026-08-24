@@ -3,7 +3,7 @@ import json
 import yaml
 import os
 from a_platform.a_core.b_domain.artifact import Artifact
-from a_platform.e_mcp.mcp_executor import MCPExecutor
+from a_platform.f_mcp.mcp_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
 

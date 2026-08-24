@@ -1,6 +1,6 @@
 from typing import Type
 from pydantic import BaseModel
-from a_platform.d_skills.skill_contract import BaseSkill
+from a_platform.e_skills.skill_contract import BaseSkill
 import pandas as pd
 
 class ProfileInput(BaseModel):

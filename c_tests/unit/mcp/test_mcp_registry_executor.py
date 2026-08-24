@@ -1,8 +1,8 @@
 # pyrefly: ignore [missing-import]
 import pytest
 from unittest.mock import MagicMock
-from a_platform.e_mcp.mcp_executor import MCPExecutor
-from a_platform.e_mcp.a_registry.mcp_registry import MCPRegistry
+from a_platform.f_mcp.mcp_executor import MCPExecutor
+from a_platform.f_mcp.a_registry.mcp_registry import MCPRegistry
 
 def test_mcp_registry_loads_tools():
     registry = MCPRegistry()

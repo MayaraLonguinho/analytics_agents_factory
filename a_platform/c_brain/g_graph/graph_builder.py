@@ -3,7 +3,7 @@ import logging
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.b_brain.g_graph.backend import ObsidianBackend, GraphifyBackend
+from a_platform.c_brain.g_graph.backend import ObsidianBackend, GraphifyBackend
 
 logger = logging.getLogger(__name__)
 

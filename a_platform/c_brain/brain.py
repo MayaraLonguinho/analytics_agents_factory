@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any, List
 
-from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
-from a_platform.b_brain.f_registry.rule_registry import RuleRegistry
-from a_platform.b_brain.f_registry.pattern_registry import PatternRegistry
+from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
+from a_platform.c_brain.f_registry.rule_registry import RuleRegistry
+from a_platform.c_brain.f_registry.pattern_registry import PatternRegistry
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
 from typing import Dict, Any
 
-from a_platform.e_mcp.b_filesystem.filesystem_mcp import filesystem_schema
-from a_platform.e_mcp.c_database.database_mcp import database_schema
-from a_platform.e_mcp.d_git.git_mcp import git_schema
-from a_platform.e_mcp.e_docker.docker_mcp import docker_schema
-from a_platform.e_mcp.f_browser.browser_mcp import browser_schema
+from a_platform.f_mcp.b_filesystem.filesystem_mcp import filesystem_schema
+from a_platform.f_mcp.c_database.database_mcp import database_schema
+from a_platform.f_mcp.d_git.git_mcp import git_schema
+from a_platform.f_mcp.e_docker.docker_mcp import docker_schema
+from a_platform.f_mcp.f_browser.browser_mcp import browser_schema
 
 class MCPRegistry:
     def __init__(self):

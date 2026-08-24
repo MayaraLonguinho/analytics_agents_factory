@@ -4,9 +4,9 @@ import re
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.b_brain.brain import Brain
-from a_platform.b_brain.g_graph.graph_builder import GraphBuilder
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.c_brain.brain import Brain
+from a_platform.c_brain.g_graph.graph_builder import GraphBuilder
+from a_platform.g_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class ArchitectureAgent:
         domain_name = request.discovery_data.get("domain", "generic")
         
         # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
-        from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
+        from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
         k_registry = KnowledgeRegistry()
         learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
         

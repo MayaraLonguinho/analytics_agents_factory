@@ -1,12 +1,12 @@
 import logging
 from typing import Dict, Any
 
-from a_platform.d_skills.skill_contract import CORE_SKILL_CONTRACTS
-from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
-from a_platform.d_skills.c_analytics.sql_generation import SqlGenerationSkill
-from a_platform.d_skills.d_data_engineering.etl_scripting import EtlScriptingSkill
-from a_platform.d_skills.e_development.basic_coding import BasicCodingSkill
-from a_platform.d_skills.e_development.api_design import ApiDesignSkill
+from a_platform.e_skills.skill_contract import CORE_SKILL_CONTRACTS
+from a_platform.e_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
+from a_platform.e_skills.c_analytics.sql_generation import SqlGenerationSkill
+from a_platform.e_skills.d_data_engineering.etl_scripting import EtlScriptingSkill
+from a_platform.e_skills.e_development.basic_coding import BasicCodingSkill
+from a_platform.e_skills.e_development.api_design import ApiDesignSkill
 
 logger = logging.getLogger(__name__)
 

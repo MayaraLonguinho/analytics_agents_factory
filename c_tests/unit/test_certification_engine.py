@@ -1,6 +1,6 @@
 # pyrefly: ignore [missing-import]
 import pytest
-from a_platform.l_certification.certification_engine import CertificationEngine
+from a_platform.m_certification.certification_engine import CertificationEngine
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 

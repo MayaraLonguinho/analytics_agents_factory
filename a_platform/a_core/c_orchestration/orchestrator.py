@@ -4,23 +4,23 @@ from typing import Any, Optional
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.b_domain.readiness import ReadinessGate
-from a_platform.c_agents.b_discovery.discovery_agent import DiscoveryAgent, DiscoveryStatus
-from a_platform.d_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
-from a_platform.b_brain.brain import Brain
-from a_platform.b_brain.g_graph.graph_builder import GraphBuilder
-from a_platform.c_agents.c_architecture.architecture_agent import ArchitectureAgent
-from a_platform.h_domains.domain_registry import DomainRegistry
-from a_platform.c_agents.d_planner.planner_agent import PlannerAgent
-from a_platform.c_agents.agent_factory import AgentFactory
-from a_platform.g_factory.a_project_factory.project_factory import ProjectFactory
-from a_platform.g_factory.d_artifact_materializer.materializer import ArtifactMaterializer
-from a_platform.e_mcp.mcp_executor import MCPExecutor
-from a_platform.i_runtime.runtime_engine import RuntimeEngine
-from a_platform.j_validation.validation_gate import ValidationGate
-from a_platform.k_quality.quality_engine import QualityEngine
-from a_platform.l_certification.certification_engine import CertificationEngine
-from a_platform.m_learning.learning_engine import LearningEngine
-from a_platform.m_learning.repair.repair_loop import RepairLoop
+from a_platform.d_agents.b_discovery.discovery_agent import DiscoveryAgent, DiscoveryStatus
+from a_platform.e_skills.b_dataset.profiling.dataset_profiler import DatasetProfilingSkill
+from a_platform.c_brain.brain import Brain
+from a_platform.c_brain.g_graph.graph_builder import GraphBuilder
+from a_platform.d_agents.c_architecture.architecture_agent import ArchitectureAgent
+from a_platform.i_domains.domain_registry import DomainRegistry
+from a_platform.d_agents.d_planner.planner_agent import PlannerAgent
+from a_platform.d_agents.agent_factory import AgentFactory
+from a_platform.h_factory.a_project_factory.project_factory import ProjectFactory
+from a_platform.h_factory.d_artifact_materializer.materializer import ArtifactMaterializer
+from a_platform.f_mcp.mcp_executor import MCPExecutor
+from a_platform.j_runtime.runtime_engine import RuntimeEngine
+from a_platform.k_validation.validation_gate import ValidationGate
+from a_platform.l_quality.quality_engine import QualityEngine
+from a_platform.m_certification.certification_engine import CertificationEngine
+from a_platform.n_learning.learning_engine import LearningEngine
+from a_platform.n_learning.repair.repair_loop import RepairLoop
 
 logger = logging.getLogger(__name__)
 

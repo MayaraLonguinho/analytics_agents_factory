@@ -3,11 +3,11 @@ import pytest
 import ast
 from unittest.mock import MagicMock, patch
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.k_quality.quality_engine import QualityEngine
-from a_platform.l_certification.certification_engine import CertificationEngine
+from a_platform.l_quality.quality_engine import QualityEngine
+from a_platform.m_certification.certification_engine import CertificationEngine
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.b_domain.readiness import ReadinessGate
-from a_platform.m_learning.repair.repair_loop import RepairLoop
+from a_platform.n_learning.repair.repair_loop import RepairLoop
 
 def test_quality_and_certification():
     request = ProjectRequest(project_id="test_proj", prompt="test")

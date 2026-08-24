@@ -3,8 +3,8 @@ import json
 import re
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.project_plan import ProjectPlan, Task
-from a_platform.h_domains.domain_registry import DomainRegistry
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.i_domains.domain_registry import DomainRegistry
+from a_platform.g_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class PlannerAgent:
         allowed_mcps = domain_config.get("mcps", [])
         
         # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
-        from a_platform.b_brain.f_registry.knowledge_registry import KnowledgeRegistry
+        from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
         k_registry = KnowledgeRegistry()
         learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
         
@@ -116,10 +116,10 @@ class PlannerAgent:
             
         plan.run_commands = data.get("run_commands", [])
         
-        from a_platform.d_skills.skill_registry import SkillRegistry
-        from a_platform.e_mcp.a_registry.mcp_registry import MCPRegistry
-        from a_platform.c_agents.agent_factory import AgentFactory
-        from a_platform.j_validation.validation_gate import ValidationGate
+        from a_platform.e_skills.skill_registry import SkillRegistry
+        from a_platform.f_mcp.a_registry.mcp_registry import MCPRegistry
+        from a_platform.d_agents.agent_factory import AgentFactory
+        from a_platform.k_validation.validation_gate import ValidationGate
         
         if not plan.tasks:
             logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")

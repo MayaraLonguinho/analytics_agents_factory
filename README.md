@@ -84,15 +84,15 @@ python main.py continue <project_id> "Os usuários devem ter email e senha."
 
 ## 📂 Estrutura de Diretórios Canônica
 - `a_platform/`: O coração do AAF.
-  - `a_interfaces/ide/`: IDE Adapter - o portão oficial de entrada (substitui endpoints obsoletos e cli avulsos).
   - `a_core/`: State Manager, Domain Models, Readiness Gate e Master Orchestrator.
-  - `b_brain/`: Graph Builder, Backends Obsidian/Graphify, Memory.
-  - `c_agents/`: Agentes especialistas (Discovery, Planner, Architecture).
-  - `d_skills/`: Funcionalidades plugáveis estritas com validação por Contrato (`SkillContract`).
-  - `e_mcp/`: Executores de sistema real (Database SQLite, Git, Filesystem).
-  - `f_llm_gateway/`: O provedor único de LLM da plataforma.
-  - `g_factory/`: A orquestradora de criação e o Materializador.
-  - `i_runtime/`, `j_validation/`, `k_quality/`, `l_certification/`: As catracas da Prova de Fogo.
-  - `m_learning/`: Repair loop de correção automatizada em falhas.
+  - `b_interfaces/a_ide/`: IDE Adapter - o portão oficial de entrada (substitui endpoints obsoletos e cli avulsos).
+  - `c_brain/`: Graph Builder, Backends Obsidian/Graphify, Memory.
+  - `d_agents/`: Agentes especialistas (Discovery, Planner, Architecture).
+  - `e_skills/`: Funcionalidades plugáveis estritas com validação por Contrato (`SkillContract`).
+  - `f_mcp/`: Executores de sistema real (Database SQLite, Git, Filesystem).
+  - `g_llm_gateway/`: O provedor único de LLM da plataforma.
+  - `h_factory/`: A orquestradora de criação e o Materializador.
+  - `j_runtime/`, `k_validation/`, `l_quality/`, `m_certification/`: As catracas da Prova de Fogo.
+  - `n_learning/`: Repair loop de correção automatizada em falhas.
 - `e_generated_projects/`: Onde seu código pronto, testado e certificado aparece magicamente.
 - `.aaf_state/`: Ponto de salvamento dos projetos em andamento.

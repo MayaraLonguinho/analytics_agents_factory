@@ -5,7 +5,7 @@ import re
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.f_llm_gateway.gateway import LLMGateway
+from a_platform.g_llm_gateway.gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ class LearningEngine:
         self._save_memory()
         
         # Etapa 7: Estruturar no BrainUpdater
-        from a_platform.m_learning.brain_updater import BrainUpdater, KnowledgeItem
+        from a_platform.n_learning.brain_updater import BrainUpdater, KnowledgeItem
         updater = BrainUpdater()
         k_item = KnowledgeItem(
             domain=domain,

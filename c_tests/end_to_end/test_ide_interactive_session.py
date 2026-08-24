@@ -2,7 +2,7 @@ import pytest
 import os
 import shutil
 from unittest.mock import patch
-from a_platform.a_interfaces.ide.adapter import IDEAdapter
+from a_platform.b_interfaces.a_ide.adapter import IDEAdapter
 from c_tests.end_to_end.mock_gateway import get_mocked_generate_function
 
 def test_ide_interactive_session_e2e():
@@ -14,7 +14,7 @@ def test_ide_interactive_session_e2e():
     
     mock_func = get_mocked_generate_function(interactive=True, repair_error=False)
     
-    with patch("a_platform.f_llm_gateway.gateway.LLMGateway.generate", side_effect=mock_func):
+    with patch("a_platform.g_llm_gateway.gateway.LLMGateway.generate", side_effect=mock_func):
         prompt = "Analise."
         
         # Passo 1: O sistema deve pedir mais inputs (is_complete = false mockado)

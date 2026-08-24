@@ -1,10 +1,10 @@
 # pyrefly: ignore [missing-import]
 from unittest.mock import patch, MagicMock
-from a_platform.j_validation.validation_gate import ValidationGate
+from a_platform.k_validation.validation_gate import ValidationGate
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.project_plan import ProjectPlan
-from a_platform.i_runtime.runtime_engine import RuntimeEngine
-from a_platform.k_quality.quality_engine import QualityEngine
+from a_platform.j_runtime.runtime_engine import RuntimeEngine
+from a_platform.l_quality.quality_engine import QualityEngine
 
 
 def test_validation_gate():
@@ -16,13 +16,13 @@ def test_validation_gate():
     request.metadata["runtime_payload"] = {"exit_code": 0}
 
     with patch(
-        "a_platform.j_validation.c_gates.pre_execution.PreExecutionGate.evaluate",
+        "a_platform.k_validation.c_gates.pre_execution.PreExecutionGate.evaluate",
         return_value=True
     ), patch(
-        "a_platform.j_validation.c_gates.post_execution.PostExecutionGate.evaluate",
+        "a_platform.k_validation.c_gates.post_execution.PostExecutionGate.evaluate",
         return_value=True
     ), patch(
-        "a_platform.j_validation.c_gates.project_ready.ProjectReadyGate.evaluate",
+        "a_platform.k_validation.c_gates.project_ready.ProjectReadyGate.evaluate",
         return_value=True
     ):
         result = gate.run_validation(request)
@@ -39,7 +39,7 @@ def test_validation_gate_fails():
     request.metadata["runtime_payload"] = {"exit_code": 0}
 
     with patch(
-        "a_platform.j_validation.c_gates.pre_execution.PreExecutionGate.evaluate",
+        "a_platform.k_validation.c_gates.pre_execution.PreExecutionGate.evaluate",
         return_value=False
     ):
         result = gate.run_validation(request)
@@ -80,7 +80,7 @@ def test_runtime_engine_empty_commands_fail():
 
     with patch("os.path.exists", return_value=True), \
          patch(
-             "a_platform.i_runtime.runtime_engine.RuntimeEngine._run_subprocess",
+             "a_platform.j_runtime.runtime_engine.RuntimeEngine._run_subprocess",
              return_value=(True, "", "")
          ):
 
