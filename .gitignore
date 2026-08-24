@@ -34,3 +34,5 @@ e_generated_projects/*
 !e_generated_projects/.gitkeep
 .aaf_state/*
 !.aaf_state/.gitkeep
+a_platform/b_brain/g_graph/graphify/proj_*
+a_platform/b_brain/g_graph/obsidian/proj_*
