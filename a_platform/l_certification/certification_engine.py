@@ -22,12 +22,21 @@ class CertificationEngine:
         score = request.metadata.get("quality_score", 0.0)
         
         if state_manager:
+            disc_status = state_manager.phases[ProjectPhase.DISCOVERY].status
+            plan_status = state_manager.phases[ProjectPhase.PLANNER].status
+            mat_status = state_manager.phases[ProjectPhase.MATERIALIZATION].status
             exec_status = state_manager.phases[ProjectPhase.EXECUTION].status
             val_status = state_manager.phases[ProjectPhase.VALIDATION].status
             qual_status = state_manager.phases[ProjectPhase.QUALITY].status
             
-            if exec_status != PhaseStatus.COMPLETED or val_status != PhaseStatus.COMPLETED or qual_status != PhaseStatus.COMPLETED:
-                logger.error("[CertificationEngine] Projeto reprovado porque Execution, Validation ou Quality falharam.")
+            if (disc_status != PhaseStatus.COMPLETED or
+                plan_status != PhaseStatus.COMPLETED or
+                mat_status != PhaseStatus.COMPLETED or
+                exec_status != PhaseStatus.COMPLETED or 
+                val_status != PhaseStatus.COMPLETED or 
+                qual_status != PhaseStatus.COMPLETED):
+                
+                logger.error("[CertificationEngine] Projeto reprovado: Nem todas as fases foram concluídas com sucesso.")
                 self._write_certification_stamp(request, "FAILED", score, state_manager, False)
                 return False
                 
