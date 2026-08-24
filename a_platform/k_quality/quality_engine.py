@@ -6,6 +6,8 @@ import subprocess
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.k_quality.linters import Linter
+from a_platform.k_quality.security_scanner import SecurityScanner
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +63,7 @@ class QualityEngine:
                 self.max_complexity = data.get("max_complexity", 10)
         except Exception as e:
             logger.error(f"[QualityEngine] Falha ao carregar thresholds: {e}")
-            self.metrics = {"linting_weight": 0.4, "architecture_weight": 0.3, "documentation_weight": 0.3}
+            self.metrics = {"linting_weight": 0.2, "architecture_weight": 0.3, "documentation_weight": 0.2, "security_weight": 0.3}
 
     def run_quality(self, request: ProjectRequest) -> bool:
         domain = request.discovery_data.get("domain", "generic").lower()
@@ -72,10 +74,18 @@ class QualityEngine:
         if not os.path.exists(project_dir):
             return False
 
+        # Instancia scanners
+        linter = Linter()
+        security = SecurityScanner()
+
+        lint_result = linter.run_linter(project_dir)
+        sec_result = security.run_scan(project_dir)
+
         # Inicia pontuação zerada e ganha pontos
         linting_score = 0
         architecture_score = 0
         doc_score = 0
+        security_score = 100 if sec_result.get("passed", True) else 0
         
         py_files = []
         test_files = []
@@ -128,6 +138,11 @@ class QualityEngine:
         # Calcula scores
         linting_score = 100 if syntax_errors == 0 else max(0, 100 - (syntax_errors * 50))
         
+        # Penaliza se linter falhou
+        if not lint_result.get("passed", True):
+            linting_score = max(0, linting_score - 30)
+            logger.warning("[QualityEngine] Linter detectou falhas de estilo. Penalizando linting_score.")
+        
         avg_complexity = total_complexity / len(py_files)
         if avg_complexity <= self.max_complexity:
             architecture_score = 100
@@ -146,9 +161,10 @@ class QualityEngine:
             architecture_score -= 30
 
         final_score = (
-            linting_score * self.metrics.get("linting_weight", 0.4) +
+            linting_score * self.metrics.get("linting_weight", 0.2) +
             architecture_score * self.metrics.get("architecture_weight", 0.3) +
-            doc_score * self.metrics.get("documentation_weight", 0.3)
+            doc_score * self.metrics.get("documentation_weight", 0.2) +
+            security_score * self.metrics.get("security_weight", 0.3)
         )
         
         request.metadata["quality_score"] = final_score
@@ -162,6 +178,10 @@ class QualityEngine:
 
         if tests_failed:
             logger.error("[QualityEngine] Qualidade reprovada: Falha nos testes ou no runtime detectada.")
+            return False
+
+        if security_score == 0:
+            logger.error("[QualityEngine] Falha CRÍTICA de segurança detectada. Quality = FAIL independente do score.")
             return False
 
         # Compara com o threshold do arquivo yaml

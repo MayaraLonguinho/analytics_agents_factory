@@ -1,5 +1,6 @@
 metrics:
-  linting_weight: 0.3
-  architecture_weight: 0.4
-  documentation_weight: 0.3
+  linting_weight: 0.2
+  architecture_weight: 0.3
+  documentation_weight: 0.2
+  security_weight: 0.3
 passing_score: 60
