@@ -1,12 +1,12 @@
-# Analytics AI Factory (AAF) 🏭 v2.0 Real
+# Analytics AI Factory (AAF)
 
 A Analytics AI Factory é uma plataforma autônoma projetada para criar pipelines de dados, arquiteturas analíticas e web apps de forma end-to-end. Ela não apenas gera o código, mas materializa, valida localmente via MCP, entra em um loop de autocorreção (Repair Loop) e emite um certificado final de prontidão de acordo com a Regra Absoluta do Projeto Pronto.
 
-## 🌟 Visão Geral e Proposta
+## Visão Geral e Proposta
 
 A AAF substitui a geração de templates estáticos por uma fábrica inteira baseada em Agentes de IA Especialistas. Você entra com um prompt na IDE Chat, o motor infere requisitos, faz perguntas de refinamento iterativas na mesma thread (Discovery), desenha o plano arquitetural, materializa os arquivos Python/SQL e executa testes locais reais (Runtime Engine) para garantir que o projeto funciona!
 
-## 🗺️ Fluxo de Execução E2E (Ciclo de Vida)
+## Fluxo de Execução E2E (Ciclo de Vida)
 
 O motor orquestra a inteligência seguindo rigorosamente o seguinte ciclo de vida:
 1. **Discovery**: Refinamento interativo com o usuário na IDE Chat.
@@ -45,7 +45,7 @@ graph TD;
     RG -->|Ready=YES| Fim((PROJECT READY = YES));
 ```
 
-## ⚖️ A Regra Absoluta de Certificação
+## A Regra Absoluta de Certificação
 `PROJECT READY = YES` **SOMENTE SE**:
 1. Discovery e Planejamento forem completamente aprovados pelo usuário e LLM.
 2. A fábrica construir o projeto através de MCP de verdade e os artefatos obrigatórios existirem (`Materialization = SUCCESS`).
@@ -53,7 +53,7 @@ graph TD;
 4. O **ValidationGate** comprovar que o ambiente suporta o código.
 5. Se houver falha de execução, o **Repair Loop** usar LLM para patchear arquivos automaticamente até 3 vezes.
 
-## 🚀 Guia de Uso
+## Guia de Uso
 
 ### Interface Principal: IDE Chat
 O AAF 2.0 foi arquitetado para ser uma engine embedded. A principal forma de iteração é acionar o **IDE Adapter** via IDE Chat, que mantém o `project_id` instanciado na pasta `.aaf_state/`, permitindo retomadas e iterações ao longo dos dias.
@@ -82,7 +82,7 @@ Se o Discovery Agent precisar de mais detalhes, o motor persistirá em `.aaf_sta
 python main.py continue <project_id> "Os usuários devem ter email e senha."
 ```
 
-## 📂 Estrutura de Diretórios Canônica
+## Estrutura de Diretórios Canônica
 - `a_platform/`: O coração do AAF.
   - `a_interfaces/ide/`: IDE Adapter - o portão oficial de entrada (substitui endpoints obsoletos e cli avulsos).
   - `a_core/`: State Manager, Domain Models, Readiness Gate e Master Orchestrator.

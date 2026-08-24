@@ -1,7 +1,7 @@
 # pyrefly: ignore [missing-import]
 import os
 import pytest
-from a_platform.a_interfaces.ide.adapter import IDEAdapter
+from a_platform.a_interfaces.a_ide.adapter import IDEAdapter
 
 def test_golden_path_real_e2e():
     """

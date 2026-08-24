@@ -3,7 +3,7 @@ import sys
 import logging
 from pprint import pprint
 
-from a_platform.a_interfaces.ide.adapter import IDEAdapter
+from a_platform.a_interfaces.a_ide.adapter import IDEAdapter
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
