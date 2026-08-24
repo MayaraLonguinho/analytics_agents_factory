@@ -11,3 +11,15 @@ rules:
 - domain: analytics
   pattern: Desconhecida
   recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py

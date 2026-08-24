@@ -6,11 +6,25 @@ A Analytics AI Factory é uma plataforma autônoma projetada para criar pipeline
 
 A AAF substitui a geração de templates estáticos por uma fábrica inteira baseada em Agentes de IA Especialistas. Você entra com um prompt na IDE Chat, o motor infere requisitos, faz perguntas de refinamento iterativas na mesma thread (Discovery), desenha o plano arquitetural, materializa os arquivos Python/SQL e executa testes locais reais (Runtime Engine) para garantir que o projeto funciona!
 
-## 🗺️ Fluxo de Execução E2E (Diagrama de Arquitetura)
+## 🗺️ Fluxo de Execução E2E (Ciclo de Vida)
+
+O motor orquestra a inteligência seguindo rigorosamente o seguinte ciclo de vida:
+1. **Discovery**: Refinamento interativo com o usuário na IDE Chat.
+2. **Profiling**: Análise de datasets ou metadados providenciados.
+3. **Brain**: Resgate de histórico de projetos e lições aprendidas (KnowledgeRegistry).
+4. **Architecture**: Definição da stack tecnológica.
+5. **Planner**: Geração do DAG de execução validado.
+6. **Factory**: Execução dos agentes de código (Data, DB, etc).
+7. **Materializer**: Escrita física dos artefatos usando MCP.
+8. **Runtime**: Inicialização de ambiente virtual e testes reais.
+9. **Validation**: Testes unitários gerados sendo validados (com Repair Loop caso necessário).
+10. **Quality**: Varredura via Linter e SecurityScanner.
+11. **Certification**: Homologação multietapas da aderência técnica.
+12. **ReadinessGate**: Gatilho absoluto que afere se todas as etapas estão `COMPLETED`.
 
 ```mermaid
 graph TD;
-    User((Usuário)) -->|Ideia + Dataset| IDE[IDE Chat Extension];
+    User((Usuário)) -->|Ideia + Dataset| IDE[IDE Chat];
     IDE -->|IDE Adapter| Master[Master Orchestrator];
     Master --> DA[Discovery Agent];
     DA -.->|Needs Input| IDE;
@@ -18,7 +32,6 @@ graph TD;
     Master --> AA[Architecture Agent];
     Master --> PA[Planner Agent];
     Master --> Factory{Project Factory};
-    Factory --> Agents[Especialistas via LLM Gateway];
     Factory --> MAT[Artifact Materializer];
     MAT --> MCP[Internal MCP Executor];
     MCP --> Disk[(Local FS & DB)];
@@ -26,8 +39,10 @@ graph TD;
     Master --> VG[Validation Gate];
     VG -->|Falha| Learning[Learning Engine / Repair Loop];
     Learning -.-> Factory;
-    VG -->|Passa| Cert[Readiness Gate];
-    Cert -->|Ready=YES| Fim((PROJECT READY = YES));
+    VG -->|Passa| QE[Quality Engine];
+    QE --> Cert[Certification Engine];
+    Cert --> RG[Readiness Gate];
+    RG -->|Ready=YES| Fim((PROJECT READY = YES));
 ```
 
 ## ⚖️ A Regra Absoluta de Certificação
