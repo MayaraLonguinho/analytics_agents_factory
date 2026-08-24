@@ -1,0 +1,42 @@
+[
+  {
+    "project_id": "proj_f6baffdf",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_65e7f06e",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_c84dff9e",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_0562aae8",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  }
+]

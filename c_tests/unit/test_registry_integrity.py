@@ -4,7 +4,7 @@ import os
 import yaml
 
 def test_registry_integrity():
-    registry_path = os.path.join(os.getcwd(), "a_platform", "h_domains", "registry.yaml")
+    registry_path = os.path.join(os.getcwd(), "a_platform", "i_domains", "registry.yaml")
     
     with open(registry_path, "r") as f:
         registry = yaml.safe_load(f)
