@@ -45,6 +45,7 @@ def test_architecture_agent_uses_learned_rules(mock_gateway_cls, mock_registry_c
     # Mock Brain
     mock_brain = MagicMock()
     mock_brain.get_project_context.return_value = {}
+    mock_brain.retrieve_relevant_knowledge.return_value = {}
     
     mock_graph_builder = MagicMock()
     mock_graph_builder.build_graph.return_value = {"nodes": []}
