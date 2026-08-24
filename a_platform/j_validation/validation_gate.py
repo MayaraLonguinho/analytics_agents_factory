@@ -20,6 +20,14 @@ class ValidationGate:
         self.pre = PreExecutionGate()
         self.post = PostExecutionGate()
         self.ready = ProjectReadyGate()
+        
+    def has_validator(self, name: str) -> bool:
+        # Pega a lista de validadores do pre e do post, seus nomes base.
+        names = [v.__class__.__name__.lower().replace("validator", "") for v in self.pre.validators] + \
+                [v.__class__.__name__.lower().replace("validator", "") for v in self.post.validators]
+        # Allow both validator_pytest and pytest
+        clean_name = name.lower().replace("validator_", "")
+        return clean_name in names or name.lower() in names
 
     def run_validation(self, request: ProjectRequest) -> bool:
         domain = request.discovery_data.get("domain", "generic").lower()

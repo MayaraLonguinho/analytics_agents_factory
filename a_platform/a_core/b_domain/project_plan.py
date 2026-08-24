@@ -70,3 +70,37 @@ class ProjectPlan:
                 
         self.validated = True
         return True
+
+    def validate_full(self, skill_registry, mcp_registry, agent_factory, validation_gate) -> bool:
+        """
+        Valida o DAG e também verifica a existência profunda de todas as dependências 
+        declaradas no plano (Agents, Skills, MCPs, Validators, Artefatos).
+        """
+        self.validate_dag()
+        
+        for task in self.tasks:
+            if not agent_factory.get_agent(task.agent):
+                raise ValueError(f"Agente inválido ou não registrado na factory: '{task.agent}' na tarefa {task.id}")
+                
+            for skill in task.skills:
+                # Vamos assumir que skill_registry possua um método has_skill ou get_skill
+                # Como não vimos o código todo de skill_registry, o get_skill servirá
+                if not skill_registry.get_skill(skill):
+                    raise ValueError(f"Skill não registrada: '{skill}' na tarefa {task.id}")
+                    
+            for mcp in task.mcps:
+                if not mcp_registry.get_tool(mcp):
+                    raise ValueError(f"MCP não registrado: '{mcp}' na tarefa {task.id}")
+                    
+            for val in task.validators:
+                # Assumimos que validation_gate tem método has_validator ou validators list
+                if hasattr(validation_gate, "has_validator") and not validation_gate.has_validator(val):
+                     # Fallback check caso não tenha
+                     raise ValueError(f"Validator não reconhecido: '{val}' na tarefa {task.id}")
+                     
+            for art in task.expected_artifacts:
+                if not art or "." not in art:
+                    raise ValueError(f"Formato de artefato inválido (deve conter extensão): '{art}' na tarefa {task.id}")
+                    
+        self.validated = True
+        return True

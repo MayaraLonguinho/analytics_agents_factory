@@ -104,14 +104,24 @@ class PlannerAgent:
             
         plan.run_commands = data.get("run_commands", [])
         
+        from a_platform.d_skills.skill_registry import SkillRegistry
+        from a_platform.e_mcp.a_registry.mcp_registry import MCPRegistry
+        from a_platform.c_agents.agent_factory import AgentFactory
+        from a_platform.j_validation.validation_gate import ValidationGate
+        
         if not plan.tasks:
             logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")
             return False
             
         try:
-            plan.validate_dag()
+            plan.validate_full(
+                SkillRegistry(),
+                MCPRegistry(),
+                AgentFactory(),
+                ValidationGate()
+            )
         except ValueError as e:
-            logger.error(f"[PlannerAgent] DAG inválido detectado: {e}")
+            logger.error(f"[PlannerAgent] Validação profunda falhou: {e}")
             return False
             
         request.project_plan = plan
