@@ -2,7 +2,7 @@ import pytest
 import os
 import shutil
 from unittest.mock import patch
-from a_platform.a_interfaces.a_ide.adapter import IDEAdapter
+from a_platform.a_interfaces.ide.adapter import IDEAdapter
 from c_tests.end_to_end.mock_gateway import get_mocked_generate_function
 
 def test_ide_interactive_session_e2e():
