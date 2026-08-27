@@ -51,8 +51,14 @@ def main():
     print("🚀 ANALYTICS AI FACTORY CORE")
     print("="*50)
     
-    if args.command in ["create", "start", "run"]:
+    if args.command == "create":
         res = adapter.create_project(args.prompt, args.dataset, args.domain)
+        _print_res(res)
+    elif args.command == "start":
+        res = adapter.start_project(args.prompt, args.dataset, args.domain)
+        _print_res(res)
+    elif args.command == "run":
+        res = adapter.run_project(args.prompt, args.dataset, args.domain)
         _print_res(res)
     elif args.command == "continue":
         res = adapter.continue_project(args.project_id, args.response)

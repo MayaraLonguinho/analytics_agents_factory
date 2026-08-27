@@ -32,6 +32,13 @@ class IDEAdapter:
         orchestrator = MasterOrchestrator()
         return self._execute_and_format(orchestrator, request)
 
+    def start_project(self, prompt: str, dataset_path: Optional[str] = None, domain: Optional[str] = None) -> ProjectResponseDTO:
+        return self.create_project(prompt, dataset_path, domain)
+
+    def run_project(self, prompt: str, dataset_path: Optional[str] = None, domain: Optional[str] = None) -> ProjectResponseDTO:
+        return self.create_project(prompt, dataset_path, domain)
+
+
     def continue_project(self, project_id: str, user_response: str) -> ProjectResponseDTO:
         state_manager, request = IDESession.load_session(project_id)
         if not state_manager or not request:
