@@ -32,14 +32,15 @@ class BasicCodingSkill(BaseSkill):
 
         llm_response = self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
         
-        if llm_response["success"]:
-            code_text = llm_response["text"]
-            # Clean up markdown if model ignored the instruction
-            code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
-            code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
-        else:
-            logger.error(f"[BasicCodingSkill] Falha LLM: {llm_response.get('error')}")
-            code_text = f"# LLM Generation Failed: {llm_response.get('error')}\nprint('Hello from fallback {script_name}')"
+        if not llm_response.get("success"):
+            error_msg = f"LLM Generation Failed: {llm_response.get('error')}"
+            logger.error(f"[BasicCodingSkill] {error_msg}")
+            raise ValueError(error_msg)
+            
+        code_text = llm_response["text"]
+        # Clean up markdown if model ignored the instruction
+        code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
+        code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
         
         result = {
             script_name: code_text

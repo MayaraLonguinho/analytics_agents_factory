@@ -31,13 +31,14 @@ class ApiDesignSkill(BaseSkill):
 
         llm_response = self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
         
-        if llm_response["success"]:
-            code_text = llm_response["text"]
-            code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
-            code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
-        else:
-            logger.error(f"[ApiDesignSkill] Falha LLM: {llm_response.get('error')}")
-            code_text = f"# LLM Generation Failed: {llm_response.get('error')}\nopenapi: 3.0.0\ninfo:\n  title: {domain} API\n  version: 1.0.0"
+        if not llm_response.get("success"):
+            error_msg = f"LLM Generation Failed: {llm_response.get('error')}"
+            logger.error(f"[ApiDesignSkill] {error_msg}")
+            raise ValueError(error_msg)
+            
+        code_text = llm_response["text"]
+        code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
+        code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
         
         result = {
             "swagger.yaml": code_text

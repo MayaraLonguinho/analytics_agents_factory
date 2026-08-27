@@ -31,13 +31,14 @@ class SqlGenerationSkill(BaseSkill):
 
         llm_response = self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
         
-        if llm_response["success"]:
-            code_text = llm_response["text"]
-            code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
-            code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
-        else:
-            logger.error(f"[SqlGenerationSkill] Falha LLM: {llm_response.get('error')}")
-            code_text = f"-- LLM Generation Failed: {llm_response.get('error')}\nCREATE TABLE generated_table (id INT PRIMARY KEY);"
+        if not llm_response.get("success"):
+            error_msg = f"LLM Generation Failed: {llm_response.get('error')}"
+            logger.error(f"[SqlGenerationSkill] {error_msg}")
+            raise ValueError(error_msg)
+            
+        code_text = llm_response["text"]
+        code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
+        code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
         
         result = {
             "schema.sql": code_text
