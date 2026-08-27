@@ -26,6 +26,9 @@ class SkillRegistry:
             "basic_coding": BasicCodingSkill()
         }
 
+    def get_skill(self, name: str):
+        return self.skills.get(name)
+
     def run_skill(self, skill_name: str, context: Dict[str, Any]) -> Dict[str, Any]:
         logger.info(f"[SkillRegistry] Invocando skill: {skill_name}")
         

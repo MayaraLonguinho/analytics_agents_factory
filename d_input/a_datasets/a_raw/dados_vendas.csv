@@ -1,5 +1,56 @@
-id,data,produto,categoria,valor,status
-1,2026-08-20,Notebook,Eletronicos,4500.00,Pago
-2,2026-08-21,Cadeira,Moveis,850.00,Pendente
-3,2026-08-22,Monitor,Eletronicos,,Cancelado
-4,2026-08-23,Mesa,Moveis,1200.00,Pago
+id,data,produto,valor,categoria
+6,2023-01-06,Monitor,1100.00,Eletronicos
+7,2023-01-07,Smartphone,2800.00,Eletronicos
+8,2023-01-08,Armario,1500.00,Moveis
+9,2023-01-09,Headset,250.00,Eletronicos
+10,2023-01-10,Estante,450.00,Moveis
+11,2023-01-11,Webcam,180.00,Eletronicos
+12,2023-01-12,Sofa,2200.00,Moveis
+13,2023-01-13,Tablet,1900.00,Eletronicos
+14,2023-01-14,Gaveteiro,350.00,Moveis
+15,2023-01-15,Impressora,850.00,Eletronicos
+16,2023-01-16,Luminaria,120.00,Moveis
+17,2023-01-17,Roteador,220.00,Eletronicos
+18,2023-01-18,Poltrona,950.00,Moveis
+19,2023-01-19,Smartwatch,1300.00,Eletronicos
+20,2023-01-20,Painel de TV,600.00,Moveis
+21,2023-01-21,Mousepad,80.00,Eletronicos
+22,2023-01-22,Rack,750.00,Moveis
+23,2023-01-23,Caixa de Som,300.00,Eletronicos
+24,2023-01-24,Aparador,500.00,Moveis
+25,2023-01-25,Microfone,400.00,Eletronicos
+26,2023-01-26,Banco Alto,180.00,Moveis
+27,2023-01-27,HD Externo,380.00,Eletronicos
+28,2023-01-28,Mesa de Centro,320.00,Moveis
+29,2023-01-29,Placa de Video,4200.00,Eletronicos
+30,2023-01-30,Cama Casal,1800.00,Moveis
+31,2023-01-31,Processador,1600.00,Eletronicos
+32,2023-02-01,Criado Mudo,220.00,Moveis
+33,2023-02-02,Memoria RAM,450.00,Eletronicos
+34,2023-02-03,Guarda Roupa,2600.00,Moveis
+35,2023-02-04,Fonte ATX,550.00,Eletronicos
+36,2023-02-05,Mesa de Jantar,1900.00,Moveis
+37,2023-02-06,Gabinete,350.00,Eletronicos
+38,2023-02-07,Cadeira Gamer,1300.00,Moveis
+39,2023-02-08,SSD 1TB,420.00,Eletronicos
+40,2023-02-09,Balcao de Cozinha,890.00,Moveis
+41,2023-02-10,Carregador Portatil,110.00,Eletronicos
+42,2023-02-11,Penteadeira,650.00,Moveis
+43,2023-02-12,Cabo HDMI,45.00,Eletronicos
+44,2023-02-13,Sapateira,280.00,Moveis
+45,2023-02-14,Adaptador USB,35.00,Eletronicos
+46,2023-02-15,Buffet,1150.00,Moveis
+47,2023-02-16,Kindle,500.00,Eletronicos
+48,2023-02-17,Nicho de Parede,90.00,Moveis
+49,2023-02-18,Drone,3200.00,Eletronicos
+50,2023-02-19,Baú,400.00,Moveis
+51,2023-02-20,Controle Xbox,350.00,Eletronicos
+52,2023-02-21,Mesa Dobravel,190.00,Moveis
+53,2023-02-22,Console PS5,4400.00,Eletronicos
+54,2023-02-23,Escrivaninha,550.00,Moveis
+55,2023-02-24,Projetor,1750.00,Eletronicos
+56,2023-02-25,Cabideiro,130.00,Moveis
+57,2023-02-26,Filtro de Linha,60.00,Eletronicos
+58,2023-02-27,Puff,150.00,Moveis
+59,2023-02-28,Smart TV,2900.00,Eletronicos
+60,2023-03-01,Prateleira,85.00,Moveis

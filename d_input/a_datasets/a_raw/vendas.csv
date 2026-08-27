@@ -1,6 +1,5 @@
-id,data,produto,valor,categoria
-1,2023-01-01,Notebook,3500.00,Eletronicos
-2,2023-01-02,Mouse,150.00,Eletronicos
-3,2023-01-03,Cadeira,800.00,Moveis
-4,2023-01-04,Teclado,200.00,Eletronicos
-5,2023-01-05,Mesa,1200.00,Moveis
+id,data,produto,categoria,valor,status
+1,2026-08-20,Notebook,Eletronicos,4500.00,Pago
+2,2026-08-21,Cadeira,Moveis,850.00,Pendente
+3,2026-08-22,Monitor,Eletronicos,,Cancelado
+4,2026-08-23,Mesa,Moveis,1200.00,Pago

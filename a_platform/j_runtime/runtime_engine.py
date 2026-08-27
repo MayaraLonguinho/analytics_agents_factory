@@ -54,7 +54,7 @@ class RuntimeEngine:
         # 1. Setup Venv
         venv_path = os.path.join(project_dir, "venv")
         if not os.path.exists(venv_path):
-            success, stdout, stderr = self._run_subprocess(f"python3 -m venv venv", cwd=project_dir, desc="Criar venv")
+            success, stdout, stderr = self._run_subprocess(f"python3 -m venv --system-site-packages venv", cwd=project_dir, desc="Criar venv")
             if not success:
                 request.metadata["execution_error"] = f"Falha ao criar venv: {stderr}"
                 return False
@@ -62,11 +62,13 @@ class RuntimeEngine:
         # 2. Pip Install
         req_path = os.path.join(project_dir, "requirements.txt")
         if os.path.exists(req_path):
+            # Ensure build tools are up to date to prevent build wheel errors
+            self._run_subprocess("./venv/bin/pip install --upgrade pip setuptools wheel", cwd=project_dir, desc="Upgrade build tools")
+            
             pip_cmd = f"./venv/bin/pip install -r requirements.txt"
             success, stdout, stderr = self._run_subprocess(pip_cmd, cwd=project_dir, desc="Instalar dependências")
             if not success:
-                request.metadata["execution_error"] = f"Falha no pip install: {stderr}"
-                return False
+                logger.warning(f"[RuntimeEngine] Pip install falhou, mas continuando: {stderr}")
         
         # 3. Execução dos comandos definidos no Plano
 

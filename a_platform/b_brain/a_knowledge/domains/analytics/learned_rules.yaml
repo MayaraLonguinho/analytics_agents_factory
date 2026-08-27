@@ -1,13 +1,11 @@
 rules:
-- domain: analytics
-  pattern: Desconhecida
-  recommendation: Fixed main.py
-- domain: analytics
-  pattern: Desconhecida
-  recommendation: Fixed main.py
-- domain: analytics
-  pattern: Desconhecida
-  recommendation: Fixed main.py
-- domain: analytics
-  pattern: Desconhecida
-  recommendation: Fixed main.py
+- domain: Analytics
+  pattern: 'Módulo ausente: ''pkg_resources'' não encontrado.'
+  recommendation: Corrigido o arquivo setup.py.
+- domain: Analytics
+  pattern: O script de instalação do pacote não conseguiu encontrar o módulo necessário
+    durante a construção do wheel.
+  recommendation: Corrigido o arquivo setup.py.
+- domain: Analytics
+  pattern: Falha no script de controle pós-execução.
+  recommendation: Fixed post_execution_gate.py

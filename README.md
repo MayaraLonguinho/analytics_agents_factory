@@ -59,33 +59,26 @@ graph TD;
 
 Caso contrário, `PROJECT READY = NO`.
 
-## Guia de Uso
+## Guia de Uso Rápido e Documentação Operacional
 
-### Interface Principal: IDE Chat
-A plataforma foi arquitetada para ser uma engine embedded. A interface principal de interação é o IDE Chat. CLI, API local e UI Web são interfaces secundárias que reutilizam o mesmo núcleo. A iteração via IDE Chat mantém o `project_id` instanciado na pasta `.aaf_state/`, permitindo retomadas e iterações ao longo dos dias.
+A documentação detalhada e passo a passo está localizada na pasta `b_documentation/guides/`. Recomendamos fortemente a leitura dos guias operacionais antes de iniciar.
 
-### Pré-requisitos
-- Python 3.10+
-- OpenAI API Key, Anthropic API Key ou Google Gemini API Key. (Provedores locais sem fidelity foram removidos para garantir geração confiável de JSON nos fluxos autônomos).
+- [Guia de Instalação](b_documentation/guides/installation.md)
+- [Guia da Interface IDE Chat (Principal)](b_documentation/guides/ide_chat_usage.md)
+- [Guia da Interface CLI (Secundária)](b_documentation/guides/cli_usage.md)
+- [Guia da Interface Web UI](b_documentation/guides/web_ui_usage.md)
+- [Roteiro de Testes e Homologação](b_documentation/guides/testing_and_validation.md)
 
+### Resumo de Instalação e Execução via CLI
 ```bash
-# Clone e entre no diretório
-cd analytics_agents_factory
-
-# Instale dependências core
-python -m venv .venv
-source .venv/bin/activate
+# Clone e crie o ambiente virtual
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-```
 
-### CLI (Interface Secundária)
-Caso não esteja usando a IDE, você pode acionar o motor via CLI nativo que emulará a interface de chat se necessário:
-```bash
+# Configure as chaves de API (duplique .env.example para .env)
+# Rode um projeto de exemplo via CLI
 python main.py create "Crie uma API FastAPI de gestão de usuarios"
-```
-Se o Discovery Agent precisar de mais detalhes, o motor persistirá em `.aaf_state/` e solicitará que você utilize o comando `continue`:
-```bash
-python main.py continue <project_id> "Os usuarios devem ter email e senha."
 ```
 
 ## Estrutura de Diretórios Canônica

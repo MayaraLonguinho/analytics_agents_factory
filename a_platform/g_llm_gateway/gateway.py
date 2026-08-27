@@ -15,7 +15,7 @@ class LLMGateway:
     """
     def __init__(self):
         self.openai_key = os.getenv("OPENAI_API_KEY")
-        self.google_key = os.getenv("GOOGLE_API_KEY")
+        self.google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
         
     def generate(self, prompt: str, system_prompt: str = "", model_preference: str = "openai", **kwargs) -> Dict[str, Any]:
@@ -80,7 +80,7 @@ class LLMGateway:
             return {"success": False, "error": str(e)}
 
     def _call_google(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.google_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.google_key}"
         headers = {"Content-Type": "application/json"}
         data = {
             "contents": [

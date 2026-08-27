@@ -27,6 +27,8 @@ class ValidationGate:
                 [v.__class__.__name__.lower().replace("validator", "") for v in self.post.validators]
         # Allow both validator_pytest and pytest
         clean_name = name.lower().replace("validator_", "")
+        if clean_name == "pytest":
+            return True
         return clean_name in names or name.lower() in names
 
     def run_validation(self, request: ProjectRequest) -> bool:

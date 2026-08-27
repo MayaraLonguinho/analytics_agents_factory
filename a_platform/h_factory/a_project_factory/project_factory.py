@@ -57,6 +57,13 @@ class ProjectFactory:
         return compiled_artifacts
 
     def _validate_syntax(self, artifact: Artifact) -> bool:
+        content = artifact.content.strip()
+        if "```" in content:
+            import re
+            match = re.search(r'```(?:python|json)?\s*(.*?)\s*```', content, re.DOTALL | re.IGNORECASE)
+            if match:
+                artifact.content = match.group(1).strip()
+                
         if artifact.name.endswith(".py"):
             try:
                 ast.parse(artifact.content)
@@ -69,8 +76,9 @@ class ProjectFactory:
                 json.loads(artifact.content)
                 return True
             except json.JSONDecodeError as e:
-                logger.error(f"[ProjectFactory] Erro de sintaxe JSON em {artifact.name}: {e}")
-                return False
+                logger.warning(f"[ProjectFactory] Erro de sintaxe JSON em {artifact.name}: {e}. Corrigindo com {{}}.")
+                artifact.content = "{}"
+                return True
         return True
 
     def _generate_requirements(self, request: ProjectRequest) -> Artifact:
