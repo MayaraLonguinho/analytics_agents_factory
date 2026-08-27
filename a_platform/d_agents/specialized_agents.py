@@ -8,6 +8,15 @@ from a_platform.a_core.b_domain.artifact import Artifact
 
 logger = logging.getLogger(__name__)
 
+def inject_dependencies(task: Task, request: ProjectRequest) -> str:
+    if not request.artifacts:
+        return ""
+    
+    text = "\n\nARTEFATOS JÁ GERADOS NO PROJETO (Use como contexto e dependência para sua tarefa):\n"
+    for art in request.artifacts:
+        if art.type in ["source_code", "skill_output"] and art.content:
+            text += f"\n--- Arquivo: {art.name} ---\n{art.content}\n"
+    return text
 
 class DataAgent(BaseAgent):
     """
@@ -15,13 +24,11 @@ class DataAgent(BaseAgent):
     """
     def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de engenharia de dados: {task.name}")
-        # Filtrar apenas skills relevantes ao domínio
         relevant_skills = ["dataset_profiling", "etl_scripting"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
         
-        # Inject domain rules
         domain_rules = "REGRAS DE DADOS/ETL: Você deve incluir regras rígidas de sanitização e tratar possíveis valores nulos ou duplicados. Invoque as ferramentas de profiling se necessário."
-        task.description = f"{task.description}\n\n{domain_rules}"
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         
         return super().execute_task(task, request)
 
@@ -36,7 +43,7 @@ class DatabaseAgent(BaseAgent):
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
         
         domain_rules = "REGRAS DE BANCO DE DADOS: O código SQL deve obrigatoriamente incluir constraints (Primary Keys, Foreign Keys, Not Null, etc.) e seguir boas práticas de DDL."
-        task.description = f"{task.description}\n\n{domain_rules}"
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         
         return super().execute_task(task, request)
 
@@ -51,7 +58,7 @@ class AnalyticsAgent(BaseAgent):
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
         
         domain_rules = "REGRAS ANALÍTICAS: Estruture queries focadas em performance, utilizando CTEs para legibilidade e implementando métricas analíticas claras."
-        task.description = f"{task.description}\n\n{domain_rules}"
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         
         return super().execute_task(task, request)
 
@@ -65,8 +72,8 @@ class TestingAgent(BaseAgent):
         relevant_skills = ["basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
         
-        domain_rules = "REGRAS DE TESTING: Escreva asserções claras cobrindo os schemas ou lógicas geradas. Utilize o padrão do `pytest` se for em Python."
-        task.description = f"{task.description}\n\n{domain_rules}"
+        domain_rules = "REGRAS DE TESTING: Escreva testes executáveis com asserções claras que testem de fato os schemas ou o código gerado. Utilize pytest em Python. Mocks podem ser usados para chamadas externas."
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         
         return super().execute_task(task, request)
 
@@ -80,8 +87,8 @@ class InfrastructureAgent(BaseAgent):
         relevant_skills = ["basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
         
-        domain_rules = "REGRAS DE INFRA: Valide artefatos como Dockerfile, garanta dependências corretas (multi-stage build quando possível) e segurança."
-        task.description = f"{task.description}\n\n{domain_rules}"
+        domain_rules = "REGRAS DE INFRA: Crie os arquivos de infraestrutura (Dockerfile, docker-compose.yml) para englobar os artefatos já gerados, garantindo todas dependências."
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         
         return super().execute_task(task, request)
 
@@ -91,6 +98,8 @@ class BackendAgent(BaseAgent):
         logger.info(f"[{self.name}] Executando task especializada de backend: {task.name}")
         relevant_skills = ["api_design", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
+        domain_rules = "REGRAS DE BACKEND: Escreva controllers, services e schemas consistentes. Integre com o banco se o código do banco existir."
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         return super().execute_task(task, request)
 
 
@@ -99,4 +108,6 @@ class FrontendAgent(BaseAgent):
         logger.info(f"[{self.name}] Executando task especializada de frontend: {task.name}")
         relevant_skills = ["api_design", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
+        domain_rules = "REGRAS DE FRONTEND: Crie componentes UI usando frameworks modernos (React, etc) se solicitado. Conecte com a API correspondente."
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
         return super().execute_task(task, request)
