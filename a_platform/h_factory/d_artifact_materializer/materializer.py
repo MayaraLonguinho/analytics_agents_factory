@@ -79,6 +79,12 @@ class ArtifactMaterializer:
                 
         missing_files = expected_files - written_files
         
+        # O system_prompt do PlannerAgent geralmente não obriga "requirements.txt" se a task for só DDL, 
+        # mas adicionamos estaticamente acima. Para não dar falsos negativos se o plano não gerar requirements, 
+        # focaremos na estrita cobrança dos expected_artifacts das tasks.
+        if "requirements.txt" in missing_files and "requirements.txt" not in [art for task in plan.tasks for art in task.expected_artifacts]:
+            missing_files.remove("requirements.txt")
+        
         if not missing_files:
             logger.info("[ArtifactMaterializer] Materialização concluída com sucesso. Todos os artefatos esperados foram gravados.")
             return True

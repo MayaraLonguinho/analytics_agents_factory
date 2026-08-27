@@ -27,9 +27,31 @@ class ProjectReadyGate:
         logger.info("[ProjectReadyGate] Checagem final de adequação de componentes (Project Ready)...")
         all_passed = True
         
+        # Obter os agentes do plano (camadas exigidas)
+        required_agents = set()
+        if request.project_plan and request.project_plan.tasks:
+            required_agents = {task.agent for task in request.project_plan.tasks}
+            
+        # Mapeamento do nome do validador para o agente correspondente que criaria essa camada
+        validator_to_agent = {
+            "BackendValidator": "BackendAgent",
+            "FrontendValidator": "FrontendAgent",
+            "DatabaseValidator": "DatabaseAgent",
+            "InfrastructureValidator": "InfrastructureAgent",
+            "DocumentationValidator": "DocumentationAgent"
+        }
+        
         for val in self.validators:
-            res = val.validate(request, project_dir)
             name = val.__class__.__name__
+            agent_needed = validator_to_agent.get(name)
+            
+            # Se o plano existe, e a camada é de uma responsabilidade que não está no plano, pule a validação e dê NOT_APPLICABLE.
+            if request.project_plan and agent_needed and agent_needed not in required_agents:
+                logger.info(f"[ProjectReadyGate] {name} NOT_APPLICABLE (Camada '{agent_needed}' não exigida no ProjectPlan)")
+                continue
+                
+            res = val.validate(request, project_dir)
+            
             if res["status"] == "FAIL":
                 logger.error(f"[ProjectReadyGate] {name} FALHOU: {res['message']}")
                 all_passed = False

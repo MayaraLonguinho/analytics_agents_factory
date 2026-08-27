@@ -45,7 +45,7 @@ class ValidationGate:
                 
         # Carrega domain.yaml para saber quais validadores são obrigatórios
         required_validators = []
-        domain_file = os.path.join(os.getcwd(), "a_platform", "h_domains", domain, "domain.yaml")
+        domain_file = os.path.join(os.getcwd(), "a_platform", "i_domains", domain, "domain.yaml")
         if os.path.exists(domain_file):
             try:
                 with open(domain_file, "r") as f:
