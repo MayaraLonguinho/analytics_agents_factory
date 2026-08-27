@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {
+      "id": "proj_fb023033",
+      "type": "Project",
+      "label": "analytics"
+    },
+    {
+      "id": "req_domain",
+      "type": "Requirement",
+      "label": "analytics"
+    },
+    {
+      "id": "arch_proj_fb023033",
+      "type": "Architecture",
+      "label": "Unknown"
+    }
+  ],
+  "edges": [
+    {
+      "source": "proj_fb023033",
+      "target": "req_domain",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_fb023033",
+      "target": "arch_proj_fb023033",
+      "relation": "USES_ARCHITECTURE"
+    }
+  ]
+}
