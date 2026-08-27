@@ -1,7 +1,7 @@
 {
   "nodes": [
     {
-      "id": "proj_65e7f06e",
+      "id": "proj_097853b0",
       "type": "Project",
       "label": "analytics"
     },
@@ -11,20 +11,20 @@
       "label": "analytics"
     },
     {
-      "id": "arch_proj_65e7f06e",
+      "id": "arch_proj_097853b0",
       "type": "Architecture",
       "label": "Unknown"
     }
   ],
   "edges": [
     {
-      "source": "proj_65e7f06e",
+      "source": "proj_097853b0",
       "target": "req_domain",
       "relation": "HAS_CONSTRAINT"
     },
     {
-      "source": "proj_65e7f06e",
-      "target": "arch_proj_65e7f06e",
+      "source": "proj_097853b0",
+      "target": "arch_proj_097853b0",
       "relation": "USES_ARCHITECTURE"
     }
   ]

@@ -80,20 +80,12 @@ class LLMGateway:
             return {"success": False, "error": str(e)}
 
     def _call_google(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.google_key}"
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "contents": [
-                {"parts": [{"text": f"SYSTEM: {system_prompt}\n\nUSER: {prompt}"}]}
-            ]
-        }
-        
         try:
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as response:
-                resp_data = json.loads(response.read().decode("utf-8"))
-                text = resp_data["candidates"][0]["content"]["parts"][0]["text"]
-                return {"success": True, "text": text, "model": "google-gemini-1.5-flash"}
+            from a_platform.g_llm_gateway.b_providers.google.provider import GoogleProvider
+            provider = GoogleProvider()
+            import asyncio
+            text = asyncio.run(provider.generate(prompt, system_prompt))
+            return {"success": True, "text": text, "model": "google-gemini"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 

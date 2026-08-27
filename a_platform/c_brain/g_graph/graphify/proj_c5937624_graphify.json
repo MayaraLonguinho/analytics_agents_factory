@@ -1,9 +1,14 @@
 {
   "nodes": [
     {
-      "id": "proj_3c1c64db",
+      "id": "proj_c5937624",
       "type": "Project",
       "label": "analytics"
+    },
+    {
+      "id": "dataset_proj_c5937624",
+      "type": "Dataset",
+      "label": "Raw Data"
     },
     {
       "id": "req_domain",
@@ -11,20 +16,25 @@
       "label": "analytics"
     },
     {
-      "id": "arch_proj_3c1c64db",
+      "id": "arch_proj_c5937624",
       "type": "Architecture",
       "label": "Unknown"
     }
   ],
   "edges": [
     {
-      "source": "proj_3c1c64db",
+      "source": "proj_c5937624",
+      "target": "dataset_proj_c5937624",
+      "relation": "CONSUMES"
+    },
+    {
+      "source": "proj_c5937624",
       "target": "req_domain",
       "relation": "HAS_CONSTRAINT"
     },
     {
-      "source": "proj_3c1c64db",
-      "target": "arch_proj_3c1c64db",
+      "source": "proj_c5937624",
+      "target": "arch_proj_c5937624",
       "relation": "USES_ARCHITECTURE"
     }
   ]

@@ -1,5 +1,4 @@
 # pyrefly: ignore [missing-import]
-import pytest
 import os
 import shutil
 from unittest.mock import patch

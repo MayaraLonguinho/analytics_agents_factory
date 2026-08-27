@@ -9,3 +9,27 @@ rules:
 - domain: Analytics
   pattern: Falha no script de controle pós-execução.
   recommendation: Fixed post_execution_gate.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py

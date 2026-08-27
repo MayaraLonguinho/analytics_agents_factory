@@ -3,10 +3,11 @@ import time
 import shutil
 import os
 from a_platform.c_brain.e_memory.memory_manager import MemoryManager
+from a_platform.c_brain.g_graph.graph_builder import GraphBuilder
+from a_platform.c_brain.g_graph.backend import ObsidianBackend
 from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
 from a_platform.c_brain.f_registry.rule_registry import RuleRegistry
 from a_platform.c_brain.f_registry.pattern_registry import PatternRegistry
-from a_platform.c_brain.g_graph.obsidian.graph_builder import ObsidianGraphBuilder
 
 def test_memory_manager():
     mm = MemoryManager()
@@ -50,17 +51,23 @@ def test_pattern_registry():
 
 def test_graph_builder():
     output_dir = "/tmp/test_obsidian_graph"
-    builder = ObsidianGraphBuilder(output_dir)
+    backend = ObsidianBackend(output_dir)
     
-    nodes = [
-        {"id": "BrainCore", "content": "Core system", "links": ["Memory", "Rules"]},
-        {"id": "Memory", "content": "Memory system", "links": []}
-    ]
+    graph_data = {
+        "nodes": [
+            {"id": "BrainCore", "type": "System", "label": "Core system"},
+            {"id": "Memory", "type": "System", "label": "Memory system"}
+        ],
+        "edges": [
+            {"source": "BrainCore", "target": "Memory", "relation": "USES"}
+        ]
+    }
     
-    builder.build_graph(nodes)
+    backend.export_graph("test_proj", graph_data)
     
-    assert os.path.exists(os.path.join(output_dir, "BrainCore.md"))
-    with open(os.path.join(output_dir, "BrainCore.md"), "r") as f:
+    proj_dir = os.path.join(output_dir, "test_proj")
+    assert os.path.exists(os.path.join(proj_dir, "BrainCore.md"))
+    with open(os.path.join(proj_dir, "BrainCore.md"), "r") as f:
         content = f.read()
         assert "[[Memory]]" in content
         
