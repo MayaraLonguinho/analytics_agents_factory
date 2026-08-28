@@ -25,7 +25,7 @@ def test_materializer(tmp_path):
         Artifact(name="requirements.txt", content="pytest")
     ]
     
-    with patch("os.getcwd", return_value=str(tmp_path)):
+    with patch("os.getcwd", return_value=str(tmp_path)), patch("os.path.exists", return_value=True):
         result = materializer.materialize(request, artifacts)
     
     assert result is True

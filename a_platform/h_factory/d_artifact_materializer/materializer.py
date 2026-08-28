@@ -85,9 +85,18 @@ class ArtifactMaterializer:
         if "requirements.txt" in missing_files and "requirements.txt" not in [art for task in plan.tasks for art in task.expected_artifacts]:
             missing_files.remove("requirements.txt")
         
-        if not missing_files:
-            logger.info("[ArtifactMaterializer] Materialização concluída com sucesso. Todos os artefatos esperados foram gravados.")
-            return True
-        else:
-            logger.error(f"[ArtifactMaterializer] FALHA NA MATERIALIZAÇÃO. Artefatos ausentes: {missing_files}")
+        # Validação I/O Física
+        physically_missing = set()
+        for expected_file in expected_files:
+            if expected_file == "requirements.txt" and "requirements.txt" not in [art for task in plan.tasks for art in task.expected_artifacts]:
+                continue
+            file_path = os.path.join(project_dir, expected_file)
+            if not os.path.exists(file_path):
+                physically_missing.add(expected_file)
+        
+        if missing_files or physically_missing:
+            logger.error(f"[ArtifactMaterializer] FALHA NA MATERIALIZAÇÃO. Artefatos ausentes logicamente: {missing_files}. Artefatos ausentes fisicamente no disco: {physically_missing}")
             return False
+
+        logger.info("[ArtifactMaterializer] Materialização concluída com sucesso. Todos os artefatos esperados foram gravados e validados fisicamente no disco.")
+        return True

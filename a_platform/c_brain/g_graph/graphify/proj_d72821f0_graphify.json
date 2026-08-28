@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {
+      "id": "proj_d72821f0",
+      "type": "Project",
+      "label": "analytics"
+    },
+    {
+      "id": "req_domain",
+      "type": "Requirement",
+      "label": "analytics"
+    },
+    {
+      "id": "arch_proj_d72821f0",
+      "type": "Architecture",
+      "label": "Unknown"
+    }
+  ],
+  "edges": [
+    {
+      "source": "proj_d72821f0",
+      "target": "req_domain",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_d72821f0",
+      "target": "arch_proj_d72821f0",
+      "relation": "USES_ARCHITECTURE"
+    }
+  ]
+}
