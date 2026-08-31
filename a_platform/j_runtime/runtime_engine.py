@@ -85,7 +85,8 @@ class RuntimeEngine:
             return False
             
         for cmd in plan.run_commands:
-            success, stdout, stderr = self._run_subprocess(cmd, cwd=project_dir, desc=f"Executar: {cmd}")
+            venv_cmd = f"source venv/bin/activate && {cmd}"
+            success, stdout, stderr = self._run_subprocess(venv_cmd, cwd=project_dir, desc=f"Executar: {cmd}")
             if not success:
                 logger.error(f"[RuntimeEngine] Falha ao executar o comando de runtime: {cmd}")
                 request.metadata["execution_error"] = f"Falha na execução do comando '{cmd}': {stderr}"
@@ -111,7 +112,7 @@ class RuntimeEngine:
     def _run_subprocess(self, cmd: str, cwd: str, desc: str) -> tuple[bool, str, str]:
         logger.info(f"[RuntimeEngine] {desc}")
         try:
-            result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
+            result = subprocess.run(cmd, shell=True, executable="/bin/bash", cwd=cwd, capture_output=True, text=True)
             if result.returncode != 0:
                 logger.error(f"[RuntimeEngine] '{cmd}' falhou com código {result.returncode}")
                 err_out = result.stderr.strip()

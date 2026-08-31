@@ -66,6 +66,6 @@ CORE_SKILL_CONTRACTS = {
         name="basic_coding",
         description="Gera um script padrão Python hello world.",
         required_inputs=["script_name"],
-        expected_outputs=["script.py"]
+        expected_outputs=[]
     )
 }

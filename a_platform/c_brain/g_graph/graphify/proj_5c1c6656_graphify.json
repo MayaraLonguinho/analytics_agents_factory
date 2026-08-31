@@ -1,0 +1,161 @@
+{
+  "nodes": [
+    {
+      "id": "proj_5c1c6656",
+      "type": "Project",
+      "label": "analytics"
+    },
+    {
+      "id": "dataset_proj_5c1c6656",
+      "type": "Dataset",
+      "label": "Raw Data"
+    },
+    {
+      "id": "req_domain",
+      "type": "Requirement",
+      "label": "analytics"
+    },
+    {
+      "id": "req_objective",
+      "type": "Requirement",
+      "label": "Calcular KPIs e m\u00e9tricas de faturamento total a pa"
+    },
+    {
+      "id": "req_users",
+      "type": "Requirement",
+      "label": "Usu\u00e1rios que necessitam de an\u00e1lise de vendas e m\u00e9t"
+    },
+    {
+      "id": "req_data_sources",
+      "type": "Requirement",
+      "label": "dados_vendas.csv"
+    },
+    {
+      "id": "req_functional_requirements",
+      "type": "Requirement",
+      "label": "Leitura do arquivo CSV, c\u00e1lculo de KPIs, apresenta"
+    },
+    {
+      "id": "req_technical_requirements",
+      "type": "Requirement",
+      "label": "Utiliza\u00e7\u00e3o de Python como linguagem de programa\u00e7\u00e3o"
+    },
+    {
+      "id": "req_database",
+      "type": "Requirement",
+      "label": "N\u00e3o aplic\u00e1vel, os dados est\u00e3o em um arquivo CSV."
+    },
+    {
+      "id": "req_backend",
+      "type": "Requirement",
+      "label": "Python script para processamento dos dados."
+    },
+    {
+      "id": "req_frontend",
+      "type": "Requirement",
+      "label": "N\u00e3o aplic\u00e1vel, o foco est\u00e1 no back-end de processa"
+    },
+    {
+      "id": "req_infrastructure",
+      "type": "Requirement",
+      "label": "Ambiente Python, sem necessidade de servidores ou "
+    },
+    {
+      "id": "req_testing",
+      "type": "Requirement",
+      "label": "Testes unit\u00e1rios para garantir a precis\u00e3o dos c\u00e1lc"
+    },
+    {
+      "id": "req_documentation",
+      "type": "Requirement",
+      "label": "Documenta\u00e7\u00e3o b\u00e1sica explicando o funcionamento do "
+    },
+    {
+      "id": "req_constraints",
+      "type": "Requirement",
+      "label": "Limita\u00e7\u00e3o em rela\u00e7\u00e3o ao tamanho do arquivo CSV e c"
+    },
+    {
+      "id": "arch_proj_5c1c6656",
+      "type": "Architecture",
+      "label": "Data Pipeline"
+    }
+  ],
+  "edges": [
+    {
+      "source": "proj_5c1c6656",
+      "target": "dataset_proj_5c1c6656",
+      "relation": "CONSUMES"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_domain",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_objective",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_users",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_data_sources",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_functional_requirements",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_technical_requirements",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_database",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_backend",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_frontend",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_infrastructure",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_testing",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_documentation",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "req_constraints",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_5c1c6656",
+      "target": "arch_proj_5c1c6656",
+      "relation": "USES_ARCHITECTURE"
+    }
+  ]
+}

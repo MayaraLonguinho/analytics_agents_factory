@@ -112,7 +112,8 @@ class TestingAgent(BaseAgent):
         
         artifacts = super().execute_task(task, request)
         
-        if not any(a.name.startswith('test_') or a.name.endswith('_test.py') for a in artifacts):
+        import os
+        if not any(os.path.basename(a.name).startswith('test_') or a.name.endswith('_test.py') for a in artifacts):
             raise ValueError(f"[{self.name}] Falha na validação: Nenhuma suíte de testes (test_*.py) foi gerada.")
             
         return artifacts

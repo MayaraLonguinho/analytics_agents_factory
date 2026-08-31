@@ -78,5 +78,54 @@
       "contexto_dominio": "analytics",
       "fallback": "mocked"
     }
+  },
+  {
+    "project_id": "proj_483ad9af",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_808c6b36",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_8b17f571",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_10ca7f02",
+    "lesson": {
+      "problema": "Desconhecido",
+      "causa_raiz": "Desconhecida",
+      "patch_aplicado": "Fixed main.py",
+      "contexto_dominio": "analytics",
+      "fallback": "mocked"
+    }
+  },
+  {
+    "project_id": "proj_d680f968",
+    "lesson": {
+      "problema": "Falha na execu\u00e7\u00e3o do comando de pipeline devido \u00e0 falta do comando 'python'",
+      "causa_raiz": "O Python n\u00e3o est\u00e1 instalado ou n\u00e3o est\u00e1 no PATH do sistema.",
+      "patch_aplicado": "Fixed pipeline.py",
+      "contexto_dominio": "Execu\u00e7\u00e3o de scripts Python para processamento de dados e valida\u00e7\u00e3o de testes."
+    }
   }
 ]

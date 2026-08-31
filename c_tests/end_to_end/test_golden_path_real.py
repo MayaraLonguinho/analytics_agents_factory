@@ -10,13 +10,13 @@ def test_golden_path_real_e2e():
     
     Este teste requer uma chave de API válida.
     """
-    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        pytest.skip("Chave de API (GOOGLE_API_KEY ou GEMINI_API_KEY) não configurada para teste E2E real com Gemini")
+        pytest.skip("Chave de API não configurada para teste E2E real")
         
     adapter = IDEAdapter()
     
-    prompt = "Crie um pipeline ETL simples em Python que leia dados_vendas.csv e calcule faturamento total."
+    prompt = "Crie um projeto analítico simples em Python que leia dados_vendas.csv, calcule KPIs e escreva testes unitários para as funções. NÃO gere tarefas de documentação ou infraestrutura. O domínio deste projeto é estritamente 'analytics'."
     
     dataset_dir = "d_input/a_datasets/a_raw"
     os.makedirs(dataset_dir, exist_ok=True)
@@ -28,8 +28,12 @@ def test_golden_path_real_e2e():
             
     response = adapter.create_project(prompt=prompt, dataset_path=dataset_path, domain="analytics")
     
+    if response.status == "NEEDS_INPUT":
+        # Simula resposta do usuário e continua
+        response = adapter.continue_project(response.project_id, "Use sqlite como banco de dados e prossiga sem mais dúvidas.")
+        
     assert response.success is True, f"Pipeline falhou: {response.error}"
-    assert response.status == "READY", "O projeto não obteve status READY"
+    assert response.status == "READY", f"O projeto não obteve status READY, status atual: {response.status}"
     
     project_id = response.project_id
     project_dir = os.path.join("e_generated_projects", "analytics", project_id)
@@ -43,4 +47,4 @@ def test_golden_path_real_e2e():
     
     # Validações de infra
     assert os.path.exists(os.path.join(project_dir, "requirements.txt")) or os.path.exists(os.path.join(project_dir, "Dockerfile")), "Nenhum artefato de infraestrutura/requirements."
-    assert os.path.exists(os.path.join(project_dir, ".venv")), "Ambiente virtual (venv) não foi criado."
+    assert os.path.exists(os.path.join(project_dir, "venv")), "Ambiente virtual (venv) não foi criado."

@@ -23,3 +23,18 @@ rules:
 - domain: analytics
   pattern: Desconhecida
   recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: Desconhecida
+  recommendation: Fixed main.py
+- domain: analytics
+  pattern: O Python não está instalado ou não está no PATH do sistema.
+  recommendation: Fixed pipeline.py
