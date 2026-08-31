@@ -9,9 +9,9 @@ except ImportError:
 
 class GoogleProvider(BaseLLMProvider):
     async def generate(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
-        api_key = os.getenv("GOOGLE_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         if not api_key:
-            raise ValueError("GOOGLE_API_KEY não configurada. LLM = FAIL")
+            raise ValueError("GEMINI_API_KEY ou GOOGLE_API_KEY não configurada. LLM = FAIL")
         if not genai:
             raise ImportError("Biblioteca 'google.generativeai' não instalada. LLM = FAIL")
             
@@ -31,7 +31,7 @@ class GoogleProvider(BaseLLMProvider):
             )
             return response.text
         except Exception as e:
-            raise Exception(f"Falha na API Google: {e}. LLM = FAIL")
+            raise RuntimeError(f"Falha na API Google/Gemini: {e}")
 
     async def generate_structured(self, prompt: str, response_model: type, system_prompt: Optional[str] = None, **kwargs) -> Any:
-        raise NotImplementedError("Structured generation not fully implemented for Google in this version. LLM = FAIL")
+        raise NotImplementedError("Geração estruturada não implementada estritamente para Gemini. LLM = FAIL")

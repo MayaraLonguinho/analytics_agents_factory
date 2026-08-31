@@ -19,22 +19,25 @@ class LLMGateway:
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
         
     def generate(self, prompt: str, system_prompt: str = "", model_preference: str = "openai", **kwargs) -> Dict[str, Any]:
-        logger.info(f"[LLM Gateway] Requisitando modelo: {model_preference}")
+        logger.info(f"[LLM Gateway] Requisitando modelo principal: {model_preference}")
         
         result = self._try_model(prompt, system_prompt, model_preference)
         
         if not result["success"]:
-            logger.warning(f"[LLM Gateway] Falha no provedor {model_preference}. Iniciando fallback estrito...")
-            fallbacks = [m for m in ["openai", "google", "anthropic"] if m != model_preference]
+            logger.warning(f"[LLM Gateway] Falha no provedor {model_preference}. Erro: {result.get('error')}")
+            fallbacks = kwargs.get("fallback_models", [])
             
-            for fallback in fallbacks:
-                logger.info(f"[LLM Gateway] Tentando fallback real: {fallback}")
-                result = self._try_model(prompt, system_prompt, fallback)
-                if result["success"]:
-                    break
-                    
+            if fallbacks:
+                for fallback in fallbacks:
+                    logger.info(f"[LLM Gateway] Tentando fallback explícito: {fallback}")
+                    result = self._try_model(prompt, system_prompt, fallback)
+                    if result["success"]:
+                        break
+                        
         if not result["success"]:
-            logger.error("[LLM Gateway] CRÍTICO: Nenhum provedor LLM real disponível ou configurado corretamente.")
+            error_msg = f"Nenhum provedor LLM real disponível ou configurado corretamente. Último erro: {result.get('error')}"
+            logger.error(f"[LLM Gateway] CRÍTICO: {error_msg}")
+            raise RuntimeError(error_msg)
             
         return result
 
