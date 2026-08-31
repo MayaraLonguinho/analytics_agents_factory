@@ -1,161 +1,33 @@
 [
   {
-    "project_id": "proj_d187a17e",
-    "error": "Falha na execu\u00e7\u00e3o do comando 'python main.py': /bin/sh: python: command not found",
-    "correction_applied": "Fixed main.py"
+    "project_id": "proj_4830f0f5",
+    "lesson": {
+      "problema": "Falha ao instalar o pacote 'pandas' devido a erro na constru\u00e7\u00e3o da wheel.",
+      "causa_raiz": "M\u00f3dulo ausente: 'pkg_resources' n\u00e3o encontrado.",
+      "patch_aplicado": "Corrigido o arquivo setup.py.",
+      "contexto_dominio": "Ambiente de desenvolvimento Python utilizando pip para gerenciamento de pacotes."
+    }
   },
   {
-    "project_id": "proj_aee6e729",
-    "error": "Falha na execu\u00e7\u00e3o do comando 'python main.py': /bin/sh: python: command not found",
-    "correction_applied": "Fixed main.py"
+    "project_id": "proj_f18154a0",
+    "lesson": {
+      "problema": "Falha ao instalar um pacote via pip devido \u00e0 aus\u00eancia do m\u00f3dulo 'pkg_resources'.",
+      "causa_raiz": "O script de instala\u00e7\u00e3o do pacote n\u00e3o conseguiu encontrar o m\u00f3dulo necess\u00e1rio durante a constru\u00e7\u00e3o do wheel.",
+      "patch_aplicado": "Corrigido o arquivo setup.py.",
+      "contexto_dominio": "Instala\u00e7\u00e3o de depend\u00eancias em um projeto Python utilizando pip."
+    }
   },
   {
-    "project_id": "proj_fe8c2d92",
-    "error": "Falha na execu\u00e7\u00e3o do comando 'python main.py': /bin/sh: python: command not found",
-    "correction_applied": "Fixed main.py"
+    "project_id": "proj_91869285",
+    "lesson": {
+      "problema": "PostExecutionGate failed",
+      "causa_raiz": "Falha no script de controle p\u00f3s-execu\u00e7\u00e3o.",
+      "patch_aplicado": "Fixed post_execution_gate.py",
+      "contexto_dominio": "Execu\u00e7\u00e3o de processos e validadores em sistemas automatizados."
+    }
   },
   {
-    "project_id": "proj_5fefb817",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_11de8f21",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_6e44b30f",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_237d0082",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_d5758e8b",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_b9ef472a",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_e73db0b7",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_4a139482",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_95e3b539",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_ab28d7a0",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_31e3a4b3",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_2d5ff0a6",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_632bcec0",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_f69184c5",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_de4e4a79",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_c6134daa",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_081931c1",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_d5ec5c56",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_9c64864f",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_a8b1f812",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_4f7a845c",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_a7d1243f",
-    "error": "PostExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_f577684a",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_34cccbfb",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_1532e36c",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_a3f495df",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_6166d4d7",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_7e74f916",
-    "error": "PreExecutionGate failed",
-    "correction_applied": "Fixed main.py"
-  },
-  {
-    "project_id": "proj_ae202fc5",
+    "project_id": "proj_c5937624",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -165,7 +37,7 @@
     }
   },
   {
-    "project_id": "proj_72a2e1a4",
+    "project_id": "proj_097853b0",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -175,7 +47,7 @@
     }
   },
   {
-    "project_id": "proj_8d49b8b3",
+    "project_id": "proj_b9464ce8",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -185,7 +57,7 @@
     }
   },
   {
-    "project_id": "proj_71a6170a",
+    "project_id": "proj_77ea1fcd",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -195,7 +67,7 @@
     }
   },
   {
-    "project_id": "proj_a105bd41",
+    "project_id": "proj_3b3efaa3",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -205,7 +77,7 @@
     }
   },
   {
-    "project_id": "proj_710ec1de",
+    "project_id": "proj_06ef3774",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -215,7 +87,7 @@
     }
   },
   {
-    "project_id": "proj_782999c2",
+    "project_id": "proj_f5d90d92",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -225,7 +97,7 @@
     }
   },
   {
-    "project_id": "proj_3db00976",
+    "project_id": "proj_d0407dcb",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -235,7 +107,7 @@
     }
   },
   {
-    "project_id": "proj_85c66bf0",
+    "project_id": "proj_4c639aa3",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -245,7 +117,7 @@
     }
   },
   {
-    "project_id": "proj_816db80f",
+    "project_id": "proj_aea3a5e1",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -255,7 +127,7 @@
     }
   },
   {
-    "project_id": "proj_1100242b",
+    "project_id": "proj_1a59b80f",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -265,7 +137,7 @@
     }
   },
   {
-    "project_id": "proj_ff66e11d",
+    "project_id": "proj_8790e777",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -275,7 +147,7 @@
     }
   },
   {
-    "project_id": "proj_832cf2d8",
+    "project_id": "proj_3c697a26",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -285,7 +157,7 @@
     }
   },
   {
-    "project_id": "proj_1184f488",
+    "project_id": "proj_fb023033",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -295,7 +167,7 @@
     }
   },
   {
-    "project_id": "proj_d0ce062b",
+    "project_id": "proj_c5fd4a91",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -305,7 +177,7 @@
     }
   },
   {
-    "project_id": "proj_0823af27",
+    "project_id": "proj_6e210758",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -315,7 +187,7 @@
     }
   },
   {
-    "project_id": "proj_ea69a822",
+    "project_id": "proj_463bfa78",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -325,7 +197,7 @@
     }
   },
   {
-    "project_id": "proj_a23a8328",
+    "project_id": "proj_6181c590",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -335,7 +207,7 @@
     }
   },
   {
-    "project_id": "proj_30a76979",
+    "project_id": "proj_c49f913e",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -345,7 +217,7 @@
     }
   },
   {
-    "project_id": "proj_8dec0534",
+    "project_id": "proj_e5aacc05",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -355,7 +227,7 @@
     }
   },
   {
-    "project_id": "proj_4afb4f2e",
+    "project_id": "proj_1e545760",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -365,7 +237,7 @@
     }
   },
   {
-    "project_id": "proj_740418e8",
+    "project_id": "proj_d72821f0",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -375,7 +247,7 @@
     }
   },
   {
-    "project_id": "proj_027b13ec",
+    "project_id": "proj_d56c280d",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
@@ -385,97 +257,7 @@
     }
   },
   {
-    "project_id": "proj_5b2a1a39",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_64e5b088",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_78ea602f",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_f2ed3966",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_f0387746",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_08458069",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_2bc5c123",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_8cbece5e",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_bc1cd1b3",
-    "lesson": {
-      "problema": "Desconhecido",
-      "causa_raiz": "Desconhecida",
-      "patch_aplicado": "Fixed main.py",
-      "contexto_dominio": "analytics",
-      "fallback": "mocked"
-    }
-  },
-  {
-    "project_id": "proj_76b2d069",
+    "project_id": "proj_445f943c",
     "lesson": {
       "problema": "Desconhecido",
       "causa_raiz": "Desconhecida",
