@@ -166,6 +166,13 @@ class MasterOrchestrator:
             return False
         elif status == DiscoveryStatus.FAILED:
             return False
+            
+        # Normalização estrita do domínio após a coleta para garantir 
+        # que a Factory e Planner recebam o domínio canônico
+        if "domain" in request.discovery_data:
+            normalized_domain = self.domain_registry.normalize_domain(request.discovery_data["domain"])
+            request.discovery_data["domain"] = normalized_domain
+            
         return True
 
     def _step_dataset_profiling(self, request: ProjectRequest) -> bool:

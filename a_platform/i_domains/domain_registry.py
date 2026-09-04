@@ -26,8 +26,35 @@ class DomainRegistry:
             logger.error(f"Erro CRÍTICO ao carregar registry de domínios: {e}")
             raise RuntimeError(f"Falha na fundação AAF Core: Não foi possível carregar {self.registry_path}") from e
 
-    def get_domain_config(self, domain_name: str) -> Dict[str, Any]:
+    def normalize_domain(self, domain_name: str) -> str:
+        if not domain_name:
+            return "generic"
+            
         domain_name = domain_name.lower().strip()
+        
+        # Mapeamento estrito de intenções equivalentes a ETL/Data Engineering
+        aliases = {
+            "etl": "data_engineering",
+            "etl pipeline": "data_engineering",
+            "data pipeline": "data_engineering",
+            "pipeline de dados": "data_engineering",
+            "data engineering": "data_engineering",
+            "engenharia de dados": "data_engineering",
+            "pipeline de ingestão": "data_engineering",
+            "pipeline de transformação": "data_engineering",
+            "pipeline de carga": "data_engineering",
+            "ingestão transformação carga": "data_engineering",
+            "extract transform load": "data_engineering",
+            "extract-transform-load": "data_engineering"
+        }
+        
+        if domain_name in aliases:
+            return aliases[domain_name]
+            
+        return domain_name
+
+    def get_domain_config(self, domain_name: str) -> Dict[str, Any]:
+        domain_name = self.normalize_domain(domain_name)
         if domain_name in self.domains:
             return self.domains[domain_name]
             
