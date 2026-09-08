@@ -1,0 +1,142 @@
+mcps:
+  - id: filesystem_mcp
+    name: Filesystem MCP
+    version: 1.0.0
+    description: Provides file system read, write and lister operations.
+    capabilities: [filesystem]
+    permissions: [read, write]
+    execution_mode: local
+    configuration:
+      base_path: .
+    input_schema:
+      type: object
+      properties:
+        path:
+          type: string
+        operation:
+          type: string
+      required: [path, operation]
+    output_schema:
+      type: object
+      properties:
+        status:
+          type: string
+        result:
+          type: object
+
+  - id: database_mcp
+    name: Database MCP
+    version: 1.0.0
+    description: Executes read-only queries against local database files.
+    capabilities: [database]
+    permissions: [read]
+    execution_mode: local
+    configuration:
+      default_driver: sqlite
+    input_schema:
+      type: object
+      properties:
+        database:
+          type: string
+        query:
+          type: string
+        operation:
+          type: string
+      required: [database, operation]
+    output_schema:
+      type: object
+      properties:
+        rows:
+          type: array
+
+  - id: docker_mcp
+    name: Docker MCP
+    version: 1.0.0
+    description: Inspects local Docker runtime metadata.
+    capabilities: [docker]
+    permissions: [read]
+    execution_mode: local
+    configuration:
+      enabled: true
+    input_schema:
+      type: object
+      properties:
+        command:
+          type: string
+      required: [command]
+    output_schema:
+      type: object
+      properties:
+        stdout:
+          type: string
+
+  - id: browser_mcp
+    name: Browser MCP
+    version: 1.0.0
+    description: Coordinates browser automation requests.
+    capabilities: [browser]
+    permissions: [read]
+    execution_mode: local
+    configuration:
+      automation_backend: playwright
+    input_schema:
+      type: object
+      properties:
+        url:
+          type: string
+        operation:
+          type: string
+      required: [url, operation]
+    output_schema:
+      type: object
+      properties:
+        status:
+          type: string
+
+  - id: external_mcp
+    name: External MCP
+    version: 1.0.0
+    description: Calls external HTTP endpoints or providers.
+    capabilities: [external]
+    permissions: [read, network]
+    execution_mode: remote
+    configuration:
+      timeout_seconds: 30
+    input_schema:
+      type: object
+      properties:
+        endpoint:
+          type: string
+        method:
+          type: string
+      required: [endpoint]
+    output_schema:
+      type: object
+      properties:
+        status:
+          type: string
+
+  - id: analytics_mcp
+    name: Analytics MCP
+    version: 1.0.0
+    description: Provides analytical profiling and summary metadata for datasets.
+    capabilities: [analytics]
+    permissions: [read]
+    execution_mode: local
+    configuration:
+      use_pandas: true
+    input_schema:
+      type: object
+      properties:
+        dataset:
+          type: string
+        operation:
+          type: string
+      required: [dataset, operation]
+    output_schema:
+      type: object
+      properties:
+        rows:
+          type: integer
+        columns:
+          type: array

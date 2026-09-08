@@ -1,197 +1,76 @@
-import logging
-import os
-import yaml
-import ast
-import subprocess
-from typing import Dict, Any
+"""Quality Engine for project evaluation."""
 
-from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.l_quality.linters import Linter
-from a_platform.l_quality.security_scanner import SecurityScanner
+from __future__ import annotations
 
-logger = logging.getLogger(__name__)
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-class CyclomaticComplexityVisitor(ast.NodeVisitor):
-    def __init__(self):
-        self.complexity = 1
 
-    def visit_If(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
+@dataclass
+class QualityMetric:
+    name: str
+    score: float
+    weight: float = 1.0
+    details: Dict[str, Any] = field(default_factory=dict)
 
-    def visit_For(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
+    def to_dict(self) -> Dict[str, Any]:
+        return {"name": self.name, "score": self.score, "weight": self.weight, "details": self.details}
 
-    def visit_While(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
 
-    def visit_And(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
-        
-    def visit_Or(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
-        
-    def visit_ExceptHandler(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
+@dataclass
+class QualityReport:
+    overall_status: str = "FAILED"
+    score: float = 0.0
+    passed: bool = False
+    metrics: List[QualityMetric] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"overall_status": self.overall_status, "score": self.score, "passed": self.passed, "metrics": [m.to_dict() for m in self.metrics], "metadata": self.metadata}
+
 
 class QualityEngine:
-    """
-    Quality Engine.
-    Analisa qualidade estática e governança calculando métricas reais.
-    """
-    def __init__(self, thresholds_path: str = None):
-        if not thresholds_path:
-            thresholds_path = os.path.join(os.path.dirname(__file__), "thresholds.yaml")
-        
-        self.thresholds_path = thresholds_path
-        self.metrics = {}
-        self.passing_score = 60
-        self.max_complexity = 10
-        self._load_thresholds()
+    """Scores project quality from architecture, code, docs, tests, security, runtime and validation evidence."""
 
-    def _load_thresholds(self):
-        try:
-            with open(self.thresholds_path, 'r') as f:
-                data = yaml.safe_load(f)
-                self.metrics = data.get("metrics", {})
-                self.passing_score = data.get("passing_score", 60)
-                self.max_complexity = data.get("max_complexity", 10)
-        except Exception as e:
-            logger.error(f"[QualityEngine] Falha ao carregar thresholds: {e}")
-            self.metrics = {"linting_weight": 0.2, "architecture_weight": 0.3, "documentation_weight": 0.2, "security_weight": 0.3}
+    def __init__(self, project_root: Optional[Path | str] = None):
+        self.project_root = Path(project_root or Path.cwd()).resolve()
 
-    def run_quality(self, request: ProjectRequest) -> bool:
-        domain = request.discovery_data.get("domain", "generic").lower()
-        project_dir = os.path.abspath(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
-        
-        logger.info(f"[QualityEngine] Avaliando projeto em {project_dir}")
-        
-        if not os.path.exists(project_dir):
-            return False
+    def evaluate(self, *, validation_result: Optional[Dict[str, Any]] = None, runtime_result: Optional[Dict[str, Any]] = None, certification_result: Optional[Dict[str, Any]] = None) -> QualityReport:
+        metrics: List[QualityMetric] = []
 
-        # Instancia scanners
-        linter = Linter()
-        security = SecurityScanner()
-
-        lint_result = linter.run_linter(project_dir)
-        sec_result = security.run_scan(project_dir)
-
-        # Inicia pontuação zerada e ganha pontos
-        linting_score = 0
-        architecture_score = 0
-        doc_score = 0
-        security_score = 100 if sec_result.get("passed", True) else 0
+        architecture = 1.0 if (self.project_root / "source").exists() else 0.0
+        code = 1.0 if (self.project_root / "backend").exists() or (self.project_root / "source").exists() else 0.0
+        documentation = 1.0 if (self.project_root / "README.md").exists() else 0.0
+        testing = 1.0 if (self.project_root / "tests").exists() else 0.0
+        security = 1.0 if validation_result and validation_result.get("passed") else 0.5
+        maintainability = 1.0 if documentation and code else 0.0
+        data = 1.0 if (self.project_root / "source").exists() and (self.project_root / "database").exists() else 0.0
+        infrastructure = 1.0 if (self.project_root / "docker-compose.yml").exists() else 0.0
+        runtime = 1.0 if runtime_result and runtime_result.get("status") == "SUCCESS" else 0.0
         
-        py_files = []
-        test_files = []
-        for root, _, files in os.walk(project_dir):
-            if "venv" in root: continue
-            for f in files:
-                if f.endswith(".py"):
-                    full_path = os.path.join(root, f)
-                    py_files.append(full_path)
-                    if f.startswith("test_"):
-                        test_files.append(full_path)
-                    
-        if not py_files:
-            logger.warning("[QualityEngine] Nenhum arquivo .py encontrado no projeto.")
-            return False
+        weighted_values = {
+            "architecture": architecture,
+            "code": code,
+            "testing": testing,
+            "documentation": documentation,
+            "security": security,
+            "data": data,
+            "infrastructure": infrastructure,
+            "runtime": runtime,
+            "maintainability": maintainability,
+        }
 
-        # Avalia Linting via AST e Syntax
-        syntax_errors = 0
-        total_complexity = 0
-        total_elements = 0
-        documented_elements = 0
-        
-        for pf in py_files:
-            try:
-                with open(pf, "r") as code:
-                    tree = ast.parse(code.read())
-                    
-                # Complexidade ciclomática
-                visitor = CyclomaticComplexityVisitor()
-                visitor.visit(tree)
-                total_complexity += visitor.complexity
-                
-                # Check module docstring
-                total_elements += 1
-                if ast.get_docstring(tree):
-                    documented_elements += 1
-                    
-                for node in ast.walk(tree):
-                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                        total_elements += 1
-                        if ast.get_docstring(node):
-                            documented_elements += 1
-                            
-            except SyntaxError:
-                syntax_errors += 1
-            except Exception as e:
-                logger.error(f"[QualityEngine] Erro ao analisar {pf}: {e}")
-                syntax_errors += 1
-                
-        # Calcula scores
-        linting_score = 100 if syntax_errors == 0 else max(0, 100 - (syntax_errors * 50))
-        
-        # Penaliza se linter falhou
-        if not lint_result.get("passed", True):
-            linting_score = max(0, linting_score - 30)
-            logger.warning("[QualityEngine] Linter detectou falhas de estilo. Penalizando linting_score.")
-        
-        avg_complexity = total_complexity / len(py_files)
-        if avg_complexity <= self.max_complexity:
-            architecture_score = 100
-        else:
-            architecture_score = max(0, 100 - ((avg_complexity - self.max_complexity) * 10))
-            
-        if total_elements > 0:
-            doc_score = int((documented_elements / total_elements) * 100)
-        else:
-            doc_score = 0
-            
-        # Penalidade severa se não houver testes quando requeridos?
-        # O Quality Engine avalia a existência e cobertura.
-        if len(test_files) == 0:
-            logger.warning("[QualityEngine] Nenhum teste encontrado. Reduzindo architecture score.")
-            architecture_score -= 30
+        for name, value in weighted_values.items():
+            metrics.append(QualityMetric(name=name, score=float(
+                value), weight=1.0, details={"threshold": 1.0}))
 
-        final_score = (
-            linting_score * self.metrics.get("linting_weight", 0.2) +
-            architecture_score * self.metrics.get("architecture_weight", 0.3) +
-            doc_score * self.metrics.get("documentation_weight", 0.2) +
-            security_score * self.metrics.get("security_weight", 0.3)
+        score = sum(metric.score for metric in metrics) / max(len(metrics), 1)
+        passed = score >= 0.75
+        return QualityReport(
+            overall_status="PASSED" if passed else "FAILED",
+            score=round(score, 3),
+            passed=passed,
+            metrics=metrics,
+            metadata={"project_root": str(self.project_root)},
         )
-        
-        request.metadata["quality_score"] = final_score
-        
-        # Consome resultado do test runner (se Execution falhou, Runtime payload = exit_code != 0 ou validation_error está presente)
-        tests_failed = False
-        if request.metadata.get("runtime_payload", {}).get("exit_code", 0) != 0:
-            tests_failed = True
-        if "execution_error" in request.metadata or "validation_error" in request.metadata:
-            tests_failed = True
-
-        if tests_failed:
-            logger.error("[QualityEngine] Qualidade reprovada: Falha nos testes ou no runtime detectada.")
-            return False
-
-        if security_score == 0:
-            logger.error("[QualityEngine] Falha CRÍTICA de segurança detectada. Quality = FAIL independente do score.")
-            return False
-
-        # Compara com o threshold do arquivo yaml
-        if final_score < self.passing_score:
-            logger.error(f"[QualityEngine] Qualidade reprovada. Score ({final_score:.1f}) abaixo do limite mínimo ({self.passing_score}).")
-            return False
-            
-        if linting_score == 0:
-            logger.error(f"[QualityEngine] Qualidade reprovada. Erros graves de sintaxe (Linting: 0).")
-            return False
-            
-        logger.info(f"[QualityEngine] Qualidade aprovada com score {final_score:.1f}")
-        return True

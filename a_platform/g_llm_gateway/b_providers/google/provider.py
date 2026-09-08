@@ -1,37 +1,93 @@
-import os
-from typing import Optional, Type, Any
-from a_platform.g_llm_gateway.a_interfaces.base_provider import BaseLLMProvider
+"""
+LLM Gateway - Google Provider
+Provider específico para Google (Gemini)
+"""
 
-try:
-    import google.generativeai as genai  # type: ignore
-except ImportError:
-    genai = None
+from typing import Dict, Any, Optional, AsyncGenerator
+from ...interfaces.base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+
 
 class GoogleProvider(BaseLLMProvider):
-    async def generate(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
-        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY ou GOOGLE_API_KEY não configurada. LLM = FAIL")
-        if not genai:
-            raise ImportError("Biblioteca 'google.generativeai' não instalada. LLM = FAIL")
-            
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(kwargs.get("model", "gemini-1.5-flash"))
+    """
+    Provider específico para Google.
+    
+    Implementa a interface base para comunicação com os modelos Gemini.
+    Estrutura preparada para futura implementação.
+    """
+    
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Inicializa o Provider Google.
         
-        full_prompt = prompt
-        if system_prompt:
-            full_prompt = f"SYSTEM: {system_prompt}\n\nUSER: {prompt}"
+        Args:
+            config: Configuração do Provider
+        """
+        super().__init__(config)
+        self._client = None
+        # TODO: Inicializar cliente Google quando necessário
+    
+    async def generate(self, request: LLMRequest) -> LLMResponse:
+        """
+        Gera uma resposta não-streaming.
+        
+        Args:
+            request: Requisição LLM
             
-        try:
-            response = await model.generate_content_async(
-                full_prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=kwargs.get("temperature", 0.7)
-                )
-            )
-            return response.text
-        except Exception as e:
-            raise RuntimeError(f"Falha na API Google/Gemini: {e}")
-
-    async def generate_structured(self, prompt: str, response_model: type, system_prompt: Optional[str] = None, **kwargs) -> Any:
-        raise NotImplementedError("Geração estruturada não implementada estritamente para Gemini. LLM = FAIL")
+        Returns:
+            LLMResponse: Resposta do modelo
+        """
+        # TODO: Implementar geração com Google
+        raise NotImplementedError("Google Provider ainda não implementado")
+    
+    async def chat(self, messages: list, model: str, **kwargs) -> LLMResponse:
+        """
+        Gera uma resposta de chat.
+        
+        Args:
+            messages: Lista de mensagens do chat
+            model: Nome do modelo
+            **kwargs: Parâmetros adicionais
+            
+        Returns:
+            LLMResponse: Resposta do modelo
+        """
+        # TODO: Implementar chat com Google
+        raise NotImplementedError("Google Provider ainda não implementado")
+    
+    async def embeddings(self, text: str, model: str, **kwargs) -> list:
+        """
+        Gera embeddings para um texto.
+        
+        Args:
+            text: Texto para gerar embeddings
+            model: Nome do modelo
+            **kwargs: Parâmetros adicionais
+            
+        Returns:
+            list: Vetor de embeddings
+        """
+        # TODO: Implementar embeddings com Google
+        raise NotImplementedError("Google Provider ainda não implementado")
+    
+    async def stream(self, request: LLMRequest) -> AsyncGenerator[str, None]:
+        """
+        Gera uma resposta streaming.
+        
+        Args:
+            request: Requisição LLM
+            
+        Yields:
+            str: Chunks da resposta
+        """
+        # TODO: Implementar stream com Google
+        raise NotImplementedError("Google Provider ainda não implementado")
+    
+    async def health_check(self) -> bool:
+        """
+        Verifica se o Provider está saudável.
+        
+        Returns:
+            bool: True se saudável, False caso contrário
+        """
+        # TODO: Implementar health check com Google
+        return False

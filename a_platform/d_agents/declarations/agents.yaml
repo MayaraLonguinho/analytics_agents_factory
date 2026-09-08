@@ -1,0 +1,493 @@
+agents:
+  # ============================================================================
+  # Core Orchestration Agent
+  # ============================================================================
+  - id: orchestrator
+    name: Orchestrator Agent
+    description: Main orchestrator managing project lifecycle
+    responsibility: Orchestrate complete project lifecycle from request to delivery
+    version: 1.0.0
+    tags: [orchestration, lifecycle-management]
+    allowed_skills:
+      - discover_intent
+      - question_generation
+      - profile_csv_dataset
+      - extract_csv_source
+    allowed_mcps: []
+    applicable_rules: [validation_rule_001, discovery_rule_001]
+    required_context: [project_request, domain_context, platform_config]
+    input_schema:
+      required: [project_request, domain]
+      properties:
+        project_request:
+          type: object
+          description: Natural language project request
+        domain:
+          type: string
+          description: Target domain
+        dataset_source:
+          type: string
+          description: Optional dataset source path
+    output_schema:
+      type: object
+      properties:
+        project:
+          type: object
+          description: Complete project specification
+        artifacts:
+          type: array
+          description: Generated project artifacts
+    capabilities:
+      - skill_id: discover_intent
+        skill_name: Discover Intent
+        description: Extract project intent
+      - skill_id: question_generation
+        skill_name: Question Generation
+        description: Generate discovery questions
+      - skill_id: profile_csv_dataset
+        skill_name: Profile CSV Dataset
+        description: Profile input datasets
+
+  # ============================================================================
+  # Discovery Agent
+  # ============================================================================
+  - id: discovery_agent
+    name: Discovery Agent
+    description: Discovers and refines project requirements
+    responsibility: Clarify requirements through guided discovery
+    version: 1.0.0
+    tags: [discovery, requirements-elicitation]
+    allowed_skills:
+      - discover_intent
+      - question_generation
+      - profile_csv_dataset
+      - detect_data_types
+    allowed_mcps: []
+    applicable_rules: [discovery_rule_001, discovery_rule_002]
+    required_context: [project_request, domain_context]
+    input_schema:
+      required: [intent, domain]
+      properties:
+        intent:
+          type: string
+        domain:
+          type: string
+        initial_context:
+          type: object
+    output_schema:
+      type: object
+      properties:
+        discovered_requirements:
+          type: object
+        decisions:
+          type: array
+        assumptions:
+          type: array
+    capabilities:
+      - skill_id: discover_intent
+        skill_name: Discover Intent
+        description: Refine intent
+      - skill_id: question_generation
+        skill_name: Question Generation
+        description: Generate clarification questions
+      - skill_id: profile_csv_dataset
+        skill_name: Profile CSV Dataset
+        description: Analyze input datasets
+
+  # ============================================================================
+  # Architecture Agent
+  # ============================================================================
+  - id: architecture_agent
+    name: Architecture Agent
+    description: Designs project architecture
+    responsibility: Design technical architecture aligned with requirements
+    version: 1.0.0
+    tags: [architecture, design]
+    allowed_skills:
+      - design_api_structure
+    allowed_mcps: []
+    applicable_rules: [architecture_rule_001, architecture_rule_002]
+    required_context: [domain_context, discovered_requirements, Brain]
+    input_schema:
+      required: [requirements, domain]
+      properties:
+        requirements:
+          type: object
+        domain:
+          type: string
+        technology_preferences:
+          type: object
+    output_schema:
+      type: object
+      properties:
+        architecture:
+          type: object
+        design_decisions:
+          type: array
+        technology_stack:
+          type: object
+    capabilities:
+      - skill_id: design_api_structure
+        skill_name: Design API Structure
+        description: Design REST API
+
+  # ============================================================================
+  # Planner Agent
+  # ============================================================================
+  - id: planner_agent
+    name: Planner Agent
+    description: Creates project plan
+    responsibility: Plan project execution in phases
+    version: 1.0.0
+    tags: [planning, project-management]
+    allowed_skills: []
+    allowed_mcps: []
+    applicable_rules: [planning_rule_001]
+    required_context: [architecture, requirements, Brain]
+    input_schema:
+      required: [architecture, requirements]
+    output_schema:
+      type: object
+      properties:
+        project_plan:
+          type: object
+        phases:
+          type: array
+        milestones:
+          type: array
+    capabilities: []
+
+  # ============================================================================
+  # Data Agent
+  # ============================================================================
+  - id: data_agent
+    name: Data Agent
+    description: Manages data pipelines
+    responsibility: Extract, profile, and prepare datasets
+    version: 1.0.0
+    tags: [data, dataset-management, etl]
+    allowed_skills:
+      - profile_csv_dataset
+      - detect_data_types
+      - analyze_data_quality
+      - extract_csv_source
+      - transform_data
+      - validate_data_schema
+    allowed_mcps: []
+    applicable_rules: [data_rule_001, data_rule_002]
+    required_context: [dataset_manifest, data_schema]
+    input_schema:
+      required: [dataset_source]
+      properties:
+        dataset_source:
+          type: string
+        profiling_depth:
+          type: string
+          enum: [basic, standard, comprehensive]
+    output_schema:
+      type: object
+      properties:
+        dataset_profile:
+          type: object
+        data_schema:
+          type: object
+        quality_report:
+          type: object
+    capabilities:
+      - skill_id: profile_csv_dataset
+        skill_name: Profile CSV Dataset
+        description: Analyze dataset
+      - skill_id: detect_data_types
+        skill_name: Detect Data Types
+        description: Infer column types
+      - skill_id: extract_csv_source
+        skill_name: Extract CSV Source
+        description: Load CSV file
+
+  # ============================================================================
+  # Database Agent
+  # ============================================================================
+  - id: database_agent
+    name: Database Agent
+    description: Manages database design
+    responsibility: Design and configure databases
+    version: 1.0.0
+    tags: [database, schema-design]
+    allowed_skills: []
+    allowed_mcps: []
+    applicable_rules: [database_rule_001]
+    required_context: [data_schema, architecture]
+    input_schema:
+      required: [data_entities, architecture]
+    output_schema:
+      type: object
+      properties:
+        database_design:
+          type: object
+        schema_definitions:
+          type: array
+    capabilities: []
+
+  # ============================================================================
+  # Backend Agent
+  # ============================================================================
+  - id: backend_agent
+    name: Backend Agent
+    description: Develops backend code
+    responsibility: Implement backend services and APIs
+    version: 1.0.0
+    tags: [development, backend, api]
+    allowed_skills:
+      - design_api_structure
+      - transform_data
+    allowed_mcps: []
+    applicable_rules: [backend_rule_001, backend_rule_002]
+    required_context: [architecture, design_specification]
+    input_schema:
+      required: [architecture, api_specification]
+    output_schema:
+      type: object
+      properties:
+        backend_code:
+          type: object
+        api_endpoints:
+          type: array
+        service_components:
+          type: array
+    capabilities:
+      - skill_id: design_api_structure
+        skill_name: Design API Structure
+        description: Design APIs
+
+  # ============================================================================
+  # Frontend Agent
+  # ============================================================================
+  - id: frontend_agent
+    name: Frontend Agent
+    description: Develops frontend code
+    responsibility: Implement user interfaces
+    version: 1.0.0
+    tags: [development, frontend, ui]
+    allowed_skills:
+      - generate_visualizations
+    allowed_mcps: []
+    applicable_rules: [frontend_rule_001]
+    required_context: [architecture, design_specification]
+    input_schema:
+      required: [architecture, ui_requirements]
+    output_schema:
+      type: object
+      properties:
+        frontend_code:
+          type: object
+        components:
+          type: array
+    capabilities:
+      - skill_id: generate_visualizations
+        skill_name: Generate Visualizations
+        description: Create visualizations
+
+  # ============================================================================
+  # Analytics Agent
+  # ============================================================================
+  - id: analytics_agent
+    name: Analytics Agent
+    description: Performs data analytics
+    responsibility: Generate insights through data analysis
+    version: 1.0.0
+    tags: [analytics, eda, insights]
+    allowed_skills:
+      - generate_eda_report
+      - detect_correlations
+      - generate_visualizations
+    allowed_mcps: []
+    applicable_rules: [analytics_rule_001]
+    required_context: [dataset_profile]
+    input_schema:
+      required: [dataframe]
+    output_schema:
+      type: object
+      properties:
+        eda_report:
+          type: object
+        insights:
+          type: array
+        visualizations:
+          type: array
+    capabilities:
+      - skill_id: generate_eda_report
+        skill_name: Generate EDA Report
+        description: Create EDA
+      - skill_id: detect_correlations
+        skill_name: Detect Correlations
+        description: Find correlations
+      - skill_id: generate_visualizations
+        skill_name: Generate Visualizations
+        description: Create visualizations
+
+  # ============================================================================
+  # Infrastructure Agent
+  # ============================================================================
+  - id: infrastructure_agent
+    name: Infrastructure Agent
+    description: Manages infrastructure setup
+    responsibility: Configure deployment infrastructure
+    version: 1.0.0
+    tags: [infrastructure, deployment, devops]
+    allowed_skills: []
+    allowed_mcps: []
+    applicable_rules: [infrastructure_rule_001]
+    required_context: [project_type, deployment_target]
+    input_schema:
+      required: [architecture, deployment_requirements]
+    output_schema:
+      type: object
+      properties:
+        infrastructure_config:
+          type: object
+        deployment_specs:
+          type: array
+    capabilities: []
+
+  # ============================================================================
+  # Testing Agent
+  # ============================================================================
+  - id: testing_agent
+    name: Testing Agent
+    description: Manages testing strategy
+    responsibility: Design and execute tests
+    version: 1.0.0
+    tags: [testing, quality-assurance, qa]
+    allowed_skills:
+      - generate_test_cases
+    allowed_mcps: []
+    applicable_rules: [testing_rule_001, testing_rule_002]
+    required_context: [requirements, specifications]
+    input_schema:
+      required: [requirements]
+    output_schema:
+      type: object
+      properties:
+        test_plan:
+          type: object
+        test_cases:
+          type: array
+        test_reports:
+          type: object
+    capabilities:
+      - skill_id: generate_test_cases
+        skill_name: Generate Test Cases
+        description: Create test cases
+
+  # ============================================================================
+  # Documentation Agent
+  # ============================================================================
+  - id: documentation_agent
+    name: Documentation Agent
+    description: Generates project documentation
+    responsibility: Create comprehensive documentation
+    version: 1.0.0
+    tags: [documentation, knowledge-management]
+    allowed_skills: []
+    allowed_mcps: []
+    applicable_rules: [documentation_rule_001]
+    required_context: [project_artifacts]
+    input_schema:
+      required: [project_specification]
+    output_schema:
+      type: object
+      properties:
+        documentation:
+          type: object
+        artifacts:
+          type: array
+    capabilities: []
+
+  # ============================================================================
+  # Execution Agent
+  # ============================================================================
+  - id: execution_agent
+    name: Execution Agent
+    description: Executes project generation
+    responsibility: Materialize generated code
+    version: 1.0.0
+    tags: [execution, code-generation]
+    allowed_skills: []
+    allowed_mcps: []
+    applicable_rules: [execution_rule_001]
+    required_context: [specifications, project_plan]
+    input_schema:
+      required: [generated_specs]
+    output_schema:
+      type: object
+      properties:
+        project_files:
+          type: array
+        project_structure:
+          type: object
+    capabilities: []
+
+  # ============================================================================
+  # Validation Agent
+  # ============================================================================
+  - id: validation_agent
+    name: Validation Agent
+    description: Validates project deliverables
+    responsibility: Verify all requirements are met
+    version: 1.0.0
+    tags: [validation, quality-assurance, verification]
+    allowed_skills:
+      - analyze_data_quality
+      - validate_data_schema
+      - validate_deliverables
+    allowed_mcps: []
+    applicable_rules: [validation_rule_001, validation_rule_002]
+    required_context: [requirements, artifacts]
+    input_schema:
+      required: [artifacts, requirements]
+    output_schema:
+      type: object
+      properties:
+        validation_report:
+          type: object
+        compliance:
+          type: object
+        issues:
+          type: array
+    capabilities:
+      - skill_id: analyze_data_quality
+        skill_name: Analyze Data Quality
+        description: Check data quality
+      - skill_id: validate_deliverables
+        skill_name: Validate Deliverables
+        description: Verify requirements met
+
+  # ============================================================================
+  # Certification Agent
+  # ============================================================================
+  - id: certification_agent
+    name: Certification Agent
+    description: Certifies project delivery
+    responsibility: Certify project meets all criteria
+    version: 1.0.0
+    tags: [certification, delivery, sign-off]
+    allowed_skills:
+      - certify_project
+    allowed_mcps: []
+    applicable_rules: [certification_rule_001]
+    required_context: [validation_report, quality_metrics]
+    input_schema:
+      required: [artifacts, quality_report]
+    output_schema:
+      type: object
+      properties:
+        certification:
+          type: object
+        certificate:
+          type: object
+        delivery_approval:
+          type: boolean
+    capabilities:
+      - skill_id: certify_project
+        skill_name: Certify Project
+        description: Create certification

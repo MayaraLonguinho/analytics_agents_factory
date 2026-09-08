@@ -1,0 +1,161 @@
+{
+  "nodes": [
+    {
+      "id": "proj_143f703e",
+      "type": "Project",
+      "label": "Generic"
+    },
+    {
+      "id": "dataset_proj_143f703e",
+      "type": "Dataset",
+      "label": "Raw Data"
+    },
+    {
+      "id": "req_domain",
+      "type": "Requirement",
+      "label": "vendas"
+    },
+    {
+      "id": "req_objective",
+      "type": "Requirement",
+      "label": "Criar um pipeline ETL para processar dados de vend"
+    },
+    {
+      "id": "req_users",
+      "type": "Requirement",
+      "label": "Analistas de dados, engenheiros de dados."
+    },
+    {
+      "id": "req_data_sources",
+      "type": "Requirement",
+      "label": "dados_vendas.csv"
+    },
+    {
+      "id": "req_functional_requirements",
+      "type": "Requirement",
+      "label": "Extrair dados do CSV, transform\u00e1-los em um formato"
+    },
+    {
+      "id": "req_technical_requirements",
+      "type": "Requirement",
+      "label": "Uso de ferramentas ETL como Apache NiFi ou Talend,"
+    },
+    {
+      "id": "req_database",
+      "type": "Requirement",
+      "label": "Banco de dados relacional como MySQL ou PostgreSQL"
+    },
+    {
+      "id": "req_backend",
+      "type": "Requirement",
+      "label": "Python para scripts ETL."
+    },
+    {
+      "id": "req_frontend",
+      "type": "Requirement",
+      "label": "N/A"
+    },
+    {
+      "id": "req_infrastructure",
+      "type": "Requirement",
+      "label": "Servidores para execu\u00e7\u00e3o do pipeline, armazenament"
+    },
+    {
+      "id": "req_testing",
+      "type": "Requirement",
+      "label": "Testes de integra\u00e7\u00e3o e valida\u00e7\u00e3o dos dados."
+    },
+    {
+      "id": "req_documentation",
+      "type": "Requirement",
+      "label": "Documenta\u00e7\u00e3o do pipeline ETL e do formato dos dado"
+    },
+    {
+      "id": "req_constraints",
+      "type": "Requirement",
+      "label": "Limita\u00e7\u00f5es de performance e tempo de processamento"
+    },
+    {
+      "id": "arch_proj_143f703e",
+      "type": "Architecture",
+      "label": "Data Pipeline"
+    }
+  ],
+  "edges": [
+    {
+      "source": "proj_143f703e",
+      "target": "dataset_proj_143f703e",
+      "relation": "CONSUMES"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_domain",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_objective",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_users",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_data_sources",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_functional_requirements",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_technical_requirements",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_database",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_backend",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_frontend",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_infrastructure",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_testing",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_documentation",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "req_constraints",
+      "relation": "HAS_CONSTRAINT"
+    },
+    {
+      "source": "proj_143f703e",
+      "target": "arch_proj_143f703e",
+      "relation": "USES_ARCHITECTURE"
+    }
+  ]
+}

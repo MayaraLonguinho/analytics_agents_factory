@@ -1,100 +1,76 @@
-import logging
 import json
-import re
-from typing import Dict, Any
-
-from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.c_brain.brain import Brain
-from a_platform.c_brain.g_graph.graph_builder import GraphBuilder
+import asyncio
+from typing import Dict, Any, List
+from a_core.b_domain.project import DiscoveryResult
+from a_core.b_domain.architecture import ArchitectureDecision
 from a_platform.g_llm_gateway.gateway import LLMGateway
 
-logger = logging.getLogger(__name__)
-
 class ArchitectureAgent:
-    """
-    Consome o Discovery, o Profiling e o Brain. 
-    Decide as tecnologias, estrutura e gera uma "Architecture Decision" real usando LLM.
-    """
-    def __init__(self, brain: Brain, graph_builder: GraphBuilder):
-        self.brain = brain
-        self.graph_builder = graph_builder
-        self.gateway = LLMGateway()
+    """Agent responsible for determining the technological stack based on context."""
+    
+    def __init__(self, gateway: LLMGateway):
+        self.gateway = gateway
 
-    def generate_architecture(self, request: ProjectRequest) -> bool:
-        logger.info("[ArchitectureAgent] Iniciando definição de arquitetura via LLM...")
+    def decide_sync(self, discovery: DiscoveryResult, dataset_profile: Dict[str, Any], rules: List[Any], patterns: List[Any]) -> ArchitectureDecision:
+        """Synchronous wrapper for the LLM decision."""
+        return asyncio.run(self.decide(discovery, dataset_profile, rules, patterns))
         
-        # 1. Recuperar Conhecimento do Brain
-        domain = request.discovery_data.get("domain", "generic")
-        brain_context = self.brain.retrieve_relevant_knowledge(domain)
+    async def decide(self, discovery: DiscoveryResult, dataset_profile: Dict[str, Any], rules: List[Any], patterns: List[Any]) -> ArchitectureDecision:
+        """Determines the architecture stack based on inputs using the LLM Gateway."""
         
-        logger.info(f"[ArchitectureAgent] Conhecimento recuperado para o domínio '{domain}'")
+        schema = {
+            "type": "object",
+            "properties": {
+                "frontend": {"type": "string"},
+                "backend": {"type": "string"},
+                "database": {"type": "string"},
+                "data_pipeline": {"type": "string"},
+                "infrastructure": {"type": "string"},
+                "authentication": {"type": "string"},
+                "testing": {"type": "string"},
+                "documentation": {"type": "string"},
+                "rationale": {"type": "string"}
+            },
+            "required": ["frontend", "backend", "database", "data_pipeline", "infrastructure", "authentication", "testing", "documentation", "rationale"]
+        }
         
-        # 2. Gerar o Grafo de Contexto
-        graph = self.graph_builder.build_graph(request)
-        request.graph_representation = graph
-        logger.info(f"[ArchitectureAgent] Grafo de contexto gerado com {len(graph['nodes'])} nós.")
+        prompt = f"""
+        You are an expert Architecture Agent. Your task is to determine the best technology stack based on the provided inputs.
+        DO NOT invent technologies. Respect the user preferences, rules, and patterns.
+
+        Project Objective: {discovery.project_objective}
+        Domain: {discovery.domain}
         
-        domain_name = request.discovery_data.get("domain", "generic")
+        User Answers: {json.dumps(discovery.decisions)}
+        Dataset Profile: {json.dumps(dataset_profile)}
         
-        # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
-        from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
-        k_registry = KnowledgeRegistry()
-        learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
+        Applicable Rules: {rules}
+        Applicable Patterns: {patterns}
         
-        learned_rules_text = ""
-        if learned_rules:
-            learned_rules_text = "\nATENÇÃO - LIÇÕES APRENDIDAS DE FALHAS ANTERIORES NESTE DOMÍNIO:\n"
-            for idx, rule in enumerate(learned_rules, 1):
-                learned_rules_text += f"{idx}. Padrão de Erro: {rule.get('pattern')} -> Recomendação: {rule.get('recommendation')}\n"
+        Return the structured JSON containing the selected technologies and a brief rationale.
+        """
         
-        system_prompt = (
-            "Você é o Architecture Agent, um Principal Software Engineer.\n"
-            "Sua tarefa é definir o stack tecnológico e o padrão arquitetural ideal para o projeto descrito.\n"
-            f"{learned_rules_text}\n"
-            "Retorne APENAS um JSON válido contendo as seguintes chaves:\n"
-            "- core_stack (ex: Python 3.10, Node.js, etc)\n"
-            "- database_technology (A tecnologia de banco de dados escolhida)\n"
-            "- architecture_pattern (ex: Microservices, Monolith, Data Lakehouse, Event-Driven)\n"
-            "- data_processing (ex: Pandas, Spark, dbt, SQLAlchemy)\n"
-            "- rationale (Breve justificativa técnica da sua escolha)\n"
+        # Use default provider/model or a robust one for reasoning
+        # For tests, we might use openai gpt-4o or claude-3-5-sonnet if available in gateway. 
+        # But we'll rely on gateway's default.
+        response = await self.gateway.structured_output(prompt=prompt, schema=schema)
+        
+        if isinstance(response.content, dict):
+            content = response.content
+        else:
+            try:
+                content = json.loads(response.content)
+            except:
+                content = {}
+                
+        return ArchitectureDecision(
+            frontend=content.get("frontend", discovery.decisions.get("frontend", "React")),
+            backend=content.get("backend", discovery.decisions.get("backend", "FastAPI")),
+            database=content.get("database", discovery.decisions.get("database", "PostgreSQL")),
+            data_pipeline=content.get("data_pipeline", discovery.decisions.get("etl", "None")),
+            infrastructure=content.get("infrastructure", discovery.decisions.get("infrastructure", "Docker")),
+            authentication=content.get("authentication", discovery.decisions.get("authentication", "JWT")),
+            testing=content.get("testing", discovery.decisions.get("testing", "pytest")),
+            documentation=content.get("documentation", discovery.decisions.get("documentation", "README")),
+            rationale=content.get("rationale", "Derived from defaults due to parsing failure.")
         )
-        
-        prompt = (
-            f"Discovery Data: {json.dumps(request.discovery_data, ensure_ascii=False)}\n"
-            f"Dataset Profile: {json.dumps(request.dataset_profile, ensure_ascii=False)}\n"
-            f"Brain Context: {json.dumps(brain_context, ensure_ascii=False)}\n"
-        )
-        
-        response = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
-        
-        if not response.get("success"):
-            logger.error(f"[ArchitectureAgent] LLM falhou ao gerar arquitetura: {response.get('error')}")
-            return False
-            
-        text = response.get("text", "")
-        # Extrair JSON do retorno (tratando blocos markdown)
-        json_str = text
-        match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
-        if match:
-            json_str = match.group(1).strip()
-            
-        try:
-            decision = json.loads(json_str)
-        except Exception as e:
-            logger.error(f"[ArchitectureAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
-            return False
-            
-        decision["status"] = "APPROVED"
-        decision["rules_applied"] = brain_context.get("architecture_rules", [])
-        
-        request.architecture_decision = decision
-        
-        # Injeta a decisão de volta no Brain para os próximos agentes
-        self.brain.inject_project_context(request.project_id, "architecture", decision)
-        
-        # Regera o grafo para incluir o nó da arquitetura agora decidido
-        graph = self.graph_builder.build_graph(request)
-        request.graph_representation = graph
-        
-        logger.info(f"[ArchitectureAgent] Decisão arquitetural concluída: {decision.get('architecture_pattern')} com {decision.get('data_processing')}.")
-        return True

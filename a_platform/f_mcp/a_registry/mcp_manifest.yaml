@@ -1,9 +1,0 @@
-tools:
-  - name: "filesystem_read"
-    description: "Read a file from the filesystem"
-    parameters:
-      type: "object"
-      properties:
-        path:
-          type: "string"
-      required: ["path"]

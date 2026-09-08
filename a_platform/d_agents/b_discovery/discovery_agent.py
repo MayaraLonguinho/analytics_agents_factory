@@ -26,7 +26,9 @@ class DiscoveryAgent:
         system_prompt = (
             "Você é o Discovery Agent, um analista de sistemas responsável por mapear requisitos antes de qualquer desenvolvimento.\n"
             "Sua tarefa é analisar o prompt inicial do usuário e o histórico de chat para extrair de forma OBRIGATÓRIA as seguintes informações cruciais sobre o projeto:\n"
-            "- domain\n"
+            "- project_type (O tipo de projeto ou intenção técnica, ex: ETL, Dashboard, API REST, App Mobile)\n"
+            "- business_context (O assunto, contexto ou área de negócio do projeto, ex: vendas, clientes, financeiro, RH)\n"
+            "- domain (OBRIGATÓRIO: O domínio arquitetural canônico que melhor representa o project_type. Deve ser um domínio de software/TI, ex: data_engineering, analytics, crm, ecommerce. NUNCA deve ser o assunto do negócio como 'vendas'.)\n"
             "- objective\n"
             "- users\n"
             "- data_sources\n"
@@ -43,6 +45,8 @@ class DiscoveryAgent:
             "Se *qualquer* campo vital estiver faltando OU houver uma inconsistência que precise ser resolvida, retorne uma pergunta clara e objetiva para o usuário no campo 'missing_info_question'.\n"
             "Retorne APENAS um JSON válido no seguinte formato e nada mais:\n"
             "{\n"
+            '  "project_type": "...",\n'
+            '  "business_context": "...",\n'
             '  "domain": "...",\n'
             '  "objective": "...",\n'
             '  "users": "...",\n'
@@ -80,7 +84,7 @@ class DiscoveryAgent:
             logger.error(f"[DiscoveryAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
             return DiscoveryStatus.FAILED
             
-        for key in ["domain", "objective", "users", "data_sources", "functional_requirements", 
+        for key in ["project_type", "business_context", "domain", "objective", "users", "data_sources", "functional_requirements", 
                    "technical_requirements", "database", "backend", "frontend", "infrastructure", 
                    "testing", "documentation", "constraints"]:
             request.discovery_data[key] = data.get(key)

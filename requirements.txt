@@ -1,3 +1,9 @@
 pydantic>=2.0.0
 pyyaml>=6.0.0
 pandas
+
+# Dev dependencies merged
+-r requirements.txt
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-asyncio

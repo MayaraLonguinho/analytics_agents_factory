@@ -170,7 +170,19 @@ class MasterOrchestrator:
         # Normalização estrita do domínio após a coleta para garantir 
         # que a Factory e Planner recebam o domínio canônico
         if "domain" in request.discovery_data:
-            normalized_domain = self.domain_registry.normalize_domain(request.discovery_data["domain"])
+            raw_domain = request.discovery_data["domain"]
+            normalized_domain = self.domain_registry.normalize_domain(raw_domain)
+            
+            # Fallback inteligente: se o LLM se confundiu e colocou assunto no domínio, 
+            # verificamos se o project_type contém um domínio canônico válido ou alias
+            if normalized_domain not in self.domain_registry.domains and "project_type" in request.discovery_data:
+                raw_project_type = request.discovery_data["project_type"]
+                if raw_project_type:
+                    project_type_normalized = self.domain_registry.normalize_domain(raw_project_type)
+                    if project_type_normalized in self.domain_registry.domains:
+                        normalized_domain = project_type_normalized
+                        logger.info(f"[Orchestrator] Resolução Semântica: Domínio '{raw_domain}' não é canônico. Utilizando project_type '{raw_project_type}' -> '{normalized_domain}'.")
+
             request.discovery_data["domain"] = normalized_domain
             
         return True

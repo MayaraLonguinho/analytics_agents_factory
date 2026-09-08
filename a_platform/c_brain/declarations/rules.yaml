@@ -1,0 +1,207 @@
+# Rules Declarations for Central Brain
+
+rules:
+  # Architecture Rules
+  - id: architecture_layering
+    type: rule
+    name: Architecture Layering
+    description: Projects must follow layered architecture with clear separation of concerns
+    tags: [architecture, validation]
+    applies_to: [all]
+    severity: critical
+    source: c_brain/rules/architecture/
+    version: "1.0.0"
+    details:
+      - "Presentation layer (API/UI)"
+      - "Business logic layer"
+      - "Data access layer"
+      - "Domain models layer"
+
+  - id: dependency_inversion
+    type: rule
+    name: Dependency Inversion Principle
+    description: High-level modules must not depend on low-level modules; both should depend on abstractions
+    tags: [architecture, design]
+    applies_to: [all]
+    severity: critical
+    source: c_brain/rules/architecture/
+    version: "1.0.0"
+
+  - id: interface_segregation
+    type: rule
+    name: Interface Segregation
+    description: Interfaces must be specific to client needs; clients should not depend on interfaces they don't use
+    tags: [architecture, design]
+    applies_to: [all]
+    severity: high
+    source: c_brain/rules/architecture/
+    version: "1.0.0"
+
+  - id: single_responsibility
+    type: rule
+    name: Single Responsibility Principle
+    description: A class or module should have only one reason to change
+    tags: [architecture, design]
+    applies_to: [all]
+    severity: high
+    source: c_brain/rules/architecture/
+    version: "1.0.0"
+
+  # Coding Rules
+  - id: type_hints_required
+    type: rule
+    name: Type Hints Required
+    description: All functions and class methods must have type hints for parameters and return values
+    tags: [coding, python, quality]
+    applies_to: [python]
+    severity: high
+    source: c_brain/rules/coding/
+    version: "1.0.0"
+
+  - id: docstring_required
+    type: rule
+    name: Docstring Required
+    description: All modules, classes, and functions must have docstrings
+    tags: [coding, documentation]
+    applies_to: [python]
+    severity: high
+    source: c_brain/rules/coding/
+    version: "1.0.0"
+
+  - id: error_handling_required
+    type: rule
+    name: Error Handling Required
+    description: All external calls and file operations must have proper error handling
+    tags: [coding, quality, robustness]
+    applies_to: [all]
+    severity: critical
+    source: c_brain/rules/coding/
+    version: "1.0.0"
+
+  - id: no_hardcoded_values
+    type: rule
+    name: No Hardcoded Values
+    description: Configuration values must be externalized; no hardcoded secrets or paths
+    tags: [coding, security]
+    applies_to: [all]
+    severity: critical
+    source: c_brain/rules/coding/
+    version: "1.0.0"
+
+  # Testing Rules
+  - id: unit_test_coverage
+    type: rule
+    name: Unit Test Coverage
+    description: Critical business logic must have unit test coverage
+    tags: [testing, quality]
+    applies_to: [all]
+    severity: high
+    source: c_brain/rules/testing/
+    version: "1.0.0"
+    details:
+      - "Minimum 80% coverage for core modules"
+      - "100% coverage for business logic"
+      - "Test edge cases and error conditions"
+
+  - id: integration_test_required
+    type: rule
+    name: Integration Test Required
+    description: Multi-component interactions must have integration tests
+    tags: [testing, quality]
+    applies_to: [all]
+    severity: high
+    source: c_brain/rules/testing/
+    version: "1.0.0"
+
+  # Documentation Rules
+  - id: readme_required
+    type: rule
+    name: README Required
+    description: Each module must have a README explaining its purpose and usage
+    tags: [documentation]
+    applies_to: [all]
+    severity: medium
+    source: c_brain/rules/documentation/
+    version: "1.0.0"
+
+  - id: architecture_decision_recorded
+    type: rule
+    name: Architecture Decision Recorded
+    description: Significant architecture decisions must be recorded in ADR format
+    tags: [documentation, architecture]
+    applies_to: [all]
+    severity: high
+    source: c_brain/rules/documentation/
+    version: "1.0.0"
+
+  # Security Rules
+  - id: authentication_required
+    type: rule
+    name: Authentication Required
+    description: All API endpoints must authenticate requests
+    tags: [security, api]
+    applies_to: [api]
+    severity: critical
+    source: c_brain/rules/security/
+    version: "1.0.0"
+
+  - id: input_validation_required
+    type: rule
+    name: Input Validation Required
+    description: All user input must be validated and sanitized
+    tags: [security, validation]
+    applies_to: [all]
+    severity: critical
+    source: c_brain/rules/security/
+    version: "1.0.0"
+
+  - id: no_sql_injection
+    type: rule
+    name: No SQL Injection
+    description: All database queries must use parameterized queries; no string concatenation
+    tags: [security, database]
+    applies_to: [database]
+    severity: critical
+    source: c_brain/rules/security/
+    version: "1.0.0"
+
+  - id: encryption_at_rest
+    type: rule
+    name: Encryption at Rest
+    description: Sensitive data must be encrypted when stored
+    tags: [security, data]
+    applies_to: [storage]
+    severity: high
+    source: c_brain/rules/security/
+    version: "1.0.0"
+
+  # Discovery Rules
+  - id: discovery_before_planning
+    type: rule
+    name: Discovery Before Planning
+    description: Discovery phase must complete before Planning phase can begin
+    tags: [discovery, lifecycle]
+    applies_to: [all]
+    severity: critical
+    source: a_core/c_orchestration/orchestrator.py
+    version: "1.0.0"
+
+  - id: dataset_validation_required
+    type: rule
+    name: Dataset Validation Required
+    description: If dataset source is provided, it must be validated and profiled
+    tags: [input, discovery]
+    applies_to: [analytics, data-engineering]
+    severity: high
+    source: a_core/c_orchestration/orchestrator.py
+    version: "1.0.0"
+
+  - id: architecture_confirmation_required
+    type: rule
+    name: Architecture Confirmation Required
+    description: Default architecture choices must be confirmed by user or agent
+    tags: [discovery, validation]
+    applies_to: [all]
+    severity: high
+    source: d_agents/a_discovery/discovery.py
+    version: "1.0.0"

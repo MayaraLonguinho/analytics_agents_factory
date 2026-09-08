@@ -1,0 +1,152 @@
+# Project Context Template - Analytics AI Factory
+
+## Overview
+
+Project context contains knowledge specific to the project being created.
+
+project:
+  metadata:
+    project_id: ""  # Generated during discovery
+    name: ""        # Set during discovery
+    domain: ""      # Selected during discovery
+    created_at: ""
+
+  # Discovery Results
+  discovery:
+    objective: ""
+    dataset_source: ""
+    dataset_profile: {}
+    requirements: {}
+    architecture_constraints: []
+    technology_preferences: []
+    decisions: {}
+    assumptions: []
+    risks: []
+    unresolved_items: []
+    questions: []
+
+  # Architecture
+  architecture:
+    backend:
+      framework: ""         # FastAPI, Flask, NestJS, etc.
+      language: ""          # Python, TypeScript, Java, etc.
+      patterns: []
+    
+    frontend:
+      framework: ""         # React + Vite, Next.js, Angular, etc.
+      language: ""          # JavaScript, TypeScript, etc.
+      patterns: []
+    
+    database:
+      engine: ""            # PostgreSQL, MySQL, MongoDB, etc.
+      schema: {}
+      migrations: []
+    
+    infrastructure:
+      deployment: ""        # Docker, Docker + Kubernetes, etc.
+      environment: ""       # development, staging, production
+      configuration: {}
+    
+    authentication:
+      method: ""            # JWT, OAuth2, Auth0, etc.
+      configuration: {}
+    
+    # Cross-cutting concerns
+    logging:
+      level: DEBUG
+      destinations: []
+    
+    monitoring:
+      enabled: true
+      metrics: []
+    
+    caching:
+      enabled: true
+      strategy: ""
+
+  # Technology Stack
+  technology_stack:
+    backend_packages: []
+    frontend_packages: []
+    devops_tools: []
+    ci_cd_tools: []
+    monitoring_tools: []
+
+  # Generated Artifacts
+  artifacts:
+    directories: []
+    files: []
+    configurations: []
+    docker_images: []
+    deployment_manifests: []
+
+  # Project-Specific Rules
+  rules:
+    applicable: []  # Rules selected from a_platform.c_brain/declarations/rules.yaml
+    overrides: {}   # Project-specific rule overrides
+
+  # Project-Specific Patterns
+  patterns:
+    applicable: []  # Patterns selected from a_platform.c_brain/declarations/patterns.yaml
+    implementations: {}
+
+  # Project-Specific Knowledge
+  knowledge:
+    domain_specific: []
+    architecture_specific: []
+    technology_specific: []
+    lessons_learned: []
+
+  # Context History
+  context_history:
+    discovery_results: {}
+    plan_versions: []
+    decision_log: []
+    change_log: []
+
+  # Quality Metrics
+  quality:
+    test_coverage: 0.0
+    code_quality_score: 0.0
+    architecture_compliance: 0.0
+    documentation_completeness: 0.0
+
+  # Execution State
+  execution:
+    status: REQUESTED
+    phase: DISCOVERING
+    progress: 0.0
+    start_time: ""
+    end_time: ""
+    errors: []
+    warnings: []
+
+  # Integration
+  integrations:
+    external_apis: []
+    databases: []
+    messaging_systems: []
+    data_sources: []
+
+## Decision Context
+
+decisions:
+  architecture_decisions: []
+  technology_decisions: []
+  integration_decisions: []
+  scalability_decisions: []
+
+## Risk Assessment
+
+risks:
+  identified: []
+  mitigations: []
+  contingencies: []
+
+## Success Criteria
+
+success_criteria:
+  functional_requirements: []
+  non_functional_requirements: []
+  quality_gates: []
+  acceptance_tests: []

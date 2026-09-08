@@ -1,95 +1,67 @@
-import logging
-import os
-import json
-import re
-from typing import Dict, Any
+"""Learning engine for the Analytics AI Factory.
 
-from a_platform.a_core.b_domain.project_request import ProjectRequest
-from a_platform.g_llm_gateway.gateway import LLMGateway
+Execution -> Feedback -> Knowledge Candidate -> Approval/Policy -> Brain Update.
+"""
 
-logger = logging.getLogger(__name__)
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from .brain_updater import BrainUpdater
+from .feedback_collector import FeedbackCollector
+from .knowledge_generator import KnowledgeGenerator
+
+
+@dataclass
+class LearningRun:
+    job_id: str
+    raw_feedback: List[Dict[str, Any]] = field(default_factory=list)
+    candidate_knowledge: List[Dict[str, Any]] = field(default_factory=list)
+    approved_knowledge: List[Dict[str, Any]] = field(default_factory=list)
+    incorporated_knowledge: List[Dict[str, Any]] = field(default_factory=list)
+    status: str = "pending"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "job_id": self.job_id,
+            "raw_feedback": self.raw_feedback,
+            "candidate_knowledge": self.candidate_knowledge,
+            "approved_knowledge": self.approved_knowledge,
+            "incorporated_knowledge": self.incorporated_knowledge,
+            "status": self.status,
+        }
+
 
 class LearningEngine:
-    """
-    Guarda logs de erros e correções na Memória (Brain)
-    para não repetir os mesmos erros. Sintetiza lições estruturadas via LLM.
-    """
-    def __init__(self, gateway: LLMGateway = None):
-        self.memory_path = os.path.join(os.path.dirname(__file__), "..", "b_brain", "memory.json")
-        self.memory = self._load_memory()
-        self.gateway = gateway or LLMGateway()
+    """Coordinates the full learning lifecycle without bypassing the approval gate."""
 
-    def _load_memory(self) -> list:
-        if os.path.exists(self.memory_path):
-            try:
-                with open(self.memory_path, "r") as f:
-                    return json.load(f)
-            except Exception:
-                return []
-        return []
+    def __init__(self, project_root: Optional[Path | str] = None):
+        self.project_root = Path(project_root or Path.cwd()).resolve()
+        self.feedback_collector = FeedbackCollector(self.project_root)
+        self.knowledge_generator = KnowledgeGenerator(self.project_root)
+        self.brain_updater = BrainUpdater(self.project_root)
 
-    def _save_memory(self):
-        try:
-            os.makedirs(os.path.dirname(self.memory_path), exist_ok=True)
-            with open(self.memory_path, "w") as f:
-                json.dump(self.memory, f, indent=2)
-        except Exception as e:
-            logger.error(f"[LearningEngine] Falha ao salvar memória: {e}")
+    def execute(self, *, source: str, kind: str, payload: Dict[str, Any], title: str, summary: str, evidence: List[str], confidence: float = 0.0, metadata: Optional[Dict[str, Any]] = None) -> LearningRun:
+        raw = self.feedback_collector.collect(
+            source=source, kind=kind, payload=payload)
+        candidate = self.knowledge_generator.from_feedback(
+            title=title, summary=summary, evidence=evidence, confidence=confidence, metadata=metadata)
+        decision = self.brain_updater.approve(candidate=candidate.to_dict())
+        run = LearningRun(
+            job_id=f"learning-{source}-{candidate.ts.replace(':', '-').replace('.', '-')}")
+        run.raw_feedback.append(raw.to_dict())
+        run.candidate_knowledge.append(candidate.to_dict())
 
-    def log_correction(self, request: ProjectRequest, error_log: str, correction: str):
-        logger.info("[LearningEngine] Sintetizando lição no KnowledgeGenerator...")
-        
-        domain = request.project_plan.domain if request.project_plan else "generic"
-        
-        prompt = f"""
-        Tivemos a seguinte falha:
-        {error_log}
-        
-        A correção aplicada foi:
-        {correction}
-        
-        Sintetize esta correção em um JSON estrito com as chaves:
-        "problema", "causa_raiz", "patch_aplicado", "contexto_dominio"
-        """
-        
-        system_prompt = "Você é o KnowledgeGenerator da plataforma AAF. Retorne apenas JSON."
-        resp = self.gateway.generate(prompt, system_prompt=system_prompt)
-        
-        lesson = {
-            "problema": "Desconhecido",
-            "causa_raiz": "Desconhecida",
-            "patch_aplicado": correction,
-            "contexto_dominio": domain
-        }
-        
-        if resp.get("success"):
-            text = resp.get("text", "")
-            match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
-            if match:
-                text = match.group(1).strip()
-            try:
-                lesson.update(json.loads(text))
-            except json.JSONDecodeError:
-                logger.warning("[LearningEngine] Falha ao parsear lição do LLM. Salvando texto bruto.")
-                lesson["patch_aplicado"] = text
-        
-        entry = {
-            "project_id": request.project_id,
-            "lesson": lesson
-        }
-        
-        logger.info("[LearningEngine] Salvando no BrainUpdater/KnowledgeRegistry...")
-        self.memory.append(entry)
-        self._save_memory()
-        
-        # Etapa 7: Estruturar no BrainUpdater
-        from a_platform.n_learning.brain_updater import BrainUpdater, KnowledgeItem
-        updater = BrainUpdater()
-        k_item = KnowledgeItem(
-            domain=domain,
-            pattern=lesson.get("causa_raiz", "Desconhecida"),
-            recommendation=lesson.get("patch_aplicado", correction)
-        )
-        updater.save_lesson(k_item)
-        
-        logger.info("[LearningEngine] Correção memorizada com sucesso.")
+        if decision.approved:
+            run.approved_knowledge.append(
+                {**candidate.to_dict(), "approval": decision.to_dict()})
+            incorporated = self.brain_updater.incorporate(
+                approved_payload={**candidate.to_dict(), "approval": decision.to_dict()})
+            run.incorporated_knowledge.append(incorporated)
+            run.status = "approved_and_incorporated"
+        else:
+            run.status = "rejected_pending_review"
+
+        return run

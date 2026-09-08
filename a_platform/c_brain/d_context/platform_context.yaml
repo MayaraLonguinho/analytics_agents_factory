@@ -1,0 +1,163 @@
+# Platform Context - Analytics AI Factory
+
+## Overview
+
+Platform context contains knowledge about how the Analytics AI Factory itself operates.
+
+platform:
+  name: Analytics AI Factory
+  version: "1.0.0"
+  
+  # Lifecycle Stages
+  lifecycle:
+    stages:
+      - REQUESTED
+      - DISCOVERING
+      - DISCOVERED
+      - PLANNING
+      - PLANNED
+      - GENERATING
+      - MATERIALIZING
+      - GENERATED
+      - EXECUTING
+      - VALIDATING
+      - QUALITY_CHECK
+      - CERTIFYING
+      - PROJECT_READY
+      - FAILED
+
+  # Architecture Components
+  components:
+    core:
+      description: Canonical core with contracts and orchestration
+      location: a_core/
+      responsibilities:
+        - Project request/response contracts
+        - Lifecycle management
+        - Orchestration entry point
+
+    input:
+      description: Input management and dataset handling
+      location: a_input/
+      responsibilities:
+        - Dataset ingestion
+        - Source validation
+        - Manifest creation
+
+    discovery:
+      description: Discovery phase for requirements analysis
+      location: d_agents/a_discovery/
+      responsibilities:
+        - Requirements extraction
+        - Architecture inference
+        - User confirmation
+
+    brain:
+      description: Central knowledge and decision repository
+      location: c_brain/
+      responsibilities:
+        - Knowledge management
+        - Rule enforcement
+        - Pattern guidance
+        - Context tracking
+
+    agents:
+      description: Specialized agents for different tasks
+      location: d_agents/
+      responsibilities:
+        - Task orchestration
+        - Skill execution
+        - Decision making
+
+  # Integration Points
+  integration:
+    discovery_to_planner:
+      input: DiscoveryResult
+      output: ProjectPlan
+      location: a_core/c_orchestration/orchestrator.py
+      rule: discovery_before_planning
+
+    planner_to_factory:
+      input: ProjectPlan
+      output: Project artifacts
+      rule: plan_must_be_validated
+
+    factory_to_runtime:
+      input: Project artifacts
+      output: Execution result
+      rule: artifacts_must_pass_validation
+
+  # Configuration
+  configuration:
+    default_domain: generic
+    default_source: cli
+    dataset_formats_supported:
+      - csv
+      - xlsx
+    max_dataset_size_mb: 500
+
+  # Error Handling
+  error_handling:
+    strategy: fail_fast
+    recovery_options:
+      - retry_on_transient
+      - fallback_to_default
+      - manual_intervention
+    logging:
+      level: DEBUG
+      destination: file
+      retention_days: 30
+
+  # Performance
+  performance:
+    timeouts:
+      discovery_phase_seconds: 60
+      planning_phase_seconds: 120
+      generation_phase_seconds: 300
+    cache:
+      enabled: true
+      ttl_seconds: 3600
+
+  # Security
+  security:
+    encryption:
+      enabled: true
+      algorithm: AES-256
+    authentication:
+      required: false  # IDE agent handled by IDE
+    input_validation:
+      strict: true
+
+## Knowledge Sources
+
+knowledge_sources:
+  internal:
+    - location: c_brain/declarations/
+      description: Declarative Brain definitions
+  
+  external:
+    - location: c_brain/
+      status: deprecated
+      migration_target: c_brain/
+    
+    - location: b_ai_engine/a_brain/
+      status: deprecated
+      migration_target: c_brain/
+
+## Decision Points
+
+decision_framework:
+  platform_decisions:
+    - Lifecycle stages and transitions
+    - Component responsibilities
+    - Integration protocols
+    - Error handling strategies
+    - Performance targets
+    - Security policies
+
+  project_decisions:
+    - Domain selection
+    - Architecture choices
+    - Technology stack
+    - Scalability requirements
+    - Integration requirements

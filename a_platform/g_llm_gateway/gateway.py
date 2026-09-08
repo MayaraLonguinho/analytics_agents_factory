@@ -1,118 +1,111 @@
-import logging
-import os
-import urllib.request
-import urllib.parse
-import json
-from typing import Dict, Any
+from __future__ import annotations
 
-logger = logging.getLogger(__name__)
+from typing import Any, AsyncGenerator, Dict, List, Optional
+
+from .configuration.settings import LLMGatewayConfig
+from .interfaces.base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+from .providers import AnthropicProvider, GoogleProvider, OllamaProvider, OpenAIProvider, get_provider_registry
+from .providers.registry import ProviderRegistry
+from .routing.router import ModelRouter
+
 
 class LLMGateway:
+    """Canonical gateway for all LLM access in the platform.
+
+    Agent -> Skill -> LLM Gateway -> Provider -> Model
     """
-    Gateway real de LLMs com roteamento e fallback estrito.
-    Não aceita mocks. Falha se não houver chaves configuradas.
-    Suporta OpenAI e Google Gemini nativamente via API HTTP.
-    """
-    def __init__(self):
-        self.openai_key = os.getenv("OPENAI_API_KEY")
-        self.google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-        self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        
-    def generate(self, prompt: str, system_prompt: str = "", model_preference: str = "openai", **kwargs) -> Dict[str, Any]:
-        logger.info(f"[LLM Gateway] Requisitando modelo principal: {model_preference}")
-        
-        result = self._try_model(prompt, system_prompt, model_preference)
-        
-        if not result["success"]:
-            logger.warning(f"[LLM Gateway] Falha no provedor {model_preference}. Erro: {result.get('error')}")
-            fallbacks = kwargs.get("fallback_models", [])
-            
-            if fallbacks:
-                for fallback in fallbacks:
-                    logger.info(f"[LLM Gateway] Tentando fallback explícito: {fallback}")
-                    result = self._try_model(prompt, system_prompt, fallback)
-                    if result["success"]:
-                        break
-                        
-        if not result["success"]:
-            error_msg = f"Nenhum provedor LLM real disponível ou configurado corretamente. Último erro: {result.get('error')}"
-            logger.error(f"[LLM Gateway] CRÍTICO: {error_msg}")
-            raise RuntimeError(error_msg)
-            
-        return result
 
-    def _try_model(self, prompt: str, system_prompt: str, model: str) -> Dict[str, Any]:
-        if model == "openai":
-            if not self.openai_key:
-                return {"success": False, "error": "OPENAI_API_KEY ausente."}
-            return self._call_openai(prompt, system_prompt)
-            
-        elif model == "google":
-            if not self.google_key:
-                return {"success": False, "error": "GOOGLE_API_KEY ausente."}
-            return self._call_google(prompt, system_prompt)
-            
-        elif model == "anthropic":
-            if not self.anthropic_key:
-                return {"success": False, "error": "ANTHROPIC_API_KEY ausente."}
-            return self._call_anthropic(prompt, system_prompt)
-            
-        return {"success": False, "error": f"Provedor desconhecido: {model}"}
+    def __init__(self, config: Optional[LLMGatewayConfig] = None):
+        self.config = config or LLMGatewayConfig()
+        self.router = ModelRouter()
+        self.registry: ProviderRegistry = get_provider_registry()
+        self._initialize_providers()
 
-    def _call_openai(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        url = "https://api.openai.com/v1/chat/completions"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.openai_key}"
+    def _initialize_providers(self) -> None:
+        provider_defs = self.config.providers
+        provider_map = {
+            "ollama": OllamaProvider,
+            "openai": OpenAIProvider,
+            "anthropic": AnthropicProvider,
+            "google": GoogleProvider,
         }
-        data = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        try:
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as response:
-                resp_data = json.loads(response.read().decode("utf-8"))
-                text = resp_data["choices"][0]["message"]["content"]
-                return {"success": True, "text": text, "model": "openai-gpt-4o-mini"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
 
-    def _call_google(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        try:
-            from a_platform.g_llm_gateway.b_providers.google.provider import GoogleProvider
-            provider = GoogleProvider()
-            import asyncio
-            text = asyncio.run(provider.generate(prompt, system_prompt))
-            return {"success": True, "text": text, "model": "google-gemini"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        for name, cfg in provider_defs.items():
+            if not cfg.get("enabled", False):
+                continue
+            provider_cls = provider_map.get(name)
+            if provider_cls is None:
+                continue
+            provider = provider_cls(cfg)
+            self.registry.register_provider(name, provider, cfg)
 
-    def _call_anthropic(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        url = "https://api.anthropic.com/v1/messages"
-        headers = {
-            "Content-Type": "application/json",
-            "x-api-key": self.anthropic_key,
-            "anthropic-version": "2023-06-01"
+        if "ollama" not in self.registry.list_providers():
+            self.registry.register_provider(
+                "ollama",
+                OllamaProvider({**provider_defs.get("ollama", {}), "enabled": True}),
+                provider_defs.get("ollama", {}),
+            )
+
+    def route(self, provider: Optional[str] = None, model: Optional[str] = None):
+        return self.router.route(provider=provider, model=model)
+
+    async def generate(self, prompt: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
+        route = self.route(provider=provider, model=model)
+        provider_instance = self.registry.get_provider(route.provider)
+        if provider_instance is None:
+            raise ValueError(f"Provider not available: {route.provider}")
+
+        request = LLMRequest(
+            prompt=prompt,
+            model=route.model,
+            parameters=kwargs,
+            stream=kwargs.get("stream", False),
+            max_tokens=kwargs.get("max_tokens"),
+            temperature=kwargs.get("temperature"),
+        )
+        return await provider_instance.generate(request)
+
+    async def chat(self, messages: List[Dict[str, str]], provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
+        route = self.route(provider=provider, model=model)
+        provider_instance = self.registry.get_provider(route.provider)
+        if provider_instance is None:
+            raise ValueError(f"Provider not available: {route.provider}")
+        return await provider_instance.chat(messages, route.model, **kwargs)
+
+    async def structured_output(self, prompt: str, schema: Dict[str, Any], provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
+        route = self.route(provider=provider, model=model)
+        provider_instance = self.registry.get_provider(route.provider)
+        if provider_instance is None:
+            raise ValueError(f"Provider not available: {route.provider}")
+        return await provider_instance.structured_output(prompt, route.model, schema, **kwargs)
+
+    async def embeddings(self, text: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> List[float]:
+        route = self.route(provider=provider, model=model)
+        provider_instance = self.registry.get_provider(route.provider)
+        if provider_instance is None:
+            raise ValueError(f"Provider not available: {route.provider}")
+        return await provider_instance.embeddings(text, route.model, **kwargs)
+
+    async def stream(self, prompt: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> AsyncGenerator[str, None]:
+        route = self.route(provider=provider, model=model)
+        provider_instance = self.registry.get_provider(route.provider)
+        if provider_instance is None:
+            raise ValueError(f"Provider not available: {route.provider}")
+        request = LLMRequest(
+            prompt=prompt,
+            model=route.model,
+            parameters=kwargs,
+            stream=True,
+            max_tokens=kwargs.get("max_tokens"),
+            temperature=kwargs.get("temperature"),
+        )
+        async for chunk in provider_instance.stream(request):
+            yield chunk
+
+    def metadata(self) -> Dict[str, Any]:
+        return {
+            "default_provider": self.config.default_provider,
+            "default_model": self.config.default_model,
+            "providers": {name: cfg for name, cfg in self.config.providers.items()},
+            "routing": {"default": self.route().provider, "model": self.route().model},
         }
-        data = {
-            "model": "claude-3-5-sonnet-20240620",
-            "max_tokens": 4096,
-            "system": system_prompt,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        try:
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as response:
-                resp_data = json.loads(response.read().decode("utf-8"))
-                text = resp_data["content"][0]["text"]
-                return {"success": True, "text": text, "model": "anthropic-claude-3.5"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
