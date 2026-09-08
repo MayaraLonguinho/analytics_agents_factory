@@ -38,29 +38,31 @@ class DatasetProfilingSkill(BaseSkill):
             elif path.endswith('.json'):
                 df = pd.read_json(path)
             else:
-                df = pd.DataFrame()
+                raise ValueError("Formato não suportado: " + path.split('.')[-1])
             
-            if not df.empty:
-                profile["schema"] = list(df.columns)
-                profile["row_count"] = int(len(df))
-                profile["nulls"] = int(df.isnull().sum().sum())
-                profile["quality_score"] = max(0.0, 1.0 - (profile["nulls"] / (profile["row_count"] * len(df.columns))))
+            if df.empty:
+                raise ValueError("Arquivo vazio.")
                 
-                # Compute basic metrics for numeric columns
-                desc = df.describe()
-                for col in desc.columns:
-                    profile["metrics"][col] = {
-                        "min": float(desc[col]["min"]) if not pd.isna(desc[col]["min"]) else 0.0,
-                        "max": float(desc[col]["max"]) if not pd.isna(desc[col]["max"]) else 0.0,
-                        "mean": float(desc[col]["mean"]) if not pd.isna(desc[col]["mean"]) else 0.0
-                    }
+            profile["schema"] = list(df.columns)
+            profile["row_count"] = int(len(df))
+            profile["nulls"] = int(df.isnull().sum().sum())
+            profile["quality_score"] = max(0.0, 1.0 - (profile["nulls"] / (profile["row_count"] * len(df.columns))))
+            
+            # Compute basic metrics for numeric columns
+            desc = df.describe()
+            for col in desc.columns:
+                profile["metrics"][col] = {
+                    "min": float(desc[col]["min"]) if not pd.isna(desc[col]["min"]) else 0.0,
+                    "max": float(desc[col]["max"]) if not pd.isna(desc[col]["max"]) else 0.0,
+                    "mean": float(desc[col]["mean"]) if not pd.isna(desc[col]["mean"]) else 0.0
+                }
         except Exception as e:
             error_msg = f"Falha ao processar {path}: {e}"
             logger.error(f"[DatasetProfilingSkill] {error_msg}")
             raise ValueError(error_msg)
 
         result = {
-            "dataset_profile.json": json.dumps(profile, indent=2)
+            "dataset_profile": profile
         }
         
         self.validate_output(result)

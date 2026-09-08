@@ -4,8 +4,8 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from .configuration.settings import LLMGatewayConfig
 from .interfaces.base_provider import BaseLLMProvider, LLMRequest, LLMResponse
-from .providers import AnthropicProvider, GoogleProvider, OllamaProvider, OpenAIProvider, get_provider_registry
-from .providers.registry import ProviderRegistry
+from .b_providers import AnthropicProvider, GoogleProvider, OllamaProvider, OpenAIProvider, get_provider_registry
+from .b_providers.registry import ProviderRegistry
 from .routing.router import ModelRouter
 
 

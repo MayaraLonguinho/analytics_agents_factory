@@ -1,5 +1,5 @@
 """Discovery Agent Module."""
 
-from .a_discovery import DiscoverySession
+from .discovery_agent import DiscoveryAgent, DiscoveryStatus
 
-__all__ = ["DiscoverySession"]
+__all__ = ["DiscoveryAgent", "DiscoveryStatus"]

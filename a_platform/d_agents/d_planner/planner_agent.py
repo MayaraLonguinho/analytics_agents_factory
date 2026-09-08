@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+import asyncio
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.project_plan import ProjectPlan, Task
 from a_platform.i_domains.domain_registry import DomainRegistry
@@ -17,9 +18,16 @@ class PlannerAgent:
         self.gateway = LLMGateway()
 
     def generate_plan(self, request: ProjectRequest) -> bool:
+        return asyncio.run(self._generate_plan_async(request))
+
+    async def _generate_plan_async(self, request: ProjectRequest) -> bool:
         logger.info("[PlannerAgent] Iniciando estruturação do plano via LLM...")
         
-        domain_name = request.discovery_data.get("domain", "generic")
+        domain_name = request.domain
+        if domain_name not in ["analytics", "data_engineering"]:
+            logger.error(f"[PlannerAgent] Falha: Planner suporta apenas analytics e data_engineering. Recebido: {domain_name}")
+            return False
+            
         domain_config = self.registry.get_domain_config(domain_name)
         
         allowed_agents = domain_config.get("agents", [])
@@ -51,12 +59,14 @@ class PlannerAgent:
             "- **Infrastructure Layer:** Dockerfile, docker-compose.yml (agent: InfrastructureAgent, skills: [basic_coding]). Artefatos obrigatórios: [Dockerfile, docker-compose.yml].\n"
             "- **Documentation Layer:** README.md (agent: DocumentationAgent, skills: [basic_coding]). Artefatos obrigatórios: [README.md].\n"
             "\n"
-            "É OBRIGATÓRIO que você decomponha os requisitos em tarefas para TODAS as camadas relevantes.\n"
-            "- Se o domínio for 'Analytics': O plano DEVE conter as tarefas de Data, Database, Analytics, Testing e Infrastructure.\n"
-            "- Se for 'Ecommerce' ou 'CRM': O plano DEVE conter as tarefas de Database, Backend, Frontend, Testing e Infrastructure.\n"
-            "Utilize os Agentes, Skills e MCPs permitidos. Cada tarefa DEVE ser associada a UM agente e pode chamar múltiplas skills.\n"
-            "As tarefas devem seguir uma ordem lógica rigorosa sem ciclos. A dependência de uma tarefa deve listar os IDs exatos das tarefas anteriores que devem terminar primeiro (ex: Testing depende de Database e Backend).\n"
-            "MUITO IMPORTANTE: O array `expected_artifacts` DEVE listar explicitamente os nomes dos arquivos que a tarefa vai gerar (ex: `pipeline.py`). A fábrica falhará se não listá-los corretamente!\n"
+            "É OBRIGATÓRIO condicionar as capacidades às necessidades reais do projeto e Architecture Decision:\n"
+            "- Base mínima para ETL/Data Engineering: Data/ETL, Testing, Documentation, e Database APENAS quando necessário/solicitado.\n"
+            "- Base mínima para Analytics: Data/ETL, Analytics, Testing, Documentation, e Database APENAS quando necessário/solicitado.\n"
+            "- CONDICIONAIS: Dashboard, Backend, Frontend, Infrastructure/Docker APENAS devem ser incluídos se explicitamente escolhidos na Arquitetura ou Requisitos.\n"
+            "- NÃO OBRIGUE Backend, Frontend ou Dashboard em um projeto que não os solicitou.\n"
+            "Utilize SOMENTE os Agentes, Skills e MCPs permitidos. Cada tarefa DEVE ser associada a UM agente e pode chamar múltiplas skills válidas.\n"
+            "As tarefas devem seguir uma ordem lógica rigorosa sem ciclos. A dependência de uma tarefa deve listar os IDs exatos das tarefas anteriores que devem terminar primeiro.\n"
+            "MUITO IMPORTANTE: O array `expected_artifacts` DEVE listar explicitamente os nomes dos arquivos que a tarefa vai gerar (ex: `pipeline.py`). A fábrica falhará se não listá-los corretamente ou listar fictícios!\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
             '  "tasks": [\n'
@@ -79,19 +89,21 @@ class PlannerAgent:
         
         prompt = (
             f"Discovery Data: {json.dumps(request.discovery_data, ensure_ascii=False)}\n"
+            f"Dataset Profile: {json.dumps(request.dataset_profile, ensure_ascii=False)}\n"
+            f"Brain Context: {json.dumps(request.brain_context, ensure_ascii=False)}\n"
             f"Architecture Decision: {json.dumps(request.architecture_decision, ensure_ascii=False)}\n"
             f"Agentes Permitidos: {allowed_agents}\n"
             f"Skills Permitidas: {allowed_skills}\n"
             f"MCPs Permitidos: {allowed_mcps}\n"
         )
         
-        response = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
+        response = await self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
-        if not response.get("success"):
-            logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano: {response.get('error')}")
+        if not response.success:
+            logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano")
             return False
             
-        text = response.get("text", "")
+        text = str(response.content)
         json_str = text
         match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
         if match:

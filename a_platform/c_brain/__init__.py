@@ -19,8 +19,8 @@ Consumable by:
 - Learning
 """
 
-from .registry.brain_loader import BrainLoader
-from .registry.graph_builder import KnowledgeGraphBuilder
+from .f_registry.brain_loader import BrainLoader
+from .f_registry.graph_builder import KnowledgeGraphBuilder
 
 __all__ = [
     "BrainLoader",

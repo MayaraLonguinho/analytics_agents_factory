@@ -174,3 +174,18 @@ class BaseSkill(ISkill):
                     return False, f"Value '{value}' is not in allowed values {constraint_value}"
 
         return True, None
+
+CORE_SKILL_CONTRACTS = {
+    "dataset_profiling": SkillContract(
+        skill_id="dataset_profiling",
+        name="Dataset Profiling",
+        description="Profiles a given dataset to extract schema and metrics.",
+        execution_type=SkillExecutionType.NATIVE,
+        input_schema=[
+            ParameterDefinition(name="dataset_path", data_type="string", required=True)
+        ],
+        output_schema=[
+            ParameterDefinition(name="dataset_profile", data_type="dict", required=True)
+        ]
+    )
+}

@@ -28,7 +28,7 @@ class DiscoveryAgent:
             "Sua tarefa é analisar o prompt inicial do usuário e o histórico de chat para extrair de forma OBRIGATÓRIA as seguintes informações cruciais sobre o projeto:\n"
             "- project_type (O tipo de projeto ou intenção técnica, ex: ETL, Dashboard, API REST, App Mobile)\n"
             "- business_context (O assunto, contexto ou área de negócio do projeto, ex: vendas, clientes, financeiro, RH)\n"
-            "- domain (OBRIGATÓRIO: O domínio arquitetural canônico que melhor representa o project_type. Deve ser um domínio de software/TI, ex: data_engineering, analytics, crm, ecommerce. NUNCA deve ser o assunto do negócio como 'vendas'.)\n"
+            "- domain (OBRIGATÓRIO: O domínio arquitetural canônico. Use APENAS 'analytics' ou 'data_engineering'. Regras de mapeamento: ETL/data pipeline/engenharia de dados -> data_engineering. analytics/análise de dados/BI/dashboard -> analytics.)\n"
             "- objective\n"
             "- users\n"
             "- data_sources\n"

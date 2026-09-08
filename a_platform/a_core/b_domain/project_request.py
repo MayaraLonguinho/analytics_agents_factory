@@ -6,6 +6,8 @@ from a_platform.a_core.b_domain.project_plan import ProjectPlan
 class ProjectRequest:
     prompt: str
     dataset_path: Optional[str] = None
+    project_type: Optional[str] = None
+    business_context: Optional[str] = None
     domain: Optional[str] = None
     project_id: str = field(default_factory=lambda: "proj_default")
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -13,6 +15,7 @@ class ProjectRequest:
     # Phase 3
     discovery_data: Dict[str, Any] = field(default_factory=dict)
     dataset_profile: Dict[str, Any] = field(default_factory=dict)
+    brain_context: Dict[str, Any] = field(default_factory=dict)
     
     # Phase 4
     architecture_decision: Dict[str, Any] = field(default_factory=dict)

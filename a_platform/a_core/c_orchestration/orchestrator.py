@@ -167,23 +167,27 @@ class MasterOrchestrator:
         elif status == DiscoveryStatus.FAILED:
             return False
             
+        request.project_type = request.discovery_data.get("project_type")
+        request.business_context = request.discovery_data.get("business_context")
+        
         # Normalização estrita do domínio após a coleta para garantir 
         # que a Factory e Planner recebam o domínio canônico
-        if "domain" in request.discovery_data:
-            raw_domain = request.discovery_data["domain"]
-            normalized_domain = self.domain_registry.normalize_domain(raw_domain)
-            
-            # Fallback inteligente: se o LLM se confundiu e colocou assunto no domínio, 
-            # verificamos se o project_type contém um domínio canônico válido ou alias
-            if normalized_domain not in self.domain_registry.domains and "project_type" in request.discovery_data:
-                raw_project_type = request.discovery_data["project_type"]
-                if raw_project_type:
-                    project_type_normalized = self.domain_registry.normalize_domain(raw_project_type)
-                    if project_type_normalized in self.domain_registry.domains:
-                        normalized_domain = project_type_normalized
-                        logger.info(f"[Orchestrator] Resolução Semântica: Domínio '{raw_domain}' não é canônico. Utilizando project_type '{raw_project_type}' -> '{normalized_domain}'.")
+        raw_domain = request.discovery_data.get("domain", "")
+        normalized_domain = self.domain_registry.normalize_domain(raw_domain)
+        
+        # Fallback inteligente: se o LLM se confundiu e colocou assunto no domínio, 
+        # verificamos se o project_type contém um domínio canônico válido ou alias
+        if normalized_domain not in ["analytics", "data_engineering"]:
+            raw_project_type = request.project_type or ""
+            project_type_normalized = self.domain_registry.normalize_domain(raw_project_type)
+            if project_type_normalized in ["analytics", "data_engineering"]:
+                normalized_domain = project_type_normalized
+                logger.info(f"[Orchestrator] Resolução Semântica: Domínio '{raw_domain}' não é canônico. Utilizando project_type '{raw_project_type}' -> '{normalized_domain}'.")
+            else:
+                raise ValueError(f"Domínio inválido ou ausente após Discovery: '{raw_domain}' e '{raw_project_type}'. Domínios permitidos: 'analytics', 'data_engineering'.")
 
-            request.discovery_data["domain"] = normalized_domain
+        request.domain = normalized_domain
+        request.discovery_data["domain"] = normalized_domain
             
         return True
 
@@ -192,12 +196,11 @@ class MasterOrchestrator:
         if request.dataset_path:
             logger.info(f"Analisando dataset em {request.dataset_path}")
             try:
-                profile = self.dataset_profiler.execute({"dataset_path": request.dataset_path})
+                result = self.dataset_profiler.execute({"dataset_path": request.dataset_path})
+                profile = result.get("dataset_profile", {})
                 request.dataset_profile = profile
-                if profile.get("status") == "failed":
-                    logger.warning(f"Falha ao realizar profiling: {profile.get('error')}")
-                else:
-                    logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('column_count')} colunas.")
+                
+                logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('schema')} colunas.")
             except Exception as e:
                 logger.error(f"Erro no Profiling: {str(e)}")
                 return False
@@ -205,6 +208,16 @@ class MasterOrchestrator:
 
     def _step_brain(self, request: ProjectRequest) -> bool:
         logger.info("Executando Brain (Knowledge Retrieval)...")
+        context = {
+            "project_type": request.project_type,
+            "business_context": request.business_context,
+            "domain": request.domain,
+            "dataset_profile": request.dataset_profile,
+            "discovery_data": request.discovery_data
+        }
+        knowledge = self.brain.retrieve_relevant_knowledge(context)
+        request.brain_context = knowledge
+        logger.info(f"Conhecimento do Brain injetado no contexto. Padrões: {knowledge.get('domain_patterns')}")
         return True
 
     def _step_architecture(self, request: ProjectRequest) -> bool:

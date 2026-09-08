@@ -1,9 +1,27 @@
 import logging
 from typing import Dict, Any, List
 
-from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
-from a_platform.c_brain.f_registry.rule_registry import RuleRegistry
-from a_platform.c_brain.f_registry.pattern_registry import PatternRegistry
+class BaseRegistry:
+    def __init__(self):
+        self._data = {}
+
+    def register(self, key: str, value: Dict[str, Any]):
+        self._data[key] = value
+
+    def search_by_domain(self, domain: str) -> List[Dict[str, Any]]:
+        return [v for v in self._data.values() if v.get("domain") == domain]
+
+    def search_by_tags(self, tags: List[str]) -> List[Dict[str, Any]]:
+        result = []
+        for v in self._data.values():
+            v_tags = v.get("tags", [])
+            if any(t in v_tags for t in tags):
+                result.append(v)
+        return result
+
+class KnowledgeRegistry(BaseRegistry): pass
+class RuleRegistry(BaseRegistry): pass
+class PatternRegistry(BaseRegistry): pass
 
 logger = logging.getLogger(__name__)
 
@@ -73,15 +91,13 @@ class Brain:
             "pattern": "Star Schema, ELT, Data Lakehouse",
             "domain": "analytics"
         })
-        self.pattern_registry.register("ecommerce_patterns", {
-            "pattern": "3-Tier Architecture, Event-Driven, ACID Compliance",
-            "domain": "ecommerce"
-        })
 
-    def retrieve_relevant_knowledge(self, domain: str) -> Dict[str, Any]:
+    def retrieve_relevant_knowledge(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """
         Retorna o contexto condensado e focado no domínio utilizando os Registries.
         """
+        domain = context.get("domain", "")
+        project_type = context.get("project_type", "")
         domain_lower = domain.lower()
         
         # Recupera tudo marcado como 'platform' do KnowledgeRegistry
@@ -100,8 +116,16 @@ class Brain:
         patterns = self.pattern_registry.search_by_domain(domain_lower)
         if patterns:
             knowledge_context["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"
-        else:
-            knowledge_context["domain_patterns"] = "Padrões genéricos de engenharia de software."
+            
+        # Injeta restrições e profile como conhecimento estrito
+        if context.get("dataset_profile"):
+            profile = context.get("dataset_profile")
+            knowledge_context["data_shape"] = {
+                "schema": profile.get("schema", []),
+                "row_count": profile.get("row_count", 0),
+                "nulls": profile.get("nulls", 0),
+                "metrics": profile.get("metrics", {})
+            }
             
         return knowledge_context
 
