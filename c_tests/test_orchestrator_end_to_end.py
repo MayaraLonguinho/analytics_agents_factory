@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from a_platform.a_core.c_orchestration.orchestrator import PlatformOrchestrator
+from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
 
 
 def test_orchestrator_materializes_and_executes_real_project(tmp_path):
@@ -49,7 +49,7 @@ def test_orchestrator_materializes_and_executes_real_project(tmp_path):
 
     with patch("f_llm_gateway.gateway.LLMGateway.__init__", mock_gateway_init), \
          patch("c_agents.c_architecture.architecture_agent.ArchitectureAgent.decide_sync", mock_decide_sync):
-        result = PlatformOrchestrator(project_root=tmp_path).handle_request(
+        result = MasterOrchestrator(project_root=tmp_path).handle_request(
             "Create an analytics project for this dataset",
             domain="analytics",
             source="cli",

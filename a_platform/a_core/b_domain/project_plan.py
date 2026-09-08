@@ -19,7 +19,7 @@ class ProjectPlan:
     project_id: str
     domain: str
     tasks: List[Task] = field(default_factory=list)
-    materializer: str = "generic_materializer"
+    materializer: str = "analytics_materializer"
     run_commands: List[str] = field(default_factory=list)
     execution_required: bool = True
     validated: bool = False

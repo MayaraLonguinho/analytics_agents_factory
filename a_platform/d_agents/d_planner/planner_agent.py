@@ -140,7 +140,7 @@ class PlannerAgent:
         plan.run_commands = data.get("run_commands", [])
         
         from a_platform.e_skills.skill_registry import SkillRegistry
-        from a_platform.f_mcp.a_registry.mcp_registry import MCPRegistry
+        from a_platform.f_mcp.mcp_registry import MCPRegistry
         from a_platform.d_agents.agent_factory import AgentFactory
         from a_platform.k_validation.validation_gate import ValidationGate
         

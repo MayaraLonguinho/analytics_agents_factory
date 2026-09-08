@@ -28,7 +28,7 @@ class DomainRegistry:
 
     def normalize_domain(self, domain_name: str) -> str:
         if not domain_name:
-            return "generic"
+            raise ValueError("Domínio técnico não pode ser vazio. Esperado: 'analytics' ou 'data_engineering'.")
             
         domain_name = domain_name.lower().strip()
         

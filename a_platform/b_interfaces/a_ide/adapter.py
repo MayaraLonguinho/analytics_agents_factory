@@ -90,7 +90,7 @@ class IDEAdapter:
             
         if request.metadata.get("PROJECT_READY") == "YES":
             import os
-            domain = request.discovery_data.get("domain", "generic").lower()
+            domain = request.discovery_data.get("domain", "analytics").lower()
             path = os.path.join(os.getcwd(), "e_generated_projects", domain, project_id)
             return ProjectResponseDTO(
                 success=True, 

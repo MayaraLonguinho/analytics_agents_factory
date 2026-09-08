@@ -5,7 +5,7 @@ import os
 from a_platform.c_brain.e_memory.memory_manager import MemoryManager
 from a_platform.c_brain.g_graph.graph_builder import GraphBuilder
 from a_platform.c_brain.g_graph.backend import ObsidianBackend
-from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
+from a_platform.c_brain.f_registry.knowledge_registry import BrainRegistry as KnowledgeRegistry
 from a_platform.c_brain.f_registry.rule_registry import RuleRegistry
 from a_platform.c_brain.f_registry.pattern_registry import PatternRegistry
 

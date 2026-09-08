@@ -36,7 +36,7 @@ class ArtifactMaterializer:
             logger.error("[ArtifactMaterializer] ProjectPlan não encontrado. Não é possível validar a materialização.")
             return False
             
-        domain = request.discovery_data.get("domain", "generic").lower()
+        domain = request.discovery_data.get("domain", "analytics").lower()
         project_dir = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id)
         
         logger.info(f"[ArtifactMaterializer] Iniciando materialização em: {project_dir}")

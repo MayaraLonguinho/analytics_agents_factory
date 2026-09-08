@@ -26,7 +26,7 @@ class BaseAgent:
         
         # 1. Preparar contexto base (Brain + Plan)
         base_context = {
-            "domain": request.discovery_data.get("domain", "generic"),
+            "domain": request.discovery_data.get("domain", "analytics"),
             "architecture": request.architecture_decision,
             "task_description": task.description,
             "dataset_path": request.dataset_path,

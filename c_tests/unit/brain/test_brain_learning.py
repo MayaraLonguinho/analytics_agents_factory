@@ -3,8 +3,9 @@ import pytest
 import os
 import yaml
 from unittest.mock import MagicMock, patch, mock_open
-from a_platform.n_learning.brain_updater import BrainUpdater, KnowledgeItem
-from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
+from a_platform.n_learning.brain_updater import BrainUpdater
+from typing import Dict, Any
+from a_platform.c_brain.f_registry.knowledge_registry import BrainRegistry as KnowledgeRegistry
 from a_platform.d_agents.c_architecture.architecture_agent import ArchitectureAgent
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 
@@ -12,7 +13,7 @@ def test_brain_updater_saves_lesson(tmp_path):
     updater = BrainUpdater()
     updater.domains_path = str(tmp_path)
     
-    item = KnowledgeItem(domain="analytics", pattern="SyntaxError in Pandas", recommendation="Use pandas correctly")
+    item = Dict[str, Any](domain="analytics", pattern="SyntaxError in Pandas", recommendation="Use pandas correctly")
     updater.save_lesson(item)
     
     expected_path = os.path.join(updater.domains_path, "analytics", "learned_rules.yaml")

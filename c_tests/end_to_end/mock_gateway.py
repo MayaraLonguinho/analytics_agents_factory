@@ -17,7 +17,7 @@ def get_mocked_generate_function(interactive=False, repair_error=False):
             if interactive and call_counts["discovery"] == 1:
                 return {
                     "success": True,
-                    "text": '{"is_complete": false, "missing_info_question": "Qual o domínio do projeto?", "domain": "generic", "features": [], "dataset_path": ""}'
+                    "text": '{"is_complete": false, "missing_info_question": "Qual o domínio do projeto?", "domain": "analytics", "features": [], "dataset_path": ""}'
                 }
             return {
                 "success": True,

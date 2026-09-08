@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from a_core.b_domain.project import DiscoveryResult
+# pyrefly: ignore [missing-import]
 from a_platform.c_brain.registry import BrainRegistry
 from a_platform.i_domains.registry import DomainRegistry, get_domain_registry
 from a_core.b_domain.architecture import ArchitectureDecision
@@ -28,7 +29,7 @@ class ProjectPlanner:
 
     def plan(self, discovery: DiscoveryResult, architecture: Optional[ArchitectureDecision] = None) -> ProjectGenerationBundle:
         """Convert discovery result into a project generation bundle."""
-        domain = discovery.domain or "generic"
+        domain = discovery.domain or "analytics"
         domain_template = self.domain_registry.get_domain(domain)
 
         if not domain_template:

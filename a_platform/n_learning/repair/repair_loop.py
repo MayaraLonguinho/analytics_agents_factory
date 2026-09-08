@@ -81,7 +81,7 @@ class RepairLoop:
                 logger.info(f"[RepairLoop] Agente especialista acionado para reparo: {specialist_agent.name}")
                 
                 # Aplicando o patch
-                domain = request.discovery_data.get("domain", "generic").lower()
+                domain = request.discovery_data.get("domain", "analytics").lower()
                 file_path = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id, file_name)
                 
                 logger.info(f"[RepairLoop] Aplicando patch corretivo em: {file_name}")

@@ -118,27 +118,27 @@ knowledge:
     source: b_ai_engine/a_brain/c_domains/analytics/
     version: "1.0.0"
 
-  - id: personal_finance_domain
+  - id: personal_finance_pattern
     type: knowledge
-    name: Personal Finance Domain
-    description: Personal finance flow with FastAPI, React, PostgreSQL patterns
-    tags: [domain, finance]
+    name: Personal Finance Pattern
+    description: Personal finance flow with FastAPI, React, PostgreSQL patterns (Capability Reference)
+    tags: [pattern, finance, reference]
     source: b_ai_engine/a_brain/c_domains/personal_finance_flow/
     version: "1.0.0"
 
-  - id: crm_domain
+  - id: crm_pattern
     type: knowledge
-    name: CRM Domain
-    description: Customer Relationship Management patterns and implementations
-    tags: [domain, crm, business]
+    name: CRM Pattern
+    description: Customer Relationship Management patterns and implementations (Capability Reference)
+    tags: [pattern, crm, business, reference]
     source: b_ai_engine/a_brain/c_domains/crm/
     version: "1.0.0"
 
-  - id: generic_webapp_domain
+  - id: generic_webapp_pattern
     type: knowledge
-    name: Generic Webapp Domain
-    description: Generic web application patterns with REST API and frontend
-    tags: [domain, webapp]
+    name: Generic Webapp Pattern
+    description: Generic web application patterns with REST API and frontend (Capability Reference)
+    tags: [pattern, webapp, reference]
     source: b_ai_engine/a_brain/c_domains/generic_webapp/
     version: "1.0.0"
 

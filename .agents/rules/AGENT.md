@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # IDE Agent Operational Rules (AAF)
 
 Este documento define as regras operacionais obrigatórias para a atuação do IDE Agent no projeto **Analytics AI Factory (AAF)**. O não cumprimento destas regras resultará em quebra do fluxo canônico da fábrica.

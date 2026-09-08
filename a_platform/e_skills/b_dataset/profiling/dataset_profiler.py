@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 class DatasetProfilingSkill(BaseSkill):
     def __init__(self):
-        super().__init__(contract=CORE_SKILL_CONTRACTS["dataset_profiling"])
+        super().__init__()
+        
+    def get_contract(self):
+        return CORE_SKILL_CONTRACTS["dataset_profiling"]
 
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         self.validate_input(context)

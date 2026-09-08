@@ -16,7 +16,7 @@ class RuntimeEngine:
         pass
 
     def run_project(self, request: ProjectRequest) -> bool:
-        domain = request.discovery_data.get("domain", "generic").lower()
+        domain = request.discovery_data.get("domain", "analytics").lower()
         project_dir = os.path.abspath(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
         
         # Limpa erros anteriores, se houver

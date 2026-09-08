@@ -19,7 +19,7 @@ from .c_conversation import ConversationMemory
 from .d_execution import ExecutionMemory
 from .e_skill import SkillMemory
 from .f_architecture import ArchitectureMemory
-from a_platform.c_brain.memory.schemas import (
+from a_platform.c_brain.e_memory.schemas import (
     MemoryType,
     MemoryStatistics,
     MemoryConfig,

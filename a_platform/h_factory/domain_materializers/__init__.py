@@ -16,7 +16,6 @@ def _load_builtin_materializers() -> None:
     for domain, materializer_name in {
         "analytics": "AnalyticsProjectMaterializer",
         "data_engineering": "DataEngineeringProjectMaterializer",
-        "generic": "GenericProjectMaterializer",
     }.items():
         try:
             module = import_module(
@@ -33,7 +32,7 @@ _load_builtin_materializers()
 
 
 def get_materializer(domain: str) -> Optional[Type[ProjectMaterializer]]:
-    key = (domain or "generic").lower()
+    key = (domain or "analytics").lower()
     materializer = _DOMAIN_MATERIALIZERS.get(key)
     if materializer is not None:
         return materializer
@@ -41,10 +40,6 @@ def get_materializer(domain: str) -> Optional[Type[ProjectMaterializer]]:
     module_name = {
         "analytics": "g_factory.domain_materializers.analytics.materializer",
         "data_engineering": "g_factory.domain_materializers.data_engineering.materializer",
-        "personal_finance": "g_factory.domain_materializers.personal_finance.materializer",
-        "crm": "g_factory.domain_materializers.crm.materializer",
-        "ecommerce": "g_factory.domain_materializers.ecommerce.materializer",
-        "generic": "g_factory.domain_materializers.generic.materializer",
     }.get(key)
 
     if module_name:

@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID
 from datetime import datetime
 from ..interfaces import IConversationMemory
-from a_platform.c_brain.memory.storage import InMemoryStorage
-from a_platform.c_brain.memory.schemas import (
+from a_platform.c_brain.e_memory.storage import InMemoryStorage
+from a_platform.c_brain.e_memory.schemas import (
     MemoryEntry,
     MemoryType,
     DataType,

@@ -32,7 +32,12 @@ class MasterOrchestrator:
         self.dataset_profiler = DatasetProfilingSkill()
         self.brain = Brain()
         self.graph_builder = GraphBuilder()
-        self.architecture_agent = ArchitectureAgent(self.brain, self.graph_builder)
+        
+        # Initialize gateway for ArchitectureAgent
+        from a_platform.g_llm_gateway.gateway import LLMGateway
+        self.gateway = LLMGateway()
+        self.architecture_agent = ArchitectureAgent(self.gateway)
+        
         self.domain_registry = DomainRegistry()
         self.planner_agent = PlannerAgent(self.domain_registry)
         self.agent_factory = AgentFactory()
@@ -175,16 +180,8 @@ class MasterOrchestrator:
         raw_domain = request.discovery_data.get("domain", "")
         normalized_domain = self.domain_registry.normalize_domain(raw_domain)
         
-        # Fallback inteligente: se o LLM se confundiu e colocou assunto no domínio, 
-        # verificamos se o project_type contém um domínio canônico válido ou alias
         if normalized_domain not in ["analytics", "data_engineering"]:
-            raw_project_type = request.project_type or ""
-            project_type_normalized = self.domain_registry.normalize_domain(raw_project_type)
-            if project_type_normalized in ["analytics", "data_engineering"]:
-                normalized_domain = project_type_normalized
-                logger.info(f"[Orchestrator] Resolução Semântica: Domínio '{raw_domain}' não é canônico. Utilizando project_type '{raw_project_type}' -> '{normalized_domain}'.")
-            else:
-                raise ValueError(f"Domínio inválido ou ausente após Discovery: '{raw_domain}' e '{raw_project_type}'. Domínios permitidos: 'analytics', 'data_engineering'.")
+            raise ValueError(f"Domínio técnico inválido ou ausente: '{raw_domain}'. Domínios permitidos: 'analytics', 'data_engineering'. Nenhuma interpretação genérica será feita.")
 
         request.domain = normalized_domain
         request.discovery_data["domain"] = normalized_domain

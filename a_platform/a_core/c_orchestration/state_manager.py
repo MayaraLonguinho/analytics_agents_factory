@@ -103,6 +103,8 @@ class StateManager:
         req_dict = {
             "prompt": request.prompt,
             "dataset_path": request.dataset_path,
+            "project_type": request.project_type,
+            "business_context": request.business_context,
             "domain": request.domain,
             "project_id": request.project_id,
             "metadata": request.metadata,
@@ -170,6 +172,8 @@ class StateManager:
         request = ProjectRequest(
             prompt=req_data["prompt"],
             dataset_path=req_data.get("dataset_path"),
+            project_type=req_data.get("project_type"),
+            business_context=req_data.get("business_context"),
             domain=req_data.get("domain"),
             project_id=project_id,
             metadata=req_data.get("metadata", {}),
