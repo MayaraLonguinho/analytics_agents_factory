@@ -19,6 +19,14 @@ class IDEAdapter:
         pass
 
     def create_project(self, prompt: str, dataset_path: Optional[str] = None, domain: Optional[str] = None) -> ProjectResponseDTO:
+        if not prompt or not str(prompt).strip():
+            return ProjectResponseDTO(
+                success=False,
+                project_id="",
+                status="FAILED",
+                error="Validation Error: O prompt de requisição não pode estar vazio."
+            )
+            
         project_id = f"proj_{uuid.uuid4().hex[:8]}"
         request = ProjectRequest(
             prompt=prompt,
@@ -29,8 +37,17 @@ class IDEAdapter:
         
         request.discovery_data["history"] = []
         
-        orchestrator = MasterOrchestrator()
-        return self._execute_and_format(orchestrator, request)
+        try:
+            orchestrator = MasterOrchestrator()
+            return self._execute_and_format(orchestrator, request)
+        except Exception as e:
+            logger.error(f"[IDEAdapter] Falha crítica ao inicializar a fábrica: {e}")
+            return ProjectResponseDTO(
+                success=False,
+                project_id=project_id,
+                status="FAILED",
+                error=f"Erro interno no AAF: {str(e)}"
+            )
 
     def start_project(self, prompt: str, dataset_path: Optional[str] = None, domain: Optional[str] = None) -> ProjectResponseDTO:
         return self.create_project(prompt, dataset_path, domain)
@@ -40,6 +57,22 @@ class IDEAdapter:
 
 
     def continue_project(self, project_id: str, user_response: str) -> ProjectResponseDTO:
+        if not project_id:
+            return ProjectResponseDTO(
+                success=False,
+                project_id="",
+                status="FAILED",
+                error="Validation Error: project_id não pode estar vazio."
+            )
+            
+        if not user_response or not str(user_response).strip():
+            return ProjectResponseDTO(
+                success=False,
+                project_id=project_id,
+                status="FAILED",
+                error="Validation Error: A resposta do usuário não pode estar vazia."
+            )
+            
         state_manager, request = IDESession.load_session(project_id)
         if not state_manager or not request:
             return ProjectResponseDTO(
@@ -58,8 +91,17 @@ class IDEAdapter:
         if "missing_info_question" in request.discovery_data:
             del request.discovery_data["missing_info_question"]
             
-        orchestrator = MasterOrchestrator()
-        return self._execute_and_format(orchestrator, request, state_manager)
+        try:
+            orchestrator = MasterOrchestrator()
+            return self._execute_and_format(orchestrator, request, state_manager)
+        except Exception as e:
+            logger.error(f"[IDEAdapter] Falha crítica ao inicializar a fábrica no continue: {e}")
+            return ProjectResponseDTO(
+                success=False,
+                project_id=project_id,
+                status="FAILED",
+                error=f"Erro interno no AAF: {str(e)}"
+            )
 
     def get_project_status(self, project_id: str) -> ProjectResponseDTO:
         state_manager, _ = IDESession.load_session(project_id)

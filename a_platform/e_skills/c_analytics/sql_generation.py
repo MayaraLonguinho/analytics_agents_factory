@@ -8,8 +8,11 @@ logger = logging.getLogger(__name__)
 
 class SqlGenerationSkill(BaseSkill):
     def __init__(self):
-        super().__init__(contract=CORE_SKILL_CONTRACTS["sql_generation"])
+        super().__init__()
         self.llm = LLMGateway()
+
+    def get_contract(self):
+        return CORE_SKILL_CONTRACTS["sql_generation"]
 
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         self.validate_input(context)

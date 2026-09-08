@@ -187,5 +187,18 @@ CORE_SKILL_CONTRACTS = {
         output_schema=[
             ParameterDefinition(name="dataset_profile", data_type="dict", required=True)
         ]
+    ),
+    "sql_generation": SkillContract(
+        skill_id="sql_generation",
+        name="SQL Generation",
+        description="Generates SQL code.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[
+            ParameterDefinition(name="database_technology", data_type="string", required=True),
+            ParameterDefinition(name="schema_definition", data_type="string", required=True)
+        ],
+        output_schema=[
+            ParameterDefinition(name="schema.sql", data_type="string", required=True)
+        ]
     )
 }
