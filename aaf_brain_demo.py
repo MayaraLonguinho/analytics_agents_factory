@@ -32,17 +32,17 @@ def main():
     print("\n[2] Criando requisição de contexto simulada...")
     # Simulate a context request
     context_request = {
-        "project_type": "Data Pipeline",
-        "business_context": "Ingestão e transformação de vendas para dashboard executivo.",
-        "domain": "data_engineering",
-        "capabilities": ["etl_scripting", "dataset_profiling"],
+        "project_type": "Personal Finance Analyzer",
+        "business_context": "Categorização de despesas e dashboard pessoal.",
+        "domain": "personal_finance",
+        "capabilities": ["categorization", "deduplication", "analytics", "dashboard"],
         "dataset_profile": {
-            "file_name": "vendas.csv",
-            "schema": [{"col": "id", "type": "int"}, {"col": "valor", "type": "float"}],
-            "row_count": 1000
+            "file_name": "extrato.csv",
+            "schema": [{"col": "data", "type": "str"}, {"col": "valor", "type": "float"}, {"col": "desc", "type": "str"}],
+            "row_count": 500
         },
         "architecture": {
-            "architecture_pattern": "Data Lakehouse"
+            "architecture_pattern": "Streamlit App"
         },
         "decisions": ["Usar duckdb para storage local", "Gerar scripts em python"]
     }
@@ -57,10 +57,12 @@ def main():
     
     # Criar um ExecutionContext real para a simulação
     req = ExecutionContext(
-        prompt="Preciso de um pipeline de vendas que puxe dados em CSV e grave num BD, foque em alta performance.",
-        project_id="demo-001",
-        domain="data_engineering"
+        prompt="Preciso de um pipeline que puxe dados do meu extrato, categorize as despesas e mostre num dashboard",
+        project_id="demo-finance-001",
+        domain="personal_finance"
     )
+    from a_platform.i_domains.a_domain_registry import DomainRegistry
+    req.domain = DomainRegistry().normalize_domain(req.domain)
     
     # Simulando um loop de interação com o usuário (perguntas sendo feitas até 5)
     async def simulate_discovery():

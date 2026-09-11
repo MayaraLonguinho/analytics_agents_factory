@@ -5,7 +5,7 @@ from a_platform.f_mcp.a_mcp_executor import MCPExecutor
 from a_platform.e_skills.j_skill_registry import SkillRegistry
 from a_platform.d_agents.k_specialized_agents import (
     DataAgent, DatabaseAgent, AnalyticsAgent, TestingAgent, InfrastructureAgent,
-    BackendAgent, FrontendAgent
+    BackendAgent, FrontendAgent, DocumentationAgent, ChatbotAgent
 )
 
 logger = logging.getLogger(__name__)
@@ -40,6 +40,10 @@ class AgentFactory:
                 agent_class = BackendAgent
             elif "frontend" in name_lower:
                 agent_class = FrontendAgent
+            elif "doc" in name_lower:
+                agent_class = DocumentationAgent
+            elif "chat" in name_lower:
+                agent_class = ChatbotAgent
                 
             self._cache[agent_name] = agent_class(
                 name=agent_name,

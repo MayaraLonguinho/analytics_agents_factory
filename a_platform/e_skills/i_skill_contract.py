@@ -224,5 +224,93 @@ CORE_SKILL_CONTRACTS = {
         execution_type=SkillExecutionType.LLM,
         input_schema=[],
         output_schema=[]
+    ),
+    "cleaning": SkillContract(
+        skill_id="cleaning",
+        name="Data Cleaning",
+        description="Performs data cleaning operations on datasets.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "deduplication": SkillContract(
+        skill_id="deduplication",
+        name="Data Deduplication",
+        description="Identifies and removes duplicate records.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "categorization": SkillContract(
+        skill_id="categorization",
+        name="Data Categorization",
+        description="Categorizes records based on contextual rules.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "analytics": SkillContract(
+        skill_id="analytics",
+        name="Analytics Queries",
+        description="Generates analytical queries and calculation logic.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "dashboard": SkillContract(
+        skill_id="dashboard",
+        name="Dashboard Generation",
+        description="Generates dashboard code (e.g. Streamlit, Dash).",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "chatbot": SkillContract(
+        skill_id="chatbot",
+        name="Chatbot / LLM Agent",
+        description="Generates chatbot orchestration code.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "backend": SkillContract(
+        skill_id="backend",
+        name="Backend API",
+        description="Generates backend API components.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "frontend": SkillContract(
+        skill_id="frontend",
+        name="Frontend App",
+        description="Generates frontend components.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "testing": SkillContract(
+        skill_id="testing",
+        name="Automated Testing",
+        description="Generates test suites for the artifacts.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "documentation": SkillContract(
+        skill_id="documentation",
+        name="Documentation Generator",
+        description="Generates detailed project documentation.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "docker": SkillContract(
+        skill_id="docker",
+        name="Docker Infrastructure",
+        description="Generates Dockerfiles and docker-compose.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
     )
 }

@@ -7,6 +7,11 @@ from a_platform.e_skills.c_analytics.a_sql_generation import SqlGenerationSkill
 from a_platform.e_skills.d_data_engineering.a_etl_scripting import EtlScriptingSkill
 from a_platform.e_skills.e_development.b_basic_coding import BasicCodingSkill
 from a_platform.e_skills.e_development.a_api_design import ApiDesignSkill
+from a_platform.e_skills.e_development.f_consolidation_skills import (
+    CleaningSkill, DeduplicationSkill, CategorizationSkill, AnalyticsSkill,
+    DashboardSkill, ChatbotSkill, BackendSkill, FrontendSkill, TestingSkill,
+    DocumentationSkill, DockerSkill
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +28,18 @@ class SkillRegistry:
             "api_design": ApiDesignSkill(),
             "dataset_profiling": DatasetProfilingSkill(),
             "etl_scripting": EtlScriptingSkill(),
-            "basic_coding": BasicCodingSkill()
+            "basic_coding": BasicCodingSkill(),
+            "cleaning": CleaningSkill(),
+            "deduplication": DeduplicationSkill(),
+            "categorization": CategorizationSkill(),
+            "analytics": AnalyticsSkill(),
+            "dashboard": DashboardSkill(),
+            "chatbot": ChatbotSkill(),
+            "backend": BackendSkill(),
+            "frontend": FrontendSkill(),
+            "testing": TestingSkill(),
+            "documentation": DocumentationSkill(),
+            "docker": DockerSkill()
         }
 
     def get_skill(self, name: str):

@@ -99,7 +99,7 @@ class PlannerAgent:
         
         response = await self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
         
-        if not response.success:
+        if not response or not getattr(response, "content", None):
             logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano")
             return False
             

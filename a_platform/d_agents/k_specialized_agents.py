@@ -184,3 +184,45 @@ class FrontendAgent(BaseAgent):
             raise ValueError(f"[{self.name}] Falha na validação: Nenhum código ou configuração de frontend foi gerado.")
             
         return artifacts
+
+
+class DocumentationAgent(BaseAgent):
+    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+        logger.info(f"[{self.name}] Executando task especializada de documentação: {task.name}")
+        relevant_skills = ["documentation", "basic_coding"]
+        task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
+        
+        domain_rules = (
+            "REGRAS DE DOCUMENTAÇÃO: Analise todos os artefatos de código, esquemas de banco, testes e arquitetura "
+            "gerados. Produza um README.md exaustivo detalhando como rodar o projeto, pré-requisitos, "
+            "estrutura de pastas e as decisões tomadas. O arquivo DEVE se chamar README.md e utilizar Markdown válido."
+        )
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
+        
+        artifacts = super().execute_task(task, request)
+        
+        if not any(a.name.lower() == 'readme.md' or a.name.endswith('.md') for a in artifacts):
+            raise ValueError(f"[{self.name}] Falha na validação: Nenhuma documentação (.md) foi gerada.")
+            
+        return artifacts
+
+
+class ChatbotAgent(BaseAgent):
+    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+        logger.info(f"[{self.name}] Executando task especializada de chatbot/LLM: {task.name}")
+        relevant_skills = ["chatbot", "basic_coding", "api_design"]
+        task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
+        
+        domain_rules = (
+            "REGRAS DE CHATBOT/LLM: Caso a arquitetura exija um componente de conversação, gere os scripts "
+            "responsáveis pela orquestração do LLM (bot.py ou llm_service.py). Utilize frameworks como LangChain "
+            "ou código nativo para OpenAI/Gemini/Anthropic. Integre com os dados (RAG) se especificado no contexto."
+        )
+        task.description = f"{task.description}\n\n{domain_rules}{inject_dependencies(task, request)}"
+        
+        artifacts = super().execute_task(task, request)
+        
+        if not any(a.name.endswith('.py') for a in artifacts):
+            raise ValueError(f"[{self.name}] Falha na validação: Nenhum código do chatbot (.py) foi gerado.")
+            
+        return artifacts

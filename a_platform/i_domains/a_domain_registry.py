@@ -28,35 +28,47 @@ class DomainRegistry:
 
     def normalize_domain(self, domain_name: str) -> str:
         if not domain_name:
-            raise ValueError("Domínio técnico não pode ser vazio. Esperado: 'analytics' ou 'data_engineering'.")
+            # Fallback to analytics if nothing is provided
+            return "analytics"
             
         domain_name = domain_name.lower().strip()
         
         # Mapeamento estrito de intenções equivalentes a ETL/Data Engineering
-        aliases = {
-            "etl": "data_engineering",
-            "etl pipeline": "data_engineering",
-            "data pipeline": "data_engineering",
-            "pipeline de dados": "data_engineering",
-            "data engineering": "data_engineering",
-            "engenharia de dados": "data_engineering",
-            "pipeline de ingestão": "data_engineering",
-            "pipeline de transformação": "data_engineering",
-            "pipeline de carga": "data_engineering",
-            "ingestão transformação carga": "data_engineering",
-            "extract transform load": "data_engineering",
-            "extract-transform-load": "data_engineering"
+        de_aliases = {
+            "etl", "etl pipeline", "data pipeline", "pipeline de dados",
+            "data engineering", "engenharia de dados", "pipeline de ingestão",
+            "pipeline de transformação", "pipeline de carga",
+            "ingestão transformação carga", "extract transform load",
+            "extract-transform-load"
         }
-        
-        if domain_name in aliases:
-            return aliases[domain_name]
+        if domain_name in de_aliases:
+            return "data_engineering"
             
-        return domain_name
+        an_aliases = {
+            "analytics", "data analytics", "análise de dados", "dashboard",
+            "bi", "business intelligence"
+        }
+        if domain_name in an_aliases:
+            return "analytics"
+            
+        # Business contexts that are NOT domains
+        # We enforce "analytics" as the default technical domain for these contexts
+        business_contexts = {
+            "sales", "finance", "hr", "inventory", "marketing", "logistics", 
+            "clients", "personal_finance", "crm", "ecommerce", "erp"
+        }
+        if domain_name in business_contexts:
+            logger.info(f"'{domain_name}' identificado como Business Context. Assumindo domínio técnico 'analytics'.")
+            return "analytics"
+            
+        # Se for totalmente desconhecido, falha fallback seguro para analytics
+        logger.warning(f"Domínio/Contexto '{domain_name}' não mapeado. Assumindo fallback 'analytics'.")
+        return "analytics"
 
     def get_domain_config(self, domain_name: str) -> Dict[str, Any]:
         domain_name = self.normalize_domain(domain_name)
         if domain_name in self.domains:
             return self.domains[domain_name]
             
-        logger.error(f"Domínio '{domain_name}' não encontrado e fallback não é permitido.")
+        logger.error(f"Domínio '{domain_name}' não encontrado no registry.yaml.")
         raise ValueError(f"Domínio '{domain_name}' estritamente não suportado pela Factory.")
