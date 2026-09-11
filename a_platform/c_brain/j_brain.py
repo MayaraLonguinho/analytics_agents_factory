@@ -1,27 +1,14 @@
 import logging
 from typing import Dict, Any, List
 
-class BaseRegistry:
-    def __init__(self):
-        self._data = {}
+from .f_registry.d_knowledge_registry import KnowledgeRegistry
+from .f_registry.g_rule_registry import RuleRegistry
+from .f_registry.f_pattern_registry import PatternRegistry
 
-    def register(self, key: str, value: Dict[str, Any]):
-        self._data[key] = value
-
-    def search_by_domain(self, domain: str) -> List[Dict[str, Any]]:
-        return [v for v in self._data.values() if v.get("domain") == domain]
-
-    def search_by_tags(self, tags: List[str]) -> List[Dict[str, Any]]:
-        result = []
-        for v in self._data.values():
-            v_tags = v.get("tags", [])
-            if any(t in v_tags for t in tags):
-                result.append(v)
-        return result
-
-class KnowledgeRegistry(BaseRegistry): pass
-class RuleRegistry(BaseRegistry): pass
-class PatternRegistry(BaseRegistry): pass
+from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.f_mcp.f_mcp_registry import MCPRegistry
+from a_platform.e_skills.j_skill_registry import SkillRegistry
+from a_platform.d_agents.j_registry import AgentRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +22,11 @@ class Brain:
         self.knowledge_registry = KnowledgeRegistry()
         self.rule_registry = RuleRegistry()
         self.pattern_registry = PatternRegistry()
+        
+        self.domain_registry = DomainRegistry()
+        self.mcp_registry = MCPRegistry()
+        self.skill_registry = SkillRegistry()
+        self.agent_registry = AgentRegistry()
         
         self._initialize_core_knowledge()
         self._initialize_core_rules()
@@ -92,42 +84,66 @@ class Brain:
             "domain": "analytics"
         })
 
-    def retrieve_relevant_knowledge(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_context_pack(self, context_request: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Retorna o contexto condensado e focado no domínio utilizando os Registries.
+        Gera um Context Pack compacto sob demanda com orçamento configurável.
         """
-        domain = context.get("domain", "")
-        project_type = context.get("project_type", "")
-        domain_lower = domain.lower()
+        budget_tokens = context_request.get("max_tokens", 50000)
+        # Aproximação conservadora: 1 token = 4 caracteres
+        max_chars = budget_tokens * 4
         
-        # Recupera tudo marcado como 'platform' do KnowledgeRegistry
+        domain = context_request.get("domain", "")
+        project_type = context_request.get("project_type", "")
+        capabilities = context_request.get("capabilities", [])
+        
+        # Inicia pack
+        pack = {
+            "project": {
+                "project_type": project_type,
+                "business_context": context_request.get("business_context", ""),
+                "domain": domain,
+            },
+            "architecture": context_request.get("architecture", {}),
+            "decisions": context_request.get("decisions", []),
+            "dataset_profile": context_request.get("dataset_profile", {}),
+            "capabilities_requested": capabilities
+        }
+        
+        # Recupera informações do Domínio e Capabilities através dos Registries reais
+        try:
+            domain_config = self.domain_registry.get_domain_config(domain)
+            pack["domain_rules"] = domain_config
+        except Exception:
+            pack["domain_rules"] = "Domain not found or not specified"
+            
+        # Adicionar regras e knowledge
         platform_kb = self.knowledge_registry.search_by_domain("platform")
         platform_stack = {}
         for kb in platform_kb:
             platform_stack.update({k: v for k, v in kb.items() if k not in ["domain", "tags"]})
+            
+        pack["platform_stack"] = platform_stack
+        pack["architecture_rules"] = self.get_rules("architecture")
+        pack["security_rules"] = self.get_rules("security")
         
-        knowledge_context = {
-            "platform_stack": platform_stack,
-            "architecture_rules": self.get_rules("architecture"),
-            "security_rules": self.get_rules("security")
-        }
-        
-        # Extrai patterns baseados no domínio
+        domain_lower = domain.lower()
         patterns = self.pattern_registry.search_by_domain(domain_lower)
         if patterns:
-            knowledge_context["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"
+            pack["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"
+
+        # Aplicar controle de limite de tamanho de forma ingênua/segura
+        import json
+        pack_str = json.dumps(pack)
+        if len(pack_str) > max_chars:
+            logger.warning("Context Pack excede o orçamento de tokens. Realizando poda.")
+            pack.pop("platform_stack", None)
+            pack.pop("dataset_profile", None)
             
-        # Injeta restrições e profile como conhecimento estrito
-        if context.get("dataset_profile"):
-            profile = context.get("dataset_profile")
-            knowledge_context["data_shape"] = {
-                "schema": profile.get("schema", []),
-                "row_count": profile.get("row_count", 0),
-                "nulls": profile.get("nulls", 0),
-                "metrics": profile.get("metrics", {})
-            }
-            
-        return knowledge_context
+        return pack
+
+    def retrieve_relevant_knowledge(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        # Delega para a nova função mantendo compatibilidade
+        return self.generate_context_pack(context)
 
     def inject_project_context(self, project_id: str, key: str, value: Any):
         """Permite que os agentes alimentem o Brain com decisões do projeto."""

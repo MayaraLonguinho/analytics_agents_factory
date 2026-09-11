@@ -200,5 +200,29 @@ CORE_SKILL_CONTRACTS = {
         output_schema=[
             ParameterDefinition(name="schema.sql", data_type="string", required=True)
         ]
+    ),
+    "api_design": SkillContract(
+        skill_id="api_design",
+        name="API Design",
+        description="Designs API.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "etl_scripting": SkillContract(
+        skill_id="etl_scripting",
+        name="ETL Scripting",
+        description="Scripts ETL pipelines.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
+    ),
+    "basic_coding": SkillContract(
+        skill_id="basic_coding",
+        name="Basic Coding",
+        description="Basic python coding.",
+        execution_type=SkillExecutionType.LLM,
+        input_schema=[],
+        output_schema=[]
     )
 }

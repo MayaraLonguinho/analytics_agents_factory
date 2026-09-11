@@ -19,10 +19,10 @@ Consumable by:
 - Learning
 """
 
-from .f_registry.brain_loader import BrainLoader
-from .f_registry.graph_builder import KnowledgeGraphBuilder
+from .j_brain import Brain
+from .g_graph.b_graph_builder import GraphBuilder
 
 __all__ = [
-    "BrainLoader",
-    "KnowledgeGraphBuilder",
+    "Brain",
+    "GraphBuilder",
 ]

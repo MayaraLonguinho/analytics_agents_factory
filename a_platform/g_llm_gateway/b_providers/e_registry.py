@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from ..f_interfaces.base_provider import BaseLLMProvider
+from ..f_interfaces.a_base_provider import BaseLLMProvider
 
 
 class ProviderRegistry:

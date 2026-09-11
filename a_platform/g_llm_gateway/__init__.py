@@ -5,6 +5,6 @@ Agents and Skills must not import provider SDKs directly; they must route throug
 """
 
 from .e_gateway import LLMGateway, LLMGatewayConfig
-from .f_interfaces.base_provider import LLMRequest, LLMResponse
+from .f_interfaces.a_base_provider import LLMRequest, LLMResponse
 
 __all__ = ["LLMGateway", "LLMGatewayConfig", "LLMRequest", "LLMResponse"]

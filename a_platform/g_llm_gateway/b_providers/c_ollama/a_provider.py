@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, AsyncGenerator, Dict, List
 
-from ...interfaces.base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+from ...f_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 
 
 class OllamaProvider(BaseLLMProvider):

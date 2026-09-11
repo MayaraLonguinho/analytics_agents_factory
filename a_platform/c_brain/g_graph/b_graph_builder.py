@@ -13,66 +13,79 @@ class GraphBuilder:
     Exporta para Obsidian (Markdown) e Graphify (JSON) através dos backends.
     """
     def __init__(self):
-        base_dir = os.path.dirname(__file__)
+        # Os artefatos devem ser gerados como runtime_artifacts, não na raiz
+        base_dir = os.path.join(os.getcwd(), "e_generated_projects", "runtime_artifacts")
+        os.makedirs(base_dir, exist_ok=True)
         self.obsidian_backend = ObsidianBackend(os.path.join(base_dir, "obsidian"))
         self.graphify_backend = GraphifyBackend(os.path.join(base_dir, "graphify"))
+        self.base_dir = base_dir
         
     def build_graph(self, request: ProjectRequest) -> Dict[str, Any]:
         nodes = []
         edges = []
         
-        # 1. Project Node
-        nodes.append({"id": request.project_id, "type": "Project", "label": request.domain or "Generic"})
+        # 7. O grafo deve representar: Project -> Context -> Dataset -> Decision -> Domain -> Capability -> Skill -> Agent -> MCP -> Gate
         
-        # 2. Dataset Nodes
-        if request.dataset_profile:
-            ds_id = f"dataset_{request.project_id}"
-            nodes.append({"id": ds_id, "type": "Dataset", "label": request.dataset_profile.get("file_name", "Raw Data")})
-            edges.append({"source": request.project_id, "target": ds_id, "relation": "CONSUMES"})
-            
-            # Extract features from dataset profile for the graph
-            for col, stats in request.dataset_profile.get("columns", {}).items():
-                col_id = f"col_{col}"
-                nodes.append({"id": col_id, "type": "Feature", "label": col, "dtype": stats["type"]})
-                edges.append({"source": ds_id, "target": col_id, "relation": "CONTAINS"})
-                
-        # 3. Discovery Constraints
-        for key, value in request.discovery_data.items():
-            if key != "status" and key != "history" and value:
-                node_id = f"req_{key}"
-                nodes.append({"id": node_id, "type": "Requirement", "label": str(value)[:50]})
-                edges.append({"source": request.project_id, "target": node_id, "relation": "HAS_CONSTRAINT"})
-                
-        # 4. Architecture Node (if available)
-        if request.architecture_decision:
-            arch_id = f"arch_{request.project_id}"
-            pattern = request.architecture_decision.get("architecture_pattern", "Unknown")
-            nodes.append({"id": arch_id, "type": "Architecture", "label": pattern})
-            edges.append({"source": request.project_id, "target": arch_id, "relation": "USES_ARCHITECTURE"})
-            
-        # 5. Project Plan Nodes (Tasks, Agents, Artifacts)
+        # 1. Project
+        proj_id = f"project_{request.project_id}"
+        nodes.append({"id": proj_id, "type": "Project", "label": request.domain or "Generic"})
+        
+        # 2. Context
+        ctx_id = f"context_{request.project_id}"
+        nodes.append({"id": ctx_id, "type": "Context", "label": "Project Context"})
+        edges.append({"source": proj_id, "target": ctx_id, "relation": "HAS_CONTEXT"})
+        
+        # 3. Dataset
+        ds_id = f"dataset_{request.project_id}"
+        dataset_name = request.dataset_profile.get("file_name", "Raw Data") if request.dataset_profile else "No Data"
+        nodes.append({"id": ds_id, "type": "Dataset", "label": dataset_name})
+        edges.append({"source": ctx_id, "target": ds_id, "relation": "USES_DATASET"})
+        
+        # 4. Decision (Architecture)
+        dec_id = f"decision_{request.project_id}"
+        pattern = request.architecture_decision.get("architecture_pattern", "Unknown") if request.architecture_decision else "None"
+        nodes.append({"id": dec_id, "type": "Decision", "label": pattern})
+        edges.append({"source": ds_id, "target": dec_id, "relation": "DRIVES_DECISION"})
+        
+        # 5. Domain
+        dom_id = f"domain_{request.domain}"
+        nodes.append({"id": dom_id, "type": "Domain", "label": request.domain})
+        edges.append({"source": dec_id, "target": dom_id, "relation": "BELONGS_TO_DOMAIN"})
+        
+        # Extract details from project plan if available
         if request.project_plan and request.project_plan.tasks:
             for task in request.project_plan.tasks:
-                task_id = f"task_{task.id}"
-                nodes.append({"id": task_id, "type": "Task", "label": task.name})
-                edges.append({"source": request.project_id, "target": task_id, "relation": "HAS_TASK"})
+                # 6. Capability (Task acts as Capability requirement here)
+                cap_id = f"capability_{task.id}"
+                nodes.append({"id": cap_id, "type": "Capability", "label": task.name})
+                edges.append({"source": dom_id, "target": cap_id, "relation": "REQUIRES_CAPABILITY"})
                 
-                if task.agent:
+                # 7. Skill
+                for skill in task.skills:
+                    skill_id = f"skill_{skill}"
+                    if not any(n["id"] == skill_id for n in nodes):
+                        nodes.append({"id": skill_id, "type": "Skill", "label": skill})
+                    edges.append({"source": cap_id, "target": skill_id, "relation": "USES_SKILL"})
+                    
+                    # 8. Agent
                     agent_id = f"agent_{task.agent}"
-                    # Avoid duplicate agent nodes
                     if not any(n["id"] == agent_id for n in nodes):
                         nodes.append({"id": agent_id, "type": "Agent", "label": task.agent})
-                    edges.append({"source": task_id, "target": agent_id, "relation": "ASSIGNED_TO"})
+                    edges.append({"source": skill_id, "target": agent_id, "relation": "EXECUTED_BY"})
                     
-                for dep in task.dependencies:
-                    dep_id = f"task_{dep}"
-                    edges.append({"source": task_id, "target": dep_id, "relation": "DEPENDS_ON"})
-                    
-                for artifact in task.expected_artifacts:
-                    art_id = f"artifact_{artifact}"
-                    if not any(n["id"] == art_id for n in nodes):
-                        nodes.append({"id": art_id, "type": "Artifact", "label": artifact})
-                    edges.append({"source": task_id, "target": art_id, "relation": "PRODUCES"})
+                    # 9. MCP
+                    for mcp in task.mcps:
+                        mcp_id = f"mcp_{mcp}"
+                        if not any(n["id"] == mcp_id for n in nodes):
+                            nodes.append({"id": mcp_id, "type": "MCP", "label": mcp})
+                        edges.append({"source": agent_id, "target": mcp_id, "relation": "UTILIZES_MCP"})
+                        
+                        # 10. Gate (Validators/Expected Artifacts)
+                        for artifact in task.expected_artifacts:
+                            gate_id = f"gate_{artifact}"
+                            if not any(n["id"] == gate_id for n in nodes):
+                                nodes.append({"id": gate_id, "type": "Gate", "label": artifact})
+                            edges.append({"source": mcp_id, "target": gate_id, "relation": "VALIDATED_BY"})
 
         graph_data = {
             "nodes": nodes,

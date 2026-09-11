@@ -8,7 +8,11 @@ logger = logging.getLogger(__name__)
 
 class EtlScriptingSkill(BaseSkill):
     def __init__(self):
-        super().__init__(contract=CORE_SKILL_CONTRACTS["etl_scripting"])
+        super().__init__()
+        self.llm = LLMGateway()
+
+    def get_contract(self):
+        return CORE_SKILL_CONTRACTS["etl_scripting"]
         self.llm = LLMGateway()
 
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:

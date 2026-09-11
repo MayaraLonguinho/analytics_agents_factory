@@ -4,7 +4,7 @@ Provider específico para Anthropic (Claude)
 """
 
 from typing import Dict, Any, Optional, AsyncGenerator
-from ...interfaces.base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+from ...f_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 
 
 class AnthropicProvider(BaseLLMProvider):
