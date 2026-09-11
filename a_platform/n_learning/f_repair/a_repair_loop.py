@@ -4,7 +4,7 @@ import re
 import os
 from typing import Dict, Any
 
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.n_learning.e_learning_engine import LearningEngine
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.d_agents.g_agent_factory import AgentFactory
@@ -23,7 +23,7 @@ class RepairLoop:
         self.gateway = LLMGateway()
         self.mcp = MCPExecutor()
 
-    def run_repair(self, request: ProjectRequest) -> bool:
+    def run_repair(self, request: ExecutionContext) -> bool:
         attempts = request.metadata.get("repair_attempts", 0)
         if attempts >= 3:
             logger.error("[RepairLoop] Limite máximo de tentativas de reparo excedido (3). O projeto falhou.")

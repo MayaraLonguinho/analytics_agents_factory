@@ -1,7 +1,7 @@
 import json
 import asyncio
 from typing import Dict, Any, List
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 
 class ArchitectureAgent:
@@ -10,11 +10,11 @@ class ArchitectureAgent:
     def __init__(self, gateway: LLMGateway):
         self.gateway = gateway
 
-    def generate_architecture(self, request: ProjectRequest) -> bool:
+    def generate_architecture(self, request: ExecutionContext) -> bool:
         """Synchronous wrapper for the LLM decision."""
         return asyncio.run(self._generate_architecture_async(request))
         
-    async def _generate_architecture_async(self, request: ProjectRequest) -> bool:
+    async def _generate_architecture_async(self, request: ExecutionContext) -> bool:
         """Determines the architecture stack based on inputs using the LLM Gateway."""
         
         schema = {

@@ -6,12 +6,12 @@ from a_platform.d_agents.specialized_agents import (
 )
 TestingAgent.__test__ = False
 from a_platform.a_core.b_domain.project_plan import Task
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 from a_platform.a_core.b_domain.artifact import Artifact
 
 @pytest.fixture
 def mock_request():
-    return ProjectRequest(prompt="Test specialized agent", project_id="test_id")
+    return ExecutionContext(prompt="Test specialized agent", project_id="test_id")
 
 @patch('a_platform.d_agents.base_agent.BaseAgent.execute_task')
 def test_data_agent_injects_rules(mock_super, mock_request):

@@ -3,12 +3,12 @@ from typing import List, Dict, Any
 
 from a_platform.d_agents.h_base_agent import BaseAgent
 from a_platform.a_core.b_domain.f_project_plan import Task
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.a_artifact import Artifact
 
 logger = logging.getLogger(__name__)
 
-def inject_dependencies(task: Task, request: ProjectRequest) -> str:
+def inject_dependencies(task: Task, request: ExecutionContext) -> str:
     if not request.artifacts:
         return ""
     
@@ -23,7 +23,7 @@ class DataAgent(BaseAgent):
     """
     Especialista em Ingestão e ETL.
     """
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de engenharia de dados: {task.name}")
         relevant_skills = ["dataset_profiling", "etl_scripting"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -48,7 +48,7 @@ class DatabaseAgent(BaseAgent):
     """
     Especialista em modelagem de dados e DDL.
     """
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de banco de dados: {task.name}")
         relevant_skills = ["sql_generation"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -73,7 +73,7 @@ class AnalyticsAgent(BaseAgent):
     """
     Especialista em métricas, queries SQL complexas e visualização.
     """
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task analítica: {task.name}")
         relevant_skills = ["sql_generation", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -97,7 +97,7 @@ class TestingAgent(BaseAgent):
     """
     Especialista em qualidade e testes de unidade/integração.
     """
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de testes: {task.name}")
         relevant_skills = ["basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -123,7 +123,7 @@ class InfrastructureAgent(BaseAgent):
     """
     Especialista em infraestrutura como código (Docker, Terraform).
     """
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de infraestrutura: {task.name}")
         relevant_skills = ["basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -144,7 +144,7 @@ class InfrastructureAgent(BaseAgent):
 
 
 class BackendAgent(BaseAgent):
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de backend: {task.name}")
         relevant_skills = ["api_design", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -166,7 +166,7 @@ class BackendAgent(BaseAgent):
 
 
 class FrontendAgent(BaseAgent):
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de frontend: {task.name}")
         relevant_skills = ["api_design", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -187,7 +187,7 @@ class FrontendAgent(BaseAgent):
 
 
 class DocumentationAgent(BaseAgent):
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de documentação: {task.name}")
         relevant_skills = ["documentation", "basic_coding"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills
@@ -208,7 +208,7 @@ class DocumentationAgent(BaseAgent):
 
 
 class ChatbotAgent(BaseAgent):
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task especializada de chatbot/LLM: {task.name}")
         relevant_skills = ["chatbot", "basic_coding", "api_design"]
         task.skills = [s for s in task.skills if s in relevant_skills] or relevant_skills

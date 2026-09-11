@@ -7,7 +7,7 @@ from a_platform.n_learning.brain_updater import BrainUpdater
 from typing import Dict, Any
 from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
 from a_platform.d_agents.c_architecture.architecture_agent import ArchitectureAgent
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 
 def test_brain_updater_saves_lesson(tmp_path):
     updater = BrainUpdater()
@@ -54,7 +54,7 @@ def test_architecture_agent_uses_learned_rules(mock_gateway_cls, mock_registry_c
     agent = ArchitectureAgent(mock_brain, mock_graph_builder)
     agent.gateway = mock_gateway
     
-    req = ProjectRequest(prompt="test", project_id="p1")
+    req = ExecutionContext(prompt="test", project_id="p1")
     req.discovery_data = {"domain": "analytics"}
     
     result = agent.generate_architecture(req)

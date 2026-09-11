@@ -5,7 +5,7 @@ from enum import Enum, auto
 from dataclasses import dataclass, field, asdict
 from typing import Dict, Any
 
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.f_project_plan import ProjectPlan, Task
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class StateManager:
         self.project_ready: bool = False
         self.repair_attempts: int = 0
         self.max_repair_attempts: int = 3
-        self.state_dir = os.path.join(os.getcwd(), ".aaf_state")
+        self.state_dir = os.path.join(os.getcwd(), "e_generated_projects", ".aaf_state")
         
         self.phases: Dict[ProjectPhase, PhaseState] = {
             phase: PhaseState(name=phase.name) for phase in ProjectPhase
@@ -56,7 +56,7 @@ class StateManager:
         self.phases[ProjectPhase.INIT].status = PhaseStatus.COMPLETED
 
         if not os.path.exists(self.state_dir):
-            os.makedirs(self.state_dir)
+            os.makedirs(self.state_dir, exist_ok=True)
 
     def transition_to(self, new_phase: ProjectPhase):
         if self.current_phase not in [ProjectPhase.FAILED, ProjectPhase.READY, ProjectPhase.NEEDS_INPUT]:
@@ -96,7 +96,7 @@ class StateManager:
             "phases": {p.name: s.status.name for p, s in self.phases.items()}
         }
 
-    def save_state(self, request: ProjectRequest):
+    def save_state(self, request: ExecutionContext):
         state_file = os.path.join(self.state_dir, f"{self.project_id}.json")
         
         # Serialize request carefully (ProjectPlan is custom)
@@ -137,8 +137,8 @@ class StateManager:
         logger.info(f"[StateManager] Estado salvo em {state_file}")
 
     @classmethod
-    def load_state(cls, project_id: str) -> tuple['StateManager', ProjectRequest]:
-        state_dir = os.path.join(os.getcwd(), ".aaf_state")
+    def load_state(cls, project_id: str) -> tuple['StateManager', ExecutionContext]:
+        state_dir = os.path.join(os.getcwd(), "e_generated_projects", ".aaf_state")
         state_file = os.path.join(state_dir, f"{project_id}.json")
         
         if not os.path.exists(state_file):
@@ -169,7 +169,7 @@ class StateManager:
                 run_commands=req_data["project_plan"].get("run_commands", [])
             )
             
-        request = ProjectRequest(
+        request = ExecutionContext(
             prompt=req_data["prompt"],
             dataset_path=req_data.get("dataset_path"),
             project_type=req_data.get("project_type"),

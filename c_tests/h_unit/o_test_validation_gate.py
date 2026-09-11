@@ -1,7 +1,7 @@
 # pyrefly: ignore [missing-import]
 from unittest.mock import patch, MagicMock
 from a_platform.k_validation.validation_gate import ValidationGate
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 from a_platform.a_core.b_domain.project_plan import ProjectPlan
 from a_platform.j_runtime.runtime import ProjectRuntime
 from a_platform.l_quality.quality_engine import QualityEngine
@@ -9,7 +9,7 @@ from a_platform.l_quality.quality_engine import QualityEngine
 
 def test_validation_gate():
     gate = ValidationGate()
-    request = ProjectRequest(project_id="test_proj", prompt="test")
+    request = ExecutionContext(project_id="test_proj", prompt="test")
     request.project_plan = ProjectPlan(
         project_id="test_proj", domain="generic"
     )
@@ -32,7 +32,7 @@ def test_validation_gate():
 
 def test_validation_gate_fails():
     gate = ValidationGate()
-    request = ProjectRequest(project_id="test_proj", prompt="test")
+    request = ExecutionContext(project_id="test_proj", prompt="test")
     request.project_plan = ProjectPlan(
         project_id="test_proj", domain="generic"
     )
@@ -48,7 +48,7 @@ def test_validation_gate_fails():
 
 
 def test_execution_failure_blocks_validation_and_quality():
-    request = ProjectRequest(project_id="test_proj", prompt="test")
+    request = ExecutionContext(project_id="test_proj", prompt="test")
     request.project_plan = ProjectPlan(
         project_id="test_proj", domain="generic", execution_required=True
     )

@@ -3,7 +3,7 @@ import pytest
 import os
 from unittest.mock import MagicMock, patch, mock_open
 from a_platform.l_quality.quality_engine import QualityEngine
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 
 @pytest.fixture
 def mock_quality_engine():
@@ -35,7 +35,7 @@ def test_quality_engine_security_failure(mock_sec_cls, mock_lint_cls, mock_walk,
     mock_sec.run_scan.return_value = {"passed": False, "issues": "Critical eval() found"}
     mock_sec_cls.return_value = mock_sec
     
-    request = ProjectRequest(project_id="test1", prompt="test")
+    request = ExecutionContext(project_id="test1", prompt="test")
     request.metadata = {}
     
     # Mock file open
@@ -61,7 +61,7 @@ def test_quality_engine_linter_penalty(mock_sec_cls, mock_lint_cls, mock_walk, m
     mock_sec.run_scan.return_value = {"passed": True}
     mock_sec_cls.return_value = mock_sec
     
-    request = ProjectRequest(project_id="test1", prompt="test")
+    request = ExecutionContext(project_id="test1", prompt="test")
     request.metadata = {}
     
     with patch("builtins.open", mock_open(read_data="def main(): pass")):

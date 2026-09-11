@@ -1,12 +1,12 @@
 # pyrefly: ignore [missing-import]
 import pytest
 from a_platform.m_certification.certification_engine import CertificationEngine
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
 
 def test_certification_fails_if_discovery_not_completed():
     engine = CertificationEngine()
-    request = ProjectRequest(prompt="test", project_id="test_cert_1")
+    request = ExecutionContext(prompt="test", project_id="test_cert_1")
     request.metadata["quality_score"] = 95.0
     
     state_manager = StateManager(project_id="test_cert_1")
@@ -25,7 +25,7 @@ def test_certification_fails_if_discovery_not_completed():
 
 def test_certification_fails_if_planner_not_completed():
     engine = CertificationEngine()
-    request = ProjectRequest(prompt="test", project_id="test_cert_2")
+    request = ExecutionContext(prompt="test", project_id="test_cert_2")
     request.metadata["quality_score"] = 95.0
     
     state_manager = StateManager(project_id="test_cert_2")
@@ -42,7 +42,7 @@ def test_certification_fails_if_planner_not_completed():
 
 def test_certification_fails_if_materialization_not_completed():
     engine = CertificationEngine()
-    request = ProjectRequest(prompt="test", project_id="test_cert_3")
+    request = ExecutionContext(prompt="test", project_id="test_cert_3")
     request.metadata["quality_score"] = 95.0
     
     state_manager = StateManager(project_id="test_cert_3")
@@ -59,7 +59,7 @@ def test_certification_fails_if_materialization_not_completed():
 
 def test_certification_passes_if_all_completed():
     engine = CertificationEngine()
-    request = ProjectRequest(prompt="test", project_id="test_cert_4")
+    request = ExecutionContext(prompt="test", project_id="test_cert_4")
     request.metadata["quality_score"] = 95.0
     
     state_manager = StateManager(project_id="test_cert_4")

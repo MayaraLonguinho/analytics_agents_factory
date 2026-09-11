@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Optional
 
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.c_orchestration.c_state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.b_domain.h_readiness import ReadinessGate
 from a_platform.d_agents.b_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
@@ -53,7 +53,7 @@ class MasterOrchestrator:
         
         self.compiled_artifacts = []
         
-    def execute_pipeline(self, request: ProjectRequest, existing_state: Optional[StateManager] = None) -> str:
+    def execute_pipeline(self, request: ExecutionContext, existing_state: Optional[StateManager] = None) -> str:
         if existing_state:
             self.state_manager = existing_state
             logger.info(f"Retomando pipeline para {request.project_id}")
@@ -145,7 +145,7 @@ class MasterOrchestrator:
                 self.state_manager.save_state(request)
             return "FAILED"
 
-    def _run_phase(self, phase: ProjectPhase, step_func, request: ProjectRequest) -> bool:
+    def _run_phase(self, phase: ProjectPhase, step_func, request: ExecutionContext) -> bool:
         if self.state_manager.phases[phase].status == PhaseStatus.COMPLETED:
             logger.info(f"[Orchestrator] Fase {phase.name} já concluída, pulando...")
             return True
@@ -164,7 +164,7 @@ class MasterOrchestrator:
         self.state_manager.phases[phase].status = PhaseStatus.COMPLETED
         return result
 
-    def _step_discovery(self, request: ProjectRequest) -> bool:
+    def _step_discovery(self, request: ExecutionContext) -> bool:
         logger.info("Executando Discovery...")
         status = self.discovery_agent.run_discovery(request)
         if status == DiscoveryStatus.NEEDS_INPUT:
@@ -189,7 +189,7 @@ class MasterOrchestrator:
             
         return True
 
-    def _step_dataset_profiling(self, request: ProjectRequest) -> bool:
+    def _step_dataset_profiling(self, request: ExecutionContext) -> bool:
         logger.info("Executando Dataset Profiling...")
         if request.dataset_path:
             logger.info(f"Analisando dataset em {request.dataset_path}")
@@ -204,7 +204,7 @@ class MasterOrchestrator:
                 return False
         return True
 
-    def _step_brain(self, request: ProjectRequest) -> bool:
+    def _step_brain(self, request: ExecutionContext) -> bool:
         logger.info("Executando Brain (Knowledge Retrieval)...")
         context = {
             "project_type": request.project_type,
@@ -218,42 +218,42 @@ class MasterOrchestrator:
         logger.info(f"Conhecimento do Brain injetado no contexto. Padrões: {knowledge.get('domain_patterns')}")
         return True
 
-    def _step_architecture(self, request: ProjectRequest) -> bool:
+    def _step_architecture(self, request: ExecutionContext) -> bool:
         logger.info("Executando Architecture Decisions...")
         return self.architecture_agent.generate_architecture(request)
 
-    def _step_planner(self, request: ProjectRequest) -> bool:
+    def _step_planner(self, request: ExecutionContext) -> bool:
         logger.info("Executando Planner (Project Plan)...")
         return self.planner_agent.generate_plan(request)
 
-    def _step_project_factory(self, request: ProjectRequest) -> bool:
+    def _step_project_factory(self, request: ExecutionContext) -> bool:
         logger.info("Executando Project Factory...")
         self.compiled_artifacts = self.project_factory.assemble_project(request)
         if not self.compiled_artifacts:
             return False
         return True
 
-    def _step_materialization(self, request: ProjectRequest) -> bool:
+    def _step_materialization(self, request: ExecutionContext) -> bool:
         logger.info("Executando Materializer...")
         return self.materializer.materialize(request, self.compiled_artifacts)
 
-    def _step_execution(self, request: ProjectRequest) -> bool:
+    def _step_execution(self, request: ExecutionContext) -> bool:
         logger.info("Executando Execution Runtime...")
         result = self.runtime_engine.execute(project_path=request.project_path)
         return result.status == "SUCCESS"
 
-    def _step_validation(self, request: ProjectRequest) -> bool:
+    def _step_validation(self, request: ExecutionContext) -> bool:
         logger.info("Executando Validation Gate...")
         return self.validation_gate.run_validation(request)
         
-    def _step_repair(self, request: ProjectRequest) -> bool:
+    def _step_repair(self, request: ExecutionContext) -> bool:
         logger.info("Executando Repair Loop...")
         return self.repair_loop.run_repair(request)
 
-    def _step_quality(self, request: ProjectRequest) -> bool:
+    def _step_quality(self, request: ExecutionContext) -> bool:
         logger.info("Executando Quality Engine...")
         return self.quality_engine.run_quality(request)
 
-    def _step_certification(self, request: ProjectRequest) -> bool:
+    def _step_certification(self, request: ExecutionContext) -> bool:
         logger.info("Executando Certification Engine...")
         return self.certification_engine.run_certification(request, self.state_manager)

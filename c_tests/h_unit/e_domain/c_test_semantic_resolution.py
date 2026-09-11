@@ -10,7 +10,7 @@ sys.modules['a_platform.d_agents.agent_factory'] = MagicMock()
 sys.modules['a_platform.h_factory.a_project_factory.project_factory'] = MagicMock()
 
 from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 from a_platform.d_agents.b_discovery.discovery_agent import DiscoveryStatus
 
 class MockDiscoveryAgent:
@@ -22,7 +22,7 @@ class MockDiscoveryAgent:
 
 def test_orchestrator_semantic_resolution_sales():
     orchestrator = MasterOrchestrator()
-    request = ProjectRequest(prompt="test", project_id="test_id")
+    request = ExecutionContext(prompt="test", project_id="test_id")
     
     orchestrator.discovery_agent = MockDiscoveryAgent({
         "project_type": "ETL",
@@ -41,7 +41,7 @@ def test_orchestrator_semantic_resolution_sales():
 
 def test_orchestrator_semantic_resolution_finance():
     orchestrator = MasterOrchestrator()
-    request = ProjectRequest(prompt="test", project_id="test_id")
+    request = ExecutionContext(prompt="test", project_id="test_id")
     
     orchestrator.discovery_agent = MockDiscoveryAgent({
         "project_type": "Dashboard Analítico",
@@ -60,7 +60,7 @@ def test_orchestrator_semantic_resolution_finance():
 
 def test_orchestrator_semantic_resolution_inventory():
     orchestrator = MasterOrchestrator()
-    request = ProjectRequest(prompt="test", project_id="test_id")
+    request = ExecutionContext(prompt="test", project_id="test_id")
     
     orchestrator.discovery_agent = MockDiscoveryAgent({
         "project_type": "Data Pipeline",
@@ -79,7 +79,7 @@ def test_orchestrator_semantic_resolution_inventory():
 
 def test_orchestrator_unknown_domain():
     orchestrator = MasterOrchestrator()
-    request = ProjectRequest(prompt="test", project_id="test_id")
+    request = ExecutionContext(prompt="test", project_id="test_id")
     
     orchestrator.discovery_agent = MockDiscoveryAgent({
         "project_type": "Sistema X",

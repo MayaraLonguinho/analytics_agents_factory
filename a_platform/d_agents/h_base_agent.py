@@ -7,7 +7,7 @@ from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.f_mcp.a_mcp_executor import MCPExecutor
 from a_platform.e_skills.j_skill_registry import SkillRegistry
 from a_platform.a_core.b_domain.f_project_plan import Task
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.a_artifact import Artifact
 from a_platform.e_skills.i_skill_contract import CORE_SKILL_CONTRACTS
 
@@ -20,7 +20,7 @@ class BaseAgent:
         self.mcp = mcp
         self.skills = skills
 
-    def execute_task(self, task: Task, request: ProjectRequest) -> List[Artifact]:
+    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Iniciando task: {task.name}")
         artifacts = []
         

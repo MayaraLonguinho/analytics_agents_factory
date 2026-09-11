@@ -2,7 +2,7 @@ import logging
 import json
 import ast
 from typing import List
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.a_artifact import Artifact
 from a_platform.d_agents.g_agent_factory import AgentFactory
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
@@ -19,7 +19,7 @@ class ProjectFactory:
         self.agent_factory = agent_factory
         self.gateway = gateway
 
-    def assemble_project(self, request: ProjectRequest) -> List[Artifact]:
+    def assemble_project(self, request: ExecutionContext) -> List[Artifact]:
         plan = request.project_plan
         if not plan or not plan.tasks:
             logger.error("[ProjectFactory] ProjectPlan ausente ou vazio. Não há como montar o projeto.")
@@ -81,7 +81,7 @@ class ProjectFactory:
                 return True
         return True
 
-    def _generate_requirements(self, request: ProjectRequest) -> Artifact:
+    def _generate_requirements(self, request: ExecutionContext) -> Artifact:
         logger.info("[ProjectFactory] Gerando requirements.txt dinâmico via LLM...")
         
         system_prompt = (

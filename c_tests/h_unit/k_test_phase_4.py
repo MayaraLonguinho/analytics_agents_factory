@@ -2,7 +2,7 @@
 import pytest
 import ast
 from unittest.mock import MagicMock, patch
-from a_platform.a_core.b_domain.project_request import ProjectRequest
+from a_platform.a_core.b_domain.project_request import ExecutionContext
 from a_platform.l_quality.quality_engine import QualityEngine
 from a_platform.m_certification.certification_engine import CertificationEngine
 from a_platform.a_core.c_orchestration.state_manager import StateManager, ProjectPhase, PhaseStatus
@@ -10,7 +10,7 @@ from a_platform.a_core.b_domain.readiness import ReadinessGate
 from a_platform.n_learning.repair.repair_loop import RepairLoop
 
 def test_quality_and_certification():
-    request = ProjectRequest(project_id="test_proj", prompt="test")
+    request = ExecutionContext(project_id="test_proj", prompt="test")
     request.discovery_data = {"domain": "generic"}
     
     # Mock Quality Engine
@@ -65,7 +65,7 @@ def test_repair_loop_max_attempts():
     repair.gateway.generate = MagicMock(return_value={"success": True, "text": '{"file_name": "test.py", "agent_type": "backend", "fixed_content": "print()"}', "provider": "mock"})
     repair.mcp.execute_tool = MagicMock(return_value={"success": True})
     
-    request = ProjectRequest(project_id="test_proj", prompt="test")
+    request = ExecutionContext(project_id="test_proj", prompt="test")
     request.discovery_data = {"domain": "generic"}
     request.metadata["execution_error"] = "SyntaxError"
     

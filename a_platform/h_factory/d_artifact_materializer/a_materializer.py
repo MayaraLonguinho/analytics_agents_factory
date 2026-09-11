@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import List
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.a_artifact import Artifact
 from a_platform.f_mcp.a_mcp_executor import MCPExecutor
 
@@ -14,7 +14,7 @@ class ArtifactMaterializer:
     def __init__(self, mcp: MCPExecutor):
         self.mcp = mcp
 
-    def materialize(self, request: ProjectRequest, artifacts: List[Artifact]) -> bool:
+    def materialize(self, request: ExecutionContext, artifacts: List[Artifact]) -> bool:
         if not artifacts:
             logger.error("[ArtifactMaterializer] Nenhum artefato recebido para materialização.")
             return False

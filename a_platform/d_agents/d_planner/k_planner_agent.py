@@ -2,7 +2,7 @@ import logging
 import json
 import re
 import asyncio
-from a_platform.a_core.b_domain.g_project_request import ProjectRequest
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
 from a_platform.a_core.b_domain.f_project_plan import ProjectPlan, Task
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
@@ -17,10 +17,10 @@ class PlannerAgent:
         self.registry = registry
         self.gateway = LLMGateway()
 
-    def generate_plan(self, request: ProjectRequest) -> bool:
+    def generate_plan(self, request: ExecutionContext) -> bool:
         return asyncio.run(self._generate_plan_async(request))
 
-    async def _generate_plan_async(self, request: ProjectRequest) -> bool:
+    async def _generate_plan_async(self, request: ExecutionContext) -> bool:
         logger.info("[PlannerAgent] Iniciando estruturação do plano via LLM...")
         
         domain_name = request.domain
