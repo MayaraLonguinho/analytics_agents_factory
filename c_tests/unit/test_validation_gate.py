@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from a_platform.k_validation.validation_gate import ValidationGate
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 from a_platform.a_core.b_domain.project_plan import ProjectPlan
-from a_platform.j_runtime.runtime_engine import RuntimeEngine
+from a_platform.j_runtime.runtime import ProjectRuntime
 from a_platform.l_quality.quality_engine import QualityEngine
 
 
@@ -69,38 +69,4 @@ def test_execution_failure_blocks_validation_and_quality():
         assert qual_engine.run_quality(request) is False
 
 
-def test_runtime_engine_empty_commands_fail():
-    request = ProjectRequest(project_id="test_proj", prompt="test")
-    request.project_plan = ProjectPlan(
-        project_id="test_proj", domain="generic",
-        execution_required=True, run_commands=[]
-    )
 
-    engine = RuntimeEngine()
-
-    with patch("os.path.exists", return_value=True), \
-         patch(
-             "a_platform.j_runtime.runtime_engine.RuntimeEngine._run_subprocess",
-             return_value=(True, "", "")
-         ):
-
-        result = engine.run_project(request)
-        assert result is False
-        msg = "Sem run_commands quando execution_required=True"
-        assert msg in request.metadata.get("execution_error", "")
-
-
-def test_runtime_engine_execution_not_required():
-    request = ProjectRequest(project_id="test_proj", prompt="test")
-    request.project_plan = ProjectPlan(
-        project_id="test_proj", domain="generic",
-        execution_required=False, run_commands=[]
-    )
-
-    engine = RuntimeEngine()
-
-    with patch("os.path.exists", return_value=True):
-        result = engine.run_project(request)
-        assert result is True
-        msg = "Execução desativada no plano (execution_required=False)"
-        assert request.metadata["runtime_payload"]["stdout"] == msg

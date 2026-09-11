@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
-
+import os
 
 @dataclass
 class ValidationCheck:
@@ -47,41 +47,28 @@ class ValidationGate:
     def __init__(self, project_root: Optional[Path | str] = None):
         self.project_root = Path(project_root or Path.cwd()).resolve()
 
-    def evaluate(self, requirements: Optional[Iterable[str]] = None) -> ValidationResult:
-        requirements = list(requirements or [
-            "structure", "dependencies", "code", "database", 
-            "data_pipeline", "backend", "frontend", "infrastructure", 
-            "documentation", "tests", "security", "execution"
-        ])
-        
+    def run_validation(self, request: Any) -> bool:
+        domain = request.domain or "analytics"
+        self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
+        result = self.evaluate(request)
+        return result.passed
+
+    def evaluate(self, request: Any) -> ValidationResult:
+        plan = request.project_plan
         checks: List[ValidationCheck] = []
-        
-        for req in requirements:
-            status = "PASS"
-            details = f"Validation for {req} passed"
-            evidence = {}
-            
-            # Simulated real checks based on project paths
-            if req == "structure":
-                evidence["has_backend"] = (self.project_root / "backend").exists()
-                evidence["has_frontend"] = (self.project_root / "frontend").exists()
-                evidence["has_database"] = (self.project_root / "database").exists()
-            elif req == "dependencies":
-                evidence["has_pip"] = (self.project_root / "backend" / "requirements.txt").exists()
-                evidence["has_npm"] = (self.project_root / "frontend" / "package.json").exists()
-            elif req == "documentation":
-                if not (self.project_root / "README.md").exists():
+
+        if not plan:
+            return ValidationResult(status="FAILED", passed=False, errors=["No project plan"])
+
+        for task in plan.tasks:
+            for artifact in task.expected_artifacts:
+                status = "PASS"
+                details = f"Found {artifact}"
+                if not (self.project_root / artifact).exists():
                     status = "FAIL"
-                    details = "README.md is missing"
-            elif req == "tests":
-                if not (self.project_root / "tests").exists():
-                    status = "FAIL"
-                    details = "Tests directory is missing"
-            elif req == "security":
-                evidence["no_secrets"] = True
-            
-            checks.append(ValidationCheck(name=req, status=status, details=details, evidence=evidence))
-            
+                    details = f"Missing {artifact}"
+                checks.append(ValidationCheck(name=artifact, status=status, details=details))
+
         return ValidationResult(
             status="PASSED" if checks and all(check.status == "PASS" for check in checks) else "FAILED",
             passed=bool(checks) and all(check.status == "PASS" for check in checks),

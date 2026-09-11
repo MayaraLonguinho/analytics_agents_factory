@@ -1,5 +1,5 @@
 
-# Analytics AI Factory (AAF)
+# Analytics Agents Factory (AAF)
 
 Uma fábrica especializada em projetos de Analytics + ETL/ELT, agnóstica ao domínio de negócio.
 
@@ -27,7 +27,6 @@ analytics_agents_factory/
 ├── c_tests/
 ├── d_input/
 ├── e_generated_projects/
-├── .aaf_state/
 ├── .env.example
 ├── .gitignore
 ├── Dockerfile

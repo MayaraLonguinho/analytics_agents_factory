@@ -15,7 +15,7 @@ from a_platform.d_agents.agent_factory import AgentFactory
 from a_platform.h_factory.a_project_factory.project_factory import ProjectFactory
 from a_platform.h_factory.d_artifact_materializer.materializer import ArtifactMaterializer
 from a_platform.f_mcp.mcp_executor import MCPExecutor
-from a_platform.j_runtime.runtime_engine import RuntimeEngine
+from a_platform.j_runtime.runtime import ProjectRuntime
 from a_platform.k_validation.validation_gate import ValidationGate
 from a_platform.l_quality.quality_engine import QualityEngine
 from a_platform.m_certification.certification_engine import CertificationEngine
@@ -43,7 +43,7 @@ class MasterOrchestrator:
         self.agent_factory = AgentFactory()
         self.project_factory = ProjectFactory(self.agent_factory)
         self.materializer = ArtifactMaterializer(self.mcp)
-        self.runtime_engine = RuntimeEngine()
+        self.runtime_engine = ProjectRuntime()
         self.validation_gate = ValidationGate()
         self.quality_engine = QualityEngine()
         self.certification_engine = CertificationEngine()
@@ -238,7 +238,8 @@ class MasterOrchestrator:
 
     def _step_execution(self, request: ProjectRequest) -> bool:
         logger.info("Executando Execution Runtime...")
-        return self.runtime_engine.run_project(request)
+        result = self.runtime_engine.execute(project_path=request.project_path)
+        return result.status == "SUCCESS"
 
     def _step_validation(self, request: ProjectRequest) -> bool:
         logger.info("Executando Validation Gate...")

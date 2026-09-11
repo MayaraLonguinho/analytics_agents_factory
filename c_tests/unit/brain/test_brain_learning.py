@@ -5,7 +5,7 @@ import yaml
 from unittest.mock import MagicMock, patch, mock_open
 from a_platform.n_learning.brain_updater import BrainUpdater
 from typing import Dict, Any
-from a_platform.c_brain.f_registry.knowledge_registry import BrainRegistry as KnowledgeRegistry
+from a_platform.c_brain.f_registry.knowledge_registry import KnowledgeRegistry
 from a_platform.d_agents.c_architecture.architecture_agent import ArchitectureAgent
 from a_platform.a_core.b_domain.project_request import ProjectRequest
 
