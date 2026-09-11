@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
-import os
+from typing import Any, Dict, List, Optional
+from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
+from a_platform.j_runtime.c_runtime import ExecutionResult
 
 @dataclass
 class ValidationCheck:
@@ -24,8 +26,8 @@ class ValidationCheck:
 
 
 @dataclass
-class ValidationResult:
-    status: str = "FAILED"
+class ValidationReport:
+    status: str = "NOT_EXECUTED"
     passed: bool = False
     checks: List[ValidationCheck] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
@@ -47,30 +49,52 @@ class ValidationGate:
     def __init__(self, project_root: Optional[Path | str] = None):
         self.project_root = Path(project_root or Path.cwd()).resolve()
 
-    def run_validation(self, request: Any) -> bool:
-        domain = request.domain or "analytics"
+    def run_validation(self, request: ExecutionContext, execution_result: ExecutionResult) -> bool:
+        domain = request.discovery_data.get("domain", "analytics").lower() if request.discovery_data else (request.domain or "analytics")
         self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
-        result = self.evaluate(request)
-        return result.passed
+        report = self.evaluate(request, execution_result)
+        return report.passed
 
-    def evaluate(self, request: Any) -> ValidationResult:
+    def evaluate(self, request: ExecutionContext, execution_result: ExecutionResult) -> ValidationReport:
+        domain = request.discovery_data.get("domain", "analytics").lower() if request.discovery_data else (request.domain or "analytics")
+        self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
+        
         plan = request.project_plan
         checks: List[ValidationCheck] = []
 
         if not plan:
-            return ValidationResult(status="FAILED", passed=False, errors=["No project plan"])
+            return ValidationReport(status="FAILED", passed=False, errors=["No project plan"])
 
+        # Check expected artifacts
         for task in plan.tasks:
             for artifact in task.expected_artifacts:
                 status = "PASS"
                 details = f"Found {artifact}"
                 if not (self.project_root / artifact).exists():
+                    print(f"DEBUG: path not found: {self.project_root / artifact}")
                     status = "FAIL"
                     details = f"Missing {artifact}"
-                checks.append(ValidationCheck(name=artifact, status=status, details=details))
+                checks.append(ValidationCheck(name=f"artifact_{artifact}", status=status, details=details))
 
-        return ValidationResult(
-            status="PASSED" if checks and all(check.status == "PASS" for check in checks) else "FAILED",
-            passed=bool(checks) and all(check.status == "PASS" for check in checks),
+        # Check execution code
+        status = "PASS"
+        details = "Execution returned exit code 0"
+        if execution_result.exit_code != 0:
+            status = "FAIL"
+            details = f"Execution returned exit code {execution_result.exit_code}"
+        checks.append(ValidationCheck(name="execution_exit_code", status=status, details=details))
+
+        # Check execution status
+        status = "PASS"
+        details = "Execution status is SUCCESS"
+        if execution_result.status != "SUCCESS":
+            status = "FAIL"
+            details = f"Execution status is {execution_result.status}"
+        checks.append(ValidationCheck(name="execution_status", status=status, details=details))
+
+        passed = bool(checks) and all(check.status == "PASS" for check in checks)
+        return ValidationReport(
+            status="PASSED" if passed else "FAILED",
+            passed=passed,
             checks=checks,
         )

@@ -5,6 +5,7 @@ import os
 from typing import Dict, Any
 
 from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
+from a_platform.j_runtime.c_runtime import ExecutionResult
 from a_platform.n_learning.e_learning_engine import LearningEngine
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.d_agents.g_agent_factory import AgentFactory
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 class RepairLoop:
     """
     Repair Loop.
-    Se a execução ou validação falhar, este motor extrai o erro e delega ao LLM para correção.
+    Se a execução falhar, este motor extrai o diagnosis do ExecutionResult e delega ao LLM para correção.
     """
     def __init__(self, agent_factory: AgentFactory, learning_engine: LearningEngine):
         self.agent_factory = agent_factory
@@ -23,27 +24,25 @@ class RepairLoop:
         self.gateway = LLMGateway()
         self.mcp = MCPExecutor()
 
-    def run_repair(self, request: ExecutionContext) -> bool:
-        attempts = request.metadata.get("repair_attempts", 0)
+    def run_repair(self, request: ExecutionContext, execution_result: ExecutionResult) -> bool:
+        attempts = request.architecture_decision.get("repair_attempts", 0)
         if attempts >= 3:
             logger.error("[RepairLoop] Limite máximo de tentativas de reparo excedido (3). O projeto falhou.")
             return False
             
-        request.metadata["repair_attempts"] = attempts + 1
-        logger.warning(f"[RepairLoop] Iniciando tentativa de conserto (Repair Loop) - Tentativa {request.metadata['repair_attempts']}/3...")
+        request.architecture_decision["repair_attempts"] = attempts + 1
+        logger.warning(f"[RepairLoop] Iniciando tentativa de conserto (Repair Loop) - Tentativa {request.architecture_decision['repair_attempts']}/3...")
         
-        # Recupera o erro exato que causou a falha
-        exec_err = request.metadata.get("execution_error")
-        val_err = request.metadata.get("validation_error")
+        # Recupera o erro exato que causou a falha baseado no runtime
+        error_context = execution_result.diagnosis
         
-        error_context = exec_err if exec_err else val_err
         if not error_context:
-            logger.error("[RepairLoop] Nenhum erro encontrado no metadata para reparo.")
+            logger.error("[RepairLoop] Nenhum erro encontrado no ExecutionResult (diagnosis vazio).")
             return False
             
         system_prompt = (
             "Você é o Classificador de Falhas do sistema.\n"
-            "Dado um erro de execução ou teste, identifique qual arquivo precisa de correção e qual tipo de agente deve consertá-lo (backend, frontend, database, data_agent, infra).\n"
+            "Dado um erro de execução ou teste, identifique qual arquivo precisa de correção e qual tipo de agente deve consertá-lo.\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
             '  "file_name": "nome_do_arquivo.py",\n'
@@ -54,56 +53,49 @@ class RepairLoop:
         
         prompt = (
             f"Projeto ID: {request.project_id}\n"
-            f"Erro Detectado:\n{error_context}\n\n"
+            f"Erro Detectado (Diagnosis):\n{error_context}\n\n"
+            f"Stderr completo (opcional, para contexto): {execution_result.stderr[:2000]}\n\n"
             "Gere a versão corrigida do arquivo problemático e identifique o agente especialista responsável."
         )
         
-        resp = self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
+        import asyncio
+        resp = asyncio.run(self.gateway.generate(prompt, system_prompt=system_prompt))
         
-        if resp.get("success"):
-            text = resp.get("text", "")
-            match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
-            if match:
-                text = match.group(1).strip()
-                
-            try:
-                repair_data = json.loads(text)
-                file_name = repair_data.get("file_name")
-                fixed_content = repair_data.get("fixed_content")
-                agent_type = repair_data.get("agent_type", "backend")
-                
-                if not file_name or not fixed_content:
-                    logger.error("[RepairLoop] O LLM não retornou file_name ou fixed_content válidos.")
-                    return False
-                    
-                # Aqui o sistema demonstra o uso do AgentFactory
-                specialist_agent = self.agent_factory.get_agent(agent_type)
-                logger.info(f"[RepairLoop] Agente especialista acionado para reparo: {specialist_agent.name}")
-                
-                # Aplicando o patch
-                domain = request.discovery_data.get("domain", "analytics").lower()
-                file_path = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id, file_name)
-                
-                logger.info(f"[RepairLoop] Aplicando patch corretivo em: {file_name}")
-                res = self.mcp.execute_tool("filesystem_mcp", action="write", path=file_path, content=fixed_content)
-                
-                if res.get("success"):
-                    logger.info("[RepairLoop] Patch aplicado com sucesso no disco.")
-                    # Memoriza no Learning Engine
-                    self.learning_engine.log_correction(request, error_context, f"Fixed {file_name}")
-                    
-                    # Limpa o erro atual para permitir re-execução limpa
-                    if "execution_error" in request.metadata: del request.metadata["execution_error"]
-                    if "validation_error" in request.metadata: del request.metadata["validation_error"]
-                    
-                    return True
-                else:
-                    logger.error(f"[RepairLoop] Falha ao escrever arquivo corrigido: {res.get('error')}")
-                    return False
-                    
-            except Exception as e:
-                logger.error(f"[RepairLoop] Falha ao parsear JSON de reparo: {e}")
+        text = ""
+        if resp and getattr(resp, "content", None):
+            text = resp.content.strip()
+            
+        match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
+        if match:
+            text = match.group(1).strip()
+            
+        try:
+            repair_data = json.loads(text)
+            file_name = repair_data.get("file_name")
+            fixed_content = repair_data.get("fixed_content")
+            agent_type = repair_data.get("agent_type", "TestingAgent")
+            
+            if not file_name or not fixed_content:
+                logger.error("[RepairLoop] O LLM não retornou file_name ou fixed_content válidos.")
                 return False
-        else:
-            logger.error("[RepairLoop] Falha ao invocar LLM para gerar patch de reparo.")
+                
+            specialist_agent = self.agent_factory.get_agent(agent_type)
+            logger.info(f"[RepairLoop] Agente especialista acionado para reparo: {specialist_agent.name}")
+            
+            domain = request.domain or "analytics"
+            file_path = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id, file_name)
+            
+            logger.info(f"[RepairLoop] Aplicando patch corretivo em: {file_name}")
+            res = self.mcp.execute("filesystem_mcp", operation="write", path=file_path, content=fixed_content)
+            
+            if res.get("status") == "ok":
+                logger.info("[RepairLoop] Patch aplicado com sucesso no disco.")
+                self.learning_engine.log_correction(request, error_context, f"Fixed {file_name}")
+                return True
+            else:
+                logger.error(f"[RepairLoop] Falha ao escrever arquivo corrigido: {res.get('message')}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[RepairLoop] Falha ao parsear JSON de reparo: {e}")
             return False
