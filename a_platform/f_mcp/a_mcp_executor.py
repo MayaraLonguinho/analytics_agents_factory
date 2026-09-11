@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -37,12 +38,6 @@ class MCPExecutor:
             return self._execute_database(definition, input_payload)
         if capability == "docker":
             return self._execute_docker(definition, input_payload)
-        if capability == "browser":
-            return self._execute_browser(definition, input_payload)
-        if capability == "external":
-            return self._execute_external(definition, input_payload)
-        if capability == "analytics":
-            return self._execute_analytics(definition, input_payload)
 
         return {
             "status": "ok",
@@ -54,70 +49,73 @@ class MCPExecutor:
         path = Path(payload.get("path", "."))
         operation = payload.get("operation", "list")
 
-        if operation == "read":
-            return {"status": "ok", "result": {"content": path.read_text(encoding="utf-8") if path.exists() else ""}}
-        if operation == "write":
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(str(payload.get("content", "")), encoding="utf-8")
-            return {"status": "ok", "result": {"written": str(path)}}
+        try:
+            if operation == "read":
+                return {"status": "ok", "result": {"content": path.read_text(encoding="utf-8") if path.exists() else ""}}
+            if operation == "write":
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(str(payload.get("content", "")), encoding="utf-8")
+                return {"status": "ok", "result": {"written": str(path)}}
 
-        return {"status": "ok", "result": {"entries": [item.name for item in path.iterdir()] if path.exists() else []}}
+            return {"status": "ok", "result": {"entries": [item.name for item in path.iterdir()] if path.exists() else []}}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
 
     def _execute_database(self, definition: MCPDefinition, payload: Dict[str, Any]) -> Dict[str, Any]:
         database = payload.get("database")
         query = payload.get("query")
+        operation = payload.get("operation", "query")
+        
         if not database or not query:
-            return {"status": "ok", "rows": []}
+            return {"status": "error", "message": "Database and query required"}
 
-        connection = sqlite3.connect(database)
         try:
-            result = connection.execute(query).fetchall()
-            columns = [description[0] for description in connection.execute(query).description] if result else []
-            return {"status": "ok", "rows": [dict(zip(columns, row)) for row in result]}
+            Path(database).parent.mkdir(parents=True, exist_ok=True)
+            connection = sqlite3.connect(database)
+            cursor = connection.cursor()
+            
+            if operation in ("schema", "migration"):
+                cursor.executescript(query)
+                connection.commit()
+                return {"status": "ok", "message": "Schema/migration executed successfully"}
+            else:
+                cursor.execute(query)
+                if cursor.description:
+                    columns = [description[0] for description in cursor.description]
+                    rows = cursor.fetchall()
+                    connection.commit()
+                    return {"status": "ok", "rows": [dict(zip(columns, row)) for row in rows]}
+                else:
+                    connection.commit()
+                    return {"status": "ok", "rows": [], "message": "Query executed successfully"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
         finally:
-            connection.close()
+            if 'connection' in locals():
+                connection.close()
 
     def _execute_docker(self, definition: MCPDefinition, payload: Dict[str, Any]) -> Dict[str, Any]:
-        command = payload.get("command", "docker ps --format '{{.Names}}'")
-        import subprocess
+        command = payload.get("command", "docker info")
+        
+        # Security check: only allow docker commands
+        if not command.strip().startswith("docker "):
+            return {"status": "error", "message": "Apenas comandos docker são permitidos."}
 
-        completed = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
-        return {"status": "ok", "stdout": completed.stdout, "stderr": completed.stderr, "returncode": completed.returncode}
-
-    def _execute_browser(self, definition: MCPDefinition, payload: Dict[str, Any]) -> Dict[str, Any]:
-        return {"status": "ok", "mcp_id": definition.id, "result": {"url": payload.get("url"), "operation": payload.get("operation")}}
-
-    def _execute_external(self, definition: MCPDefinition, payload: Dict[str, Any]) -> Dict[str, Any]:
-        import urllib.request
-
-        endpoint = payload.get("endpoint")
-        method = payload.get("method", "GET")
-        if not endpoint:
-            return {"status": "error", "message": "Endpoint required"}
-
-        request = urllib.request.Request(endpoint, method=method.upper())
-        with urllib.request.urlopen(request, timeout=30) as response:
-            body = response.read().decode("utf-8", errors="replace")
-            return {"status": "ok", "result": {"status": response.status, "body": body}} 
-
-    def _execute_analytics(self, definition: MCPDefinition, payload: Dict[str, Any]) -> Dict[str, Any]:
-        dataset = payload.get("dataset")
-        operation = payload.get("operation", "profile")
-        if not dataset:
-            return {"status": "ok", "rows": 0, "columns": []}
-
-        import pandas as pd
-
-        frame = pd.read_csv(dataset)
-        summary = {
-            "rows": int(len(frame)),
-            "columns": list(frame.columns),
-            "dtypes": {key: str(value) for key, value in frame.dtypes.to_dict().items()},
-            "operation": operation,
-        }
-        if operation == "head":
-            summary["preview"] = frame.head(5).to_dict(orient="records")
-        return {"status": "ok", **summary}
+        try:
+            completed = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+            
+            stderr_lower = completed.stderr.lower()
+            if completed.returncode != 0 and ("command not found" in stderr_lower or "cannot connect to the docker daemon" in stderr_lower):
+                return {"status": "NOT_AVAILABLE", "message": "Docker indisponível", "stderr": completed.stderr}
+                
+            return {
+                "status": "ok", 
+                "stdout": completed.stdout, 
+                "stderr": completed.stderr, 
+                "returncode": completed.returncode
+            }
+        except Exception as e:
+            return {"status": "NOT_AVAILABLE", "message": str(e)}
 
 
 __all__ = ["MCPExecutor"]

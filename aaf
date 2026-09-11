@@ -79,6 +79,45 @@ def cmd_result(args):
         print(f"Erro: Projeto '{project_id}' não encontrado.")
 
 
+def cmd_mcp(args):
+    print("=" * 50)
+    print("🛠️  AAF - MCP Executable Demonstration")
+    print("=" * 50)
+    
+    from a_platform.f_mcp.a_mcp_executor import MCPExecutor
+    executor = MCPExecutor()
+    
+    print("\n--- Filesystem MCP ---")
+    fs_result = executor.execute("filesystem_mcp", operation="list", path=".")
+    if fs_result.get("status") == "ok":
+        print("Filesystem:  PASS")
+    else:
+        print(f"Filesystem:  FAILED ({fs_result.get('message')})")
+        
+    print("\n--- Database MCP ---")
+    db_result = executor.execute(
+        "database_mcp", 
+        operation="query", 
+        database=":memory:", 
+        query="SELECT 1 as teste"
+    )
+    if db_result.get("status") == "ok":
+        print("Database:    PASS")
+    else:
+        print(f"Database:    FAILED ({db_result.get('message')})")
+
+    print("\n--- Docker MCP ---")
+    docker_result = executor.execute("docker_mcp", command="docker info")
+    if docker_result.get("status") == "ok":
+        print("Docker:      PASS")
+    elif docker_result.get("status") == "NOT_AVAILABLE":
+        print("Docker:      NOT_AVAILABLE")
+    else:
+        print(f"Docker:      FAILED ({docker_result.get('message')})")
+    
+    print("=" * 50)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Analytics Agents Factory CLI")
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
@@ -94,6 +133,9 @@ def main():
     parser_result = subparsers.add_parser("result", help="Mostra o resultado de um projeto finalizado")
     parser_result.add_argument("project_id", help="ID do projeto")
     
+    # aaf mcp
+    subparsers.add_parser("mcp", help="Demonstração executável dos MCPs")
+    
     args = parser.parse_args()
     
     if args.command == "start":
@@ -102,6 +144,8 @@ def main():
         cmd_status(args)
     elif args.command == "result":
         cmd_result(args)
+    elif args.command == "mcp":
+        cmd_mcp(args)
     else:
         parser.print_help()
 

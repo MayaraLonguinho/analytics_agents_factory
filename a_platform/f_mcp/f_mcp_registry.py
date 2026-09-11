@@ -25,7 +25,7 @@ class MCPRegistry:
     """Single source of truth for all available MCPs."""
 
     def __init__(self, manifest_path: Optional[str | Path] = None):
-        self.manifest_path = Path(manifest_path) if manifest_path else Path(__file__).with_name("mcp_manifest.yaml")
+        self.manifest_path = Path(manifest_path) if manifest_path else Path(__file__).with_name("d_mcp_manifest.yaml")
         self.mcps: Dict[str, MCPDefinition] = {}
         self.by_capability: Dict[str, List[str]] = {}
         self._load_manifest()
