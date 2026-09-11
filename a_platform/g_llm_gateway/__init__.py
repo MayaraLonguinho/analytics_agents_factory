@@ -4,7 +4,7 @@ This module provides the single allowed path for agent/skill access to LLM provi
 Agents and Skills must not import provider SDKs directly; they must route through this gateway.
 """
 
-from .gateway import LLMGateway, LLMGatewayConfig
-from .interfaces.base_provider import LLMRequest, LLMResponse
+from .e_gateway import LLMGateway, LLMGatewayConfig
+from .f_interfaces.base_provider import LLMRequest, LLMResponse
 
 __all__ = ["LLMGateway", "LLMGatewayConfig", "LLMRequest", "LLMResponse"]

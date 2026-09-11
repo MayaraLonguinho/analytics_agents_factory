@@ -2,6 +2,6 @@
 Memória de resultados de Skills do Brain.
 """
 
-from .implementation import SkillMemory
+from .a_implementation import SkillMemory
 
 __all__ = ["SkillMemory"]

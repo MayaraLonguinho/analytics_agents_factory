@@ -2,7 +2,7 @@
 Planner Agent - Agente especializado em planejamento de execução
 """
 
-from .schemas import (
+from .i_schemas import (
     # Enums
     TaskStatus,
     TaskPriority,
@@ -29,7 +29,7 @@ from .schemas import (
     PlanningResult
 )
 
-from .interfaces import (
+from .f_interfaces import (
     IPlanner,
     ITaskDecomposer,
     IDAGGenerator,
@@ -40,7 +40,7 @@ from .interfaces import (
     IPriorityManager
 )
 
-from .planner import PlannerAgent
+from .h_planner import PlannerAgent
 
 __version__ = "1.0.0"
 

@@ -2,8 +2,8 @@
 Gerenciamento de contexto do Analytics AI Factory.
 """
 
-from .config import BrainConfig
-from .interfaces import IBrainManager, IContextManager
+from .b_config import BrainConfig
+from .f_interfaces import IBrainManager, IContextManager
 
 __all__ = [
     "BrainConfig",

@@ -2,7 +2,7 @@
 Sistema de memória do Brain do Analytics AI Factory.
 """
 
-from .interfaces import (
+from .f_interfaces import (
     IArchitectureMemory,
     IConversationMemory,
     IExecutionMemory,
@@ -12,7 +12,7 @@ from .interfaces import (
     ISkillMemory,
 )
 
-from .memory_manager import MemoryManager
+from .m_memory_manager import MemoryManager
 
 __all__ = [
     "IMemory",

@@ -2,6 +2,6 @@
 Memória de curto prazo do Brain.
 """
 
-from .implementation import ShortTermMemory
+from .a_implementation import ShortTermMemory
 
 __all__ = ["ShortTermMemory"]

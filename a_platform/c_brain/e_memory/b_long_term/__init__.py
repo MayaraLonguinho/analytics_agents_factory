@@ -2,6 +2,6 @@
 Memória de longo prazo do Brain.
 """
 
-from .implementation import LongTermMemory
+from .a_implementation import LongTermMemory
 
 __all__ = ["LongTermMemory"]

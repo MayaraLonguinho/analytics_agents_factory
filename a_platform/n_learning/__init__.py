@@ -4,10 +4,10 @@ The learning pipeline is intentionally evidence-driven:
 Execution -> Feedback -> Knowledge Candidate -> Approval/Policy -> Brain Update.
 """
 
-from .feedback_collector import FeedbackCollector, FeedbackRecord
-from .knowledge_generator import KnowledgeCandidate, KnowledgeGenerator
-from .learning_engine import LearningEngine, LearningRun
-from .brain_updater import BrainUpdater, ApprovalDecision
+from .c_feedback_collector import FeedbackCollector, FeedbackRecord
+from .d_knowledge_generator import KnowledgeCandidate, KnowledgeGenerator
+from .e_learning_engine import LearningEngine, LearningRun
+from .a_brain_updater import BrainUpdater, ApprovalDecision
 
 __all__ = [
     "LearningEngine",

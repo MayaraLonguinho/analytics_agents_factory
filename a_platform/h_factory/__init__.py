@@ -18,7 +18,7 @@ def __getattr__(name):
         from .bundle import ProjectGenerationBundle, ProjectTask
         return {"ProjectGenerationBundle": ProjectGenerationBundle, "ProjectTask": ProjectTask}[name]
     if name == "ProjectPlanner":
-        from .planner import ProjectPlanner
+        from .h_planner import ProjectPlanner
         return ProjectPlanner
     if name in {"ProjectFactory", "ProjectGenerationPipeline"}:
         from .factory import ProjectFactory, ProjectGenerationPipeline

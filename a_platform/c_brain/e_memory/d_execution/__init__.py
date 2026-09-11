@@ -2,6 +2,6 @@
 Memória de execução do Brain.
 """
 
-from .implementation import ExecutionMemory
+from .a_implementation import ExecutionMemory
 
 __all__ = ["ExecutionMemory"]
