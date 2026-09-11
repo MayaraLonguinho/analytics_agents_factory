@@ -31,9 +31,42 @@ class Brain:
         self._initialize_core_knowledge()
         self._initialize_core_rules()
         self._initialize_core_patterns()
+        self._initialize_team_standards()
         
         # Project Knowledge (armazenado por contexto da execução atual ou memória passada)
         self.project_knowledge = {}
+
+    def _initialize_team_standards(self):
+        standards = [
+            "Owner decide regras de negócio",
+            "Agent não inventa regra",
+            "Architecture decide stack",
+            "Planner decide sequência",
+            "Agent executa tarefa",
+            "Skill executa capability",
+            "Gate decide evidência",
+            "Falha nunca vira PASS",
+            "Mudança deve registrar decisão (D-NN)",
+            "Contexto deve ser compacto",
+            "Apenas informação relevante deve ser carregada"
+        ]
+        for i, std in enumerate(standards):
+            self.rule_registry.register(f"team_std_{i}", {
+                "rule": std,
+                "tags": ["team_standard"]
+            })
+            
+    def apply_intelligent_defaults(self, context_request: Dict[str, Any]) -> Dict[str, Any]:
+        """Aplica defaults razoáveis para arquitetura e escopo se não especificados."""
+        if not context_request.get("architecture"):
+            domain = context_request.get("domain", "")
+            if domain == "data_engineering":
+                context_request["architecture"] = {"architecture_pattern": "Data Lakehouse"}
+            elif domain == "analytics":
+                context_request["architecture"] = {"architecture_pattern": "Star Schema"}
+            else:
+                context_request["architecture"] = {"architecture_pattern": "Microservices"}
+        return context_request
 
     def _initialize_core_knowledge(self):
         self.knowledge_registry.register("db_support", {
@@ -59,23 +92,23 @@ class Brain:
     def _initialize_core_rules(self):
         self.rule_registry.register("arch_soc", {
             "rule": "Separação de conceitos (SoC).",
-            "category": "architecture"
+            "tags": ["architecture"]
         })
         self.rule_registry.register("arch_cohesion", {
             "rule": "Alta coesão e Baixo acoplamento.",
-            "category": "architecture"
+            "tags": ["architecture"]
         })
         self.rule_registry.register("arch_db_logic", {
             "rule": "Não utilize lógicas de negócio no banco de dados (evite procedures densas).",
-            "category": "architecture"
+            "tags": ["architecture"]
         })
         self.rule_registry.register("sec_crypto", {
             "rule": "Criptografia at-rest para dados sensíveis.",
-            "category": "security"
+            "tags": ["security"]
         })
         self.rule_registry.register("sec_privilege", {
             "rule": "Princípio do Menor Privilégio.",
-            "category": "security"
+            "tags": ["security"]
         })
 
     def _initialize_core_patterns(self):
@@ -88,6 +121,8 @@ class Brain:
         """
         Gera um Context Pack compacto sob demanda com orçamento configurável.
         """
+        context_request = self.apply_intelligent_defaults(context_request)
+        
         budget_tokens = context_request.get("max_tokens", 50000)
         # Aproximação conservadora: 1 token = 4 caracteres
         max_chars = budget_tokens * 4
@@ -125,8 +160,9 @@ class Brain:
         pack["platform_stack"] = platform_stack
         pack["architecture_rules"] = self.get_rules("architecture")
         pack["security_rules"] = self.get_rules("security")
+        pack["team_standards"] = self.get_rules("team_standard")
         
-        domain_lower = domain.lower()
+        domain_lower = (domain or "").lower()
         patterns = self.pattern_registry.search_by_domain(domain_lower)
         if patterns:
             pack["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"

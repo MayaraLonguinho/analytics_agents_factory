@@ -107,6 +107,28 @@ class OpenAIProvider(BaseLLMProvider):
             
         except Exception as e:
             raise RuntimeError(f"Erro ao gerar chat com OpenAI: {e}")
+
+    async def structured_output(self, prompt: str, model: str, schema: Dict[str, Any], **kwargs) -> LLMResponse:
+        """
+        Gera uma resposta estruturada via LLM Gateway.
+        """
+        try:
+            # Simplificação da chamada estruturada para manter compatibilidade
+            response = await self._client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": f"{prompt}\nReturn JSON matching schema: {schema}"}],
+                response_format={"type": "json_object"},
+                **kwargs
+            )
+            return LLMResponse(
+                content=response.choices[0].message.content,
+                model=model,
+                provider="openai",
+                tokens_used=response.usage.total_tokens,
+                finish_reason=response.choices[0].finish_reason
+            )
+        except Exception as e:
+            raise RuntimeError(f"Erro ao gerar resposta estruturada com OpenAI: {e}")
     
     async def embeddings(self, text: str, model: str, **kwargs) -> list:
         """

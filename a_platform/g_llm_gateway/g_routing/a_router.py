@@ -16,14 +16,13 @@ class ModelRouter:
 
     def __init__(self, provider_map: Optional[Dict[str, Dict[str, Any]]] = None):
         self.provider_map = provider_map or {
-            "ollama": {"model": "qwen3:4b", "metadata": {"provider": "ollama", "type": "local"}},
             "openai": {"model": "gpt-4o-mini", "metadata": {"provider": "openai", "type": "cloud"}},
             "anthropic": {"model": "claude-3-haiku", "metadata": {"provider": "anthropic", "type": "cloud"}},
-            "google": {"model": "gemini-1.5-flash", "metadata": {"provider": "google", "type": "cloud"}},
+            "gemini": {"model": "gemini-1.5-flash", "metadata": {"provider": "gemini", "type": "cloud"}},
         }
 
     def route(self, provider: Optional[str] = None, model: Optional[str] = None) -> RouteDecision:
-        selected_provider = provider or "ollama"
+        selected_provider = provider or "openai"
         selected_model = model or self.provider_map[selected_provider]["model"]
         return RouteDecision(
             provider=selected_provider,

@@ -15,9 +15,9 @@ class ProjectFactory:
     Lê o ProjectPlan, orquestra a chamada aos Agents/Skills e compila os Artifacts.
     Não possui lógica de geração de negócios hardcoded.
     """
-    def __init__(self, agent_factory: AgentFactory):
+    def __init__(self, agent_factory: AgentFactory, gateway: LLMGateway):
         self.agent_factory = agent_factory
-        self.gateway = LLMGateway()
+        self.gateway = gateway
 
     def assemble_project(self, request: ProjectRequest) -> List[Artifact]:
         plan = request.project_plan
@@ -90,11 +90,11 @@ class ProjectFactory:
         )
         
         prompt = f"Decisão de Arquitetura: {json.dumps(request.architecture_decision)}"
-        
-        resp = self.gateway.generate(prompt, system_prompt=system_prompt)
+        import asyncio
+        resp = asyncio.run(self.gateway.generate(prompt, system_prompt=system_prompt))
         content = "pandas\n" # fallback
-        if resp.get("success"):
-            content = resp.get("text", "").strip()
+        if resp and getattr(resp, "content", None):
+            content = resp.content.strip()
             # Limpa blocos de código se o LLM ignorar a instrução
             if content.startswith("```"):
                 lines = content.split('\n')

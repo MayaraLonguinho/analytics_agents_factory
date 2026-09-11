@@ -1,15 +1,17 @@
 """
 LLM Gateway - Google Provider
 Provider específico para Google (Gemini)
+LLM Gateway - Gemini Provider
+Provider específico para Gemini
 """
 
 from typing import Dict, Any, Optional, AsyncGenerator
 from ...f_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 
 
-class GoogleProvider(BaseLLMProvider):
+class GeminiProvider(BaseLLMProvider):
     """
-    Provider específico para Google.
+    Provider específico para Gemini.
     
     Implementa a interface base para comunicação com os modelos Gemini.
     Estrutura preparada para futura implementação.
@@ -17,7 +19,7 @@ class GoogleProvider(BaseLLMProvider):
     
     def __init__(self, config: Dict[str, Any]):
         """
-        Inicializa o Provider Google.
+        Inicializa o Provider Gemini.
         
         Args:
             config: Configuração do Provider
@@ -51,8 +53,25 @@ class GoogleProvider(BaseLLMProvider):
         Returns:
             LLMResponse: Resposta do modelo
         """
-        # TODO: Implementar chat com Google
-        raise NotImplementedError("Google Provider ainda não implementado")
+        # TODO: Implementar chat com Gemini
+        raise NotImplementedError("Gemini Provider ainda não implementado")
+
+    async def structured_output(self, prompt: str, model: str, schema: Dict[str, Any], **kwargs) -> LLMResponse:
+        """Gera resposta estruturada (mock para compatibilidade)."""
+        try:
+            # Em um cenário real, usaria-se a tipagem estruturada do SDK do Gemini
+            # Simplificado para evitar quebra da interface
+            response = await self._client.generate_content_async(
+                contents=f"{prompt}\nReturn JSON matching schema: {schema}",
+                generation_config={"response_mime_type": "application/json"}
+            )
+            return LLMResponse(
+                content=response.text,
+                model=model,
+                provider="gemini"
+            )
+        except Exception as e:
+            raise RuntimeError(f"Erro na resposta estruturada Gemini: {e}")
     
     async def embeddings(self, text: str, model: str, **kwargs) -> list:
         """

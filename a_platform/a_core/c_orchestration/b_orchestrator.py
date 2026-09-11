@@ -26,16 +26,17 @@ logger = logging.getLogger(__name__)
 
 class MasterOrchestrator:
     def __init__(self):
+        from a_platform.g_llm_gateway.e_gateway import LLMGateway
+        self.gateway = LLMGateway()
+
         self.state_manager = None
         self.mcp = MCPExecutor()
-        self.discovery_agent = DiscoveryAgent()
+        self.discovery_agent = DiscoveryAgent(gateway=self.gateway)
         self.dataset_profiler = DatasetProfilingSkill()
         self.brain = Brain()
         self.graph_builder = GraphBuilder()
         
         # Initialize gateway for ArchitectureAgent
-        from a_platform.g_llm_gateway.e_gateway import LLMGateway
-        self.gateway = LLMGateway()
         self.architecture_agent = ArchitectureAgent(self.gateway)
         
         self.domain_registry = DomainRegistry()

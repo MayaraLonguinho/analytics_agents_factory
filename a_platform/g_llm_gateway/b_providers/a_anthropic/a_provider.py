@@ -54,6 +54,25 @@ class AnthropicProvider(BaseLLMProvider):
         # TODO: Implementar chat com Anthropic
         raise NotImplementedError("Anthropic Provider ainda não implementado")
     
+    async def structured_output(self, prompt: str, model: str, schema: Dict[str, Any], **kwargs) -> LLMResponse:
+        """Gera resposta estruturada (mock para compatibilidade)."""
+        try:
+            response = await self._client.messages.create(
+                model=model,
+                messages=[{"role": "user", "content": f"{prompt}\nReturn JSON matching schema: {schema}"}],
+                max_tokens=kwargs.get("max_tokens", 1024),
+                **{k: v for k, v in kwargs.items() if k not in ["max_tokens"]}
+            )
+            return LLMResponse(
+                content=response.content[0].text,
+                model=model,
+                provider="anthropic",
+                tokens_used=response.usage.input_tokens + response.usage.output_tokens,
+                finish_reason=response.stop_reason
+            )
+        except Exception as e:
+            raise RuntimeError(f"Erro na resposta estruturada Anthropic: {e}")
+    
     async def embeddings(self, text: str, model: str, **kwargs) -> list:
         """
         Gera embeddings para um texto.

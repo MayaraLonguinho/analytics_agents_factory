@@ -52,7 +52,7 @@ class ArchitectureAgent:
         
         response = await self.gateway.structured_output(prompt=prompt, schema=schema)
         
-        if not response.success:
+        if not response or not getattr(response, "content", None):
             return False
             
         if isinstance(response.content, dict):

@@ -4,7 +4,7 @@ import sys
 from unittest.mock import patch, MagicMock
 import a_platform.a_core.c_orchestration.state_manager as sm
 
-# Mocking LLMGateway entirely to avoid ollama imports
+# Mocking LLMGateway entirely to avoid LLM imports
 sys.modules['a_platform.g_llm_gateway.gateway'] = MagicMock()
 sys.modules['a_platform.d_agents.agent_factory'] = MagicMock()
 sys.modules['a_platform.h_factory.a_project_factory.project_factory'] = MagicMock()

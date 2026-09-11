@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from .d_configuration.a_settings import LLMGatewayConfig
 from .f_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
-from .b_providers import AnthropicProvider, GoogleProvider, OllamaProvider, OpenAIProvider, get_provider_registry
+from .b_providers import AnthropicProvider, GeminiProvider, OpenAIProvider, get_provider_registry
 from .b_providers.e_registry import ProviderRegistry
 from .g_routing.a_router import ModelRouter
 
@@ -24,10 +24,9 @@ class LLMGateway:
     def _initialize_providers(self) -> None:
         provider_defs = self.config.providers
         provider_map = {
-            "ollama": OllamaProvider,
             "openai": OpenAIProvider,
             "anthropic": AnthropicProvider,
-            "google": GoogleProvider,
+            "gemini": GeminiProvider,
         }
 
         for name, cfg in provider_defs.items():
@@ -38,13 +37,6 @@ class LLMGateway:
                 continue
             provider = provider_cls(cfg)
             self.e_registry.register_provider(name, provider, cfg)
-
-        if "ollama" not in self.e_registry.list_providers():
-            self.e_registry.register_provider(
-                "ollama",
-                OllamaProvider({**provider_defs.get("ollama", {}), "enabled": True}),
-                provider_defs.get("ollama", {}),
-            )
 
     def route(self, provider: Optional[str] = None, model: Optional[str] = None):
         return self.router.route(provider=provider, model=model)
