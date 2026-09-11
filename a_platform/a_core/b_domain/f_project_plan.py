@@ -10,6 +10,7 @@ class Task:
     skills: List[str] = field(default_factory=list)
     mcps: List[str] = field(default_factory=list)
     dependencies: List[str] = field(default_factory=list)
+    inputs: List[str] = field(default_factory=list)
     expected_artifacts: List[str] = field(default_factory=list)
     commands: List[str] = field(default_factory=list)
     validators: List[str] = field(default_factory=list)

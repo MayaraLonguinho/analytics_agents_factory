@@ -28,26 +28,36 @@ class ProjectFactory:
         logger.info(f"[ProjectFactory] Iniciando montagem do projeto {request.project_id} ({plan.domain})")
         compiled_artifacts = []
         
-        # O Factory poderia fazer checagem topológica (DAG) aqui e despachar em ordem, 
-        # mas por simplicidade de POC iterativa (já que é sequencial local):
         for task in plan.tasks:
             logger.info(f"[ProjectFactory] Despachando task {task.id} para {task.agent}...")
             agent = self.agent_factory.get_agent(task.agent)
             
-            # Agent executa a task e devolve artefatos em memória
             task_artifacts = agent.execute_task(task, request)
             
             if not task_artifacts:
                 logger.warning(f"[ProjectFactory] O agente {task.agent} não gerou artefatos para a task {task.id}.")
             else:
                 compiled_artifacts.extend(task_artifacts)
-
-        # Adiciona artefatos universais (requirements.txt, etc.) gerados dinamicamente
-        reqs = self._generate_requirements(request)
-        if reqs:
-            compiled_artifacts.append(reqs)
+                
+            # Verifica se os artefatos esperados foram gerados
+            generated_names = {art.name for art in task_artifacts} if task_artifacts else set()
+            missing = set(task.expected_artifacts) - generated_names
             
-        # Validação Sintática
+            # Se for requirements.txt e estiver faltando, ignoramos por agora (pode ser gerado pelo LLM depois, ou a gente vai remover essa geração e depender apenas da task)
+            # Mas o request diz "requirements.txt deve ser derivado da arquitetura/skills realmente utilizadas."
+            # Então removemos a geração automática do requirements se as tasks falharem em gerar? 
+            # A geração automática ainda está em _generate_requirements se quisermos fallback LLM puro.
+            
+            if missing and missing != {"requirements.txt"}:
+                logger.error(f"[ProjectFactory] Task {task.id} falhou. Artefatos esperados não gerados: {missing}")
+                raise ValueError(f"Task {task.id} não gerou todos os artefatos esperados. Faltam: {missing}")
+
+        reqs = self._generate_requirements(request)
+        if reqs and reqs.content.strip():
+            # Só adiciona se a task não tiver gerado explicitamente
+            if not any(art.name == "requirements.txt" for art in compiled_artifacts):
+                compiled_artifacts.append(reqs)
+            
         for artifact in compiled_artifacts:
             if not self._validate_syntax(artifact):
                 logger.error(f"[ProjectFactory] Artefato gerado falhou na validação de sintaxe: {artifact.name}")
@@ -92,10 +102,10 @@ class ProjectFactory:
         prompt = f"Decisão de Arquitetura: {json.dumps(request.architecture_decision)}"
         import asyncio
         resp = asyncio.run(self.gateway.generate(prompt, system_prompt=system_prompt))
-        content = "pandas\n" # fallback
+        
+        content = ""
         if resp and getattr(resp, "content", None):
             content = resp.content.strip()
-            # Limpa blocos de código se o LLM ignorar a instrução
             if content.startswith("```"):
                 lines = content.split('\n')
                 if len(lines) > 2:
