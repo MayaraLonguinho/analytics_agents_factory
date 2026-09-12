@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from a_platform.c_brain.e_memory.n_schemas import MemoryStatistics
+from a_platform.c_brain.e_memory.b_memory_schema import MemoryStatistics
 
 class InMemoryStorage:
     def __init__(self, max_size_mb: Optional[int] = None):

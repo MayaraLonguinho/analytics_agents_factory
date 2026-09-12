@@ -2,7 +2,7 @@
 Sistema de memória do Brain do Analytics AI Factory.
 """
 
-from .f_interfaces import (
+from .k_interfaces import (
     IArchitectureMemory,
     IConversationMemory,
     IExecutionMemory,

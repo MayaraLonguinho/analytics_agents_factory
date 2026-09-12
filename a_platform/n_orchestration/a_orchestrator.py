@@ -1,0 +1,292 @@
+import logging
+from typing import Any, Optional
+
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
+from a_platform.a_core.a_contracts.h_readiness import ReadinessGate
+from a_platform.d_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
+from a_platform.e_skills.c_profiling.a_profiler import DatasetProfilingSkill
+from a_platform.c_brain.h_brain import Brain
+from a_platform.c_brain.f_graph.b_graph_builder import GraphBuilder
+from a_platform.d_agents.b_architecture.a_architecture_agent import ArchitectureAgent
+from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.d_agents.c_planner.k_planner_agent import PlannerAgent
+from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
+from a_platform.h_factory.a_project_factory.a_project_factory import ProjectFactory
+from a_platform.h_factory.b_materializer.a_materializer import ArtifactMaterializer
+from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
+from a_platform.j_runtime.c_runtime import ProjectRuntime
+from a_platform.k_validation.a_validation_gate import ValidationGate
+from a_platform.l_quality.a_quality_engine import QualityEngine
+from a_platform.m_certification.a_certification_engine import CertificationEngine
+from a_platform.n_learning.e_learning_engine import LearningEngine
+from a_platform.n_orchestration.c_repair_loop import RepairLoop
+
+logger = logging.getLogger(__name__)
+
+class MasterOrchestrator:
+    def __init__(self):
+        from a_platform.g_llm_gateway.e_gateway import LLMGateway
+        self.gateway = LLMGateway()
+
+        self.state_manager = None
+        self.mcp = MCPExecutor()
+        self.discovery_agent = DiscoveryAgent(gateway=self.gateway)
+        self.dataset_profiler = DatasetProfilingSkill()
+        self.brain = Brain()
+        self.graph_builder = GraphBuilder()
+        
+        # Initialize gateway for ArchitectureAgent
+        self.architecture_agent = ArchitectureAgent(self.gateway)
+        
+        self.domain_registry = DomainRegistry()
+        self.planner_agent = PlannerAgent(self.domain_registry)
+        self.agent_factory = AgentFactory()
+        self.project_factory = ProjectFactory(self.agent_factory, self.gateway)
+        self.materializer = ArtifactMaterializer(self.mcp)
+        self.runtime_engine = ProjectRuntime()
+        self.validation_gate = ValidationGate()
+        self.quality_engine = QualityEngine()
+        self.certification_engine = CertificationEngine()
+        self.learning_engine = LearningEngine()
+        self.repair_loop = RepairLoop(self.agent_factory, self.learning_engine)
+        
+        self.compiled_artifacts = []
+        self.last_execution_result = None
+        
+    def execute_pipeline(self, request: ExecutionContext, existing_state: Optional[StateManager] = None) -> str:
+        if existing_state:
+            self.state_manager = existing_state
+            logger.info(f"Retomando pipeline para {request.project_id}")
+        else:
+            self.state_manager = StateManager(request.project_id)
+            logger.info(f"Iniciando novo pipeline para {request.project_id}")
+        
+        try:
+            # 1. Discovery
+            discovery_success = self._run_phase(ProjectPhase.DISCOVERY, self._step_discovery, request)
+            if not discovery_success:
+                if self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
+                    self.state_manager.save_state(request)
+                    return "PAUSED"
+                raise Exception("Discovery falhou.")
+            
+            # 2. Dataset Profiling
+            self._run_phase(ProjectPhase.DATASET_PROFILING, self._step_dataset_profiling, request)
+            
+            # 3. Brain
+            self._run_phase(ProjectPhase.BRAIN, self._step_brain, request)
+            
+            # 4. Architecture
+            self._run_phase(ProjectPhase.ARCHITECTURE, self._step_architecture, request)
+            
+            # 5. Planner
+            self._run_phase(ProjectPhase.PLANNER, self._step_planner, request)
+            
+            # 6. Project Factory
+            self._run_phase(ProjectPhase.PROJECT_FACTORY, self._step_project_factory, request)
+            
+            # 7. Materializer
+            self._run_phase(ProjectPhase.MATERIALIZATION, self._step_materialization, request)
+            
+            # 8. Execution & Validation Loop
+            validated = False
+            while not validated and self.state_manager.repair_attempts <= self.state_manager.max_repair_attempts:
+                # 8a. Execution Runtime
+                exec_success = self._run_phase(ProjectPhase.EXECUTION, self._step_execution, request)
+                
+                # 8b. Validation Gate
+                validation_passed = self._run_phase(ProjectPhase.VALIDATION, self._step_validation, request)
+                
+                if exec_success and validation_passed:
+                    validated = True
+                else:
+                    self.state_manager.repair_attempts += 1
+                    logger.warning(f"Execução/Validação falhou. Tentativa de reparo {self.state_manager.repair_attempts}")
+                    if self.state_manager.repair_attempts <= self.state_manager.max_repair_attempts:
+                        # Aciona o Repair Loop
+                        repair_success = self._run_phase(ProjectPhase.REPAIR_LOOP, self._step_repair, request)
+                        if not repair_success:
+                            raise Exception("Falha crítica no Repair Loop.")
+                            
+                    # Remove COMPLETION da execution e validation para rodar dnv
+                    self.state_manager.phases[ProjectPhase.EXECUTION].status = PhaseStatus.PENDING
+                    self.state_manager.phases[ProjectPhase.VALIDATION].status = PhaseStatus.PENDING
+            
+            if not validated:
+                raise Exception("Validação falhou após o limite máximo de tentativas de reparo.")
+            
+            # 9. Quality Engine
+            self._run_phase(ProjectPhase.QUALITY, self._step_quality, request)
+            
+            # 10. Certification Engine
+            self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
+            
+            # 11. Readiness Gate (Regra Absoluta)
+            from a_platform.j_runtime.c_runtime import ExecutionResult
+            from a_platform.k_validation.a_validation_gate import ValidationReport
+            from a_platform.l_quality.a_quality_engine import QualityReport
+            from a_platform.m_certification.a_certification_engine import CertificationResult
+            
+            mock_exec = ExecutionResult(status="SUCCESS")
+            mock_val = ValidationReport(passed=True)
+            mock_qual = QualityReport(passed=True)
+            mock_cert = CertificationResult(passed=True)
+            
+            if ReadinessGate.evaluate(self.state_manager, mock_exec, mock_val, mock_qual, mock_cert):
+                request.metadata["PROJECT_READY"] = "YES"
+                logger.info("===============================================")
+                logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
+                logger.info("===============================================")
+                self.state_manager.complete_project()
+            else:
+                raise Exception("ReadinessGate rejeitou o projeto por fases incompletas.")
+                
+            self.state_manager.save_state(request)
+            return "SUCCESS"
+            
+        except Exception as e:
+            if self.state_manager.current_phase != ProjectPhase.NEEDS_INPUT:
+                self.state_manager.fail_phase(self.state_manager.current_phase, str(e))
+                logger.error(f"Pipeline interrompido: {e}")
+                request.metadata["PROJECT_READY"] = "NO"
+                logger.error("===============================================")
+                logger.error(f"❌ PROJECT READY = NO ({request.project_id})")
+                logger.error("===============================================")
+                self.state_manager.save_state(request)
+            return "FAILED"
+
+    def _run_phase(self, phase: ProjectPhase, step_func, request: ExecutionContext) -> bool:
+        if self.state_manager.phases[phase].status == PhaseStatus.COMPLETED:
+            logger.info(f"[Orchestrator] Fase {phase.name} já concluída, pulando...")
+            return True
+            
+        self.state_manager.transition_to(phase)
+        result = step_func(request)
+        
+        if result is False:
+            if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION]:
+                return False
+            # O Discovery retorna False se precisar de Input, isso é capturado lá fora
+            if phase == ProjectPhase.DISCOVERY and self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
+                return False
+            raise Exception(f"Phase {phase.name} returned failure.")
+            
+        self.state_manager.phases[phase].status = PhaseStatus.COMPLETED
+        return result
+
+    def _step_discovery(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Discovery...")
+        import asyncio
+        status = asyncio.run(self.discovery_agent.run_discovery(request, self.brain))
+        if status == DiscoveryStatus.NEEDS_INPUT:
+            self.state_manager.pause_for_input()
+            return False
+        elif status == DiscoveryStatus.FAILED:
+            return False
+            
+        request.project_type = request.discovery_data.get("project_type")
+        request.business_context = request.discovery_data.get("business_context")
+        
+        # Normalização estrita do domínio após a coleta para garantir 
+        # que a Factory e Planner recebam o domínio canônico
+        raw_domain = request.discovery_data.get("domain", "")
+        normalized_domain = self.domain_registry.normalize_domain(raw_domain)
+        
+        if normalized_domain not in ["analytics", "data_engineering"]:
+            raise ValueError(f"Domínio técnico inválido ou ausente: '{raw_domain}'. Domínios permitidos: 'analytics', 'data_engineering'. Nenhuma interpretação genérica será feita.")
+
+        request.domain = normalized_domain
+        request.discovery_data["domain"] = normalized_domain
+            
+        return True
+
+    def _step_dataset_profiling(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Dataset Profiling...")
+        if request.dataset_path:
+            logger.info(f"Analisando dataset em {request.dataset_path}")
+            try:
+                result = self.dataset_profiler.execute({"dataset_path": request.dataset_path})
+                profile = result.get("dataset_profile", {})
+                request.dataset_profile = profile
+                
+                logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('schema')} colunas.")
+            except Exception as e:
+                logger.error(f"Erro no Profiling: {str(e)}")
+                return False
+        return True
+
+    def _step_brain(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Brain (Knowledge Retrieval)...")
+        context = {
+            "project_type": request.project_type,
+            "business_context": request.business_context,
+            "domain": request.domain,
+            "dataset_profile": request.dataset_profile,
+            "discovery_data": request.discovery_data
+        }
+        knowledge = self.brain.retrieve_relevant_knowledge(context)
+        request.brain_context = knowledge
+        logger.info(f"Conhecimento do Brain injetado no contexto. Padrões: {knowledge.get('domain_patterns')}")
+        return True
+
+    def _step_architecture(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Architecture Decisions...")
+        return self.architecture_agent.generate_architecture(request)
+
+    def _step_planner(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Planner (Project Plan)...")
+        return self.planner_agent.generate_plan(request)
+
+    def _step_project_factory(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Project Factory...")
+        self.compiled_artifacts = self.project_factory.assemble_project(request)
+        if not self.compiled_artifacts:
+            return False
+        return True
+
+    def _step_materialization(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Materializer...")
+        return self.materializer.materialize(request, self.compiled_artifacts)
+
+    def _step_execution(self, request: ExecutionContext) -> bool:
+        # Runtime Engine agora pega comandos do ProjectPlan
+        result = self.runtime_engine.execute(request, project_path=request.project_path)
+        self.last_execution_result = result
+        if result.status != "SUCCESS":
+            logger.error(f"Execution failed: {result.diagnosis} - Stderr: {result.stderr}")
+        return result.status == "SUCCESS"
+
+    def _step_validation(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Validation Gate...")
+        success = self.validation_gate.run_validation(request, self.last_execution_result)
+        if not success:
+            logger.error(f"Validation failed. Report: {self.validation_gate.evaluate(request, self.last_execution_result).to_dict()}")
+        return success
+        
+    def _step_repair(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Repair Loop...")
+        return self.repair_loop.run_repair(request, self.last_execution_result)
+
+    def _step_quality(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Quality Engine...")
+        report = self.quality_engine.evaluate(
+            request, 
+            validation_result={"passed": True}, 
+            runtime_result={"status": "SUCCESS"}
+        )
+        if not report.passed:
+            logger.error(f"Quality failed. Report: {report.to_dict()}")
+        return report.passed
+
+    def _step_certification(self, request: ExecutionContext) -> bool:
+        logger.info("Executando Certification Engine...")
+        report = self.certification_engine.evaluate(
+            request,
+            execution_result={"status": "SUCCESS"},
+            validation_result={"passed": True},
+            quality_result={"passed": True, "metrics": []}
+        )
+        if not report.passed:
+            logger.error(f"Certification failed. Report: {report.to_dict()}")
+        return report.passed

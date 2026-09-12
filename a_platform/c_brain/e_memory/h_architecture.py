@@ -3,9 +3,9 @@ Architecture Memory - Implementação de memória de arquitetura
 """
 
 from typing import Any, Dict, List, Optional
-from ..f_interfaces import IArchitectureMemory
+from ..k_interfaces import IArchitectureMemory
 from a_platform.c_brain.e_memory.q_storage import InMemoryStorage
-from a_platform.c_brain.e_memory.n_schemas import (
+from a_platform.c_brain.e_memory.b_memory_schema import (
     MemoryEntry,
     MemoryType,
     DataType,

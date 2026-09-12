@@ -1,10 +1,10 @@
 import logging
 from typing import List, Dict, Any
 
-from a_platform.d_agents.h_base_agent import BaseAgent
-from a_platform.a_core.b_domain.f_project_plan import Task
-from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
-from a_platform.a_core.b_domain.a_artifact import Artifact
+from a_platform.d_agents.p_base.a_base_agent import BaseAgent
+from a_platform.a_core.a_contracts.f_project_plan import Task
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.a_artifact import Artifact
 
 logger = logging.getLogger(__name__)
 

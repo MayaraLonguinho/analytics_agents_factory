@@ -5,9 +5,9 @@ Short Term Memory - Implementação de memória de curto prazo
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 from uuid import uuid4
-from ..f_interfaces import IShortTermMemory
+from ..k_interfaces import IShortTermMemory
 from a_platform.c_brain.e_memory.q_storage import InMemoryStorage
-from a_platform.c_brain.e_memory.n_schemas import (
+from a_platform.c_brain.e_memory.b_memory_schema import (
     MemoryEntry,
     MemoryType,
     DataType,

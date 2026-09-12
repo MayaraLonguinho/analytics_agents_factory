@@ -1,8 +1,8 @@
 import logging
 from typing import Dict, Any
 
-from a_platform.e_skills.i_skill_contract import CORE_SKILL_CONTRACTS
-from a_platform.e_skills.b_dataset.a_profiling.a_dataset_profiler import DatasetProfilingSkill
+from a_platform.a_core.a_contracts.b_skill_contract import CORE_SKILL_CONTRACTS
+from a_platform.e_skills.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.e_skills.c_analytics.a_sql_generation import SqlGenerationSkill
 from a_platform.e_skills.d_data_engineering.a_etl_scripting import EtlScriptingSkill
 from a_platform.e_skills.e_development.b_basic_coding import BasicCodingSkill

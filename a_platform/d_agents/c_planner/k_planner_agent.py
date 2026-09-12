@@ -1,0 +1,165 @@
+import logging
+import json
+import re
+import asyncio
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan, Task
+from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.g_llm_gateway.e_gateway import LLMGateway
+
+logger = logging.getLogger(__name__)
+
+class PlannerAgent:
+    """
+    Transforma as Decisões de Arquitetura e restrições de Domínio em um ProjectPlan executável completo via LLM.
+    """
+    def __init__(self, registry: DomainRegistry):
+        self.registry = registry
+        self.gateway = LLMGateway()
+
+    def generate_plan(self, request: ExecutionContext) -> bool:
+        return asyncio.run(self._generate_plan_async(request))
+
+    async def _generate_plan_async(self, request: ExecutionContext) -> bool:
+        logger.info("[PlannerAgent] Iniciando estruturação do plano via LLM...")
+        
+        domain_name = request.domain
+        if domain_name not in ["analytics", "data_engineering"]:
+            logger.error(f"[PlannerAgent] Falha: Planner suporta apenas analytics e data_engineering. Recebido: {domain_name}")
+            return False
+            
+        domain_config = self.registry.get_domain_config(domain_name)
+        
+        allowed_agents = domain_config.get("agents", [])
+        allowed_skills = domain_config.get("skills", [])
+        allowed_mcps = domain_config.get("mcps", [])
+        
+        # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
+        from a_platform.c_brain.f_registry.d_knowledge_registry import KnowledgeRegistry
+        k_registry = KnowledgeRegistry()
+        learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
+        
+        learned_rules_text = ""
+        if learned_rules:
+            learned_rules_text = "\nATENÇÃO - LIÇÕES APRENDIDAS DE FALHAS ANTERIORES NESTE DOMÍNIO:\n"
+            for idx, rule in enumerate(learned_rules, 1):
+                learned_rules_text += f"{idx}. Padrão de Erro: {rule.get('pattern')} -> Recomendação: {rule.get('recommendation')}\n"
+        
+        system_prompt = (
+            "Você é o Planner Agent, um TPM e Arquiteto Técnico.\n"
+            "Sua tarefa é criar um plano de execução detalhado (DAG de tarefas) para a fábrica construir o projeto especificado.\n"
+            f"{learned_rules_text}\n"
+            "O plano DEVE ser de ponta a ponta (E2E), específico para o domínio do projeto e organizado rigorosamente nas seguintes camadas:\n"
+            "- **Data Layer:** Ingestão e pipeline ETL (agent: DataAgent, skills: [etl_scripting]). Artefatos obrigatórios: [pipeline.py ou etl.py].\n"
+            "- **Database Layer:** Schemas DDL, tabelas, relacionamentos (agent: DatabaseAgent, skills: [sql_generation]). Artefatos obrigatórios: [schema.sql ou init.sql].\n"
+            "- **Analytics Layer:** Queries analíticas, cálculo de métricas/KPIs (agent: AnalyticsAgent, skills: [sql_generation, basic_coding]). Artefatos obrigatórios: [kpi_queries.sql ou analytics.py].\n"
+            "- **Backend Layer:** API REST com rotas, schemas e serviços (agent: BackendAgent, skills: [api_design, basic_coding]). Artefatos obrigatórios: [rotas, schemas, app.py].\n"
+            "- **Frontend Layer:** Componentes UI/React, Dashboard interativo (agent: FrontendAgent, skills: [basic_coding]). Artefatos obrigatórios: [componentes, package.json].\n"
+            "- **Testing Layer:** Testes unitários e de integração com pytest (agent: TestingAgent, skills: [basic_coding]). Artefatos obrigatórios: [tests/test_*.py].\n"
+            "- **Infrastructure Layer:** Dockerfile, docker-compose.yml (agent: InfrastructureAgent, skills: [basic_coding]). Artefatos obrigatórios: [Dockerfile, docker-compose.yml].\n"
+            "- **Documentation Layer:** README.md (agent: DocumentationAgent, skills: [basic_coding]). Artefatos obrigatórios: [README.md].\n"
+            "\n"
+            "É OBRIGATÓRIO condicionar as capacidades às necessidades reais do projeto e Architecture Decision:\n"
+            "- Base mínima para ETL/Data Engineering: Data/ETL, Testing, Documentation, e Database APENAS quando necessário/solicitado.\n"
+            "- Base mínima para Analytics: Data/ETL, Analytics, Testing, Documentation, e Database APENAS quando necessário/solicitado.\n"
+            "- CONDICIONAIS: Dashboard, Backend, Frontend, Infrastructure/Docker APENAS devem ser incluídos se explicitamente escolhidos na Arquitetura ou Requisitos.\n"
+            "- NÃO OBRIGUE Backend, Frontend ou Dashboard em um projeto que não os solicitou.\n"
+            "Utilize SOMENTE os Agentes, Skills e MCPs permitidos. Cada tarefa DEVE ser associada a UM agente e pode chamar múltiplas skills válidas.\n"
+            "As tarefas devem seguir uma ordem lógica rigorosa sem ciclos. A dependência de uma tarefa deve listar os IDs exatos das tarefas anteriores que devem terminar primeiro.\n"
+            "MUITO IMPORTANTE: O array `expected_artifacts` DEVE listar explicitamente os nomes dos arquivos que a tarefa vai gerar (ex: `pipeline.py`). A fábrica falhará se não listá-los corretamente ou listar fictícios!\n"
+            "Retorne APENAS um JSON válido no formato:\n"
+            "{\n"
+            '  "tasks": [\n'
+            '    {\n'
+            '      "id": "t_1",\n'
+            '      "name": "Nome da Tarefa",\n'
+            '      "description": "O que fazer",\n'
+            '      "agent": "nome_do_agente",\n'
+            '      "skills": ["skill_1", "skill_2"],\n'
+            '      "mcps": ["mcp_1"],\n'
+            '      "dependencies": [],\n'
+            '      "expected_artifacts": ["app.py", "schema.sql"],\n'
+            '      "commands": ["comando1"],\n'
+            '      "validators": ["validator_pytest"]\n'
+            '    }\n'
+            '  ],\n'
+            '  "run_commands": ["Comandos finais para executar o projeto"]\n'
+            "}"
+        )
+        
+        prompt = (
+            f"Discovery Data: {json.dumps(request.discovery_data, ensure_ascii=False)}\n"
+            f"Dataset Profile: {json.dumps(request.dataset_profile, ensure_ascii=False)}\n"
+            f"Brain Context: {json.dumps(request.brain_context, ensure_ascii=False)}\n"
+            f"Architecture Decision: {json.dumps(request.architecture_decision, ensure_ascii=False)}\n"
+            f"Agentes Permitidos: {allowed_agents}\n"
+            f"Skills Permitidas: {allowed_skills}\n"
+            f"MCPs Permitidos: {allowed_mcps}\n"
+        )
+        
+        response = await self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
+        
+        if not response or not getattr(response, "content", None):
+            logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano")
+            return False
+            
+        text = str(response.content)
+        json_str = text
+        match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
+        if match:
+            json_str = match.group(1).strip()
+            
+        try:
+            data = json.loads(json_str)
+        except Exception as e:
+            logger.error(f"[PlannerAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
+            return False
+            
+        plan = ProjectPlan(
+            project_id=request.project_id,
+            domain=domain_name,
+            materializer=domain_config.get("materializers", ["generic_materializer"])[0]
+        )
+        
+        print(f"DEBUG DATA: {data}")
+        for t_data in data.get("tasks", []):
+            task = Task(
+                id=t_data.get("id"),
+                name=t_data.get("name"),
+                description=t_data.get("description"),
+                agent=t_data.get("agent"),
+                skills=t_data.get("skills", []),
+                mcps=t_data.get("mcps", []),
+                dependencies=t_data.get("dependencies", []),
+                expected_artifacts=t_data.get("expected_artifacts", []),
+                commands=t_data.get("commands", []),
+                validators=t_data.get("validators", [])
+            )
+            plan.add_task(task)
+            
+        plan.run_commands = data.get("run_commands", [])
+        
+        from a_platform.e_skills.j_skill_registry import SkillRegistry
+        from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
+        from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
+        from a_platform.k_validation.a_validation_gate import ValidationGate
+        
+        if not plan.tasks:
+            logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")
+            return False
+            
+        try:
+            plan.validate_full(
+                SkillRegistry(),
+                MCPRegistry(),
+                AgentFactory(),
+                ValidationGate()
+            )
+        except ValueError as e:
+            logger.error(f"[PlannerAgent] Validação profunda falhou: {e}")
+            return False
+            
+        request.project_plan = plan
+        
+        logger.info(f"[PlannerAgent] Plano estruturado com sucesso via LLM. Total de tarefas: {len(plan.tasks)}")
+        return True

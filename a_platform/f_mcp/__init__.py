@@ -5,7 +5,7 @@ Agents and Skills must go through this package instead of importing tool-specifi
 implementations directly.
 """
 
-from .f_mcp_registry import MCPDefinition, MCPRegistry
-from .a_mcp_executor import MCPExecutor
+from .d_registry.a_registry import MCPDefinition, MCPRegistry
+from .e_executor.a_executor import MCPExecutor
 
 __all__ = ["MCPDefinition", "MCPRegistry", "MCPExecutor"]

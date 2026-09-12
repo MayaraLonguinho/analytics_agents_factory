@@ -5,9 +5,9 @@ Execution Memory - Implementação de memória de execução
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 from datetime import datetime
-from ..f_interfaces import IExecutionMemory
+from ..k_interfaces import IExecutionMemory
 from a_platform.c_brain.e_memory.q_storage import InMemoryStorage
-from a_platform.c_brain.e_memory.n_schemas import (
+from a_platform.c_brain.e_memory.b_memory_schema import (
     MemoryEntry,
     MemoryType,
     DataType,

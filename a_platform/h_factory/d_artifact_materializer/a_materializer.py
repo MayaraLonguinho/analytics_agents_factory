@@ -1,9 +1,9 @@
 import logging
 import os
 from typing import List
-from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
-from a_platform.a_core.b_domain.a_artifact import Artifact
-from a_platform.f_mcp.a_mcp_executor import MCPExecutor
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
 

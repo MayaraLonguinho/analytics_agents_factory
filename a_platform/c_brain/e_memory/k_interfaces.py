@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Set
 from uuid import UUID
 
-from a_platform.c_brain.e_memory.n_schemas import (
+from a_platform.c_brain.e_memory.b_memory_schema import (
     MemoryConfig,
     MemoryQuery,
     MemoryStatistics,

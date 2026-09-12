@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
+from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.j_runtime.c_runtime import ExecutionResult
 
 @dataclass

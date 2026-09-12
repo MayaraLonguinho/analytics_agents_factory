@@ -2,9 +2,9 @@ import logging
 import json
 import ast
 from typing import List
-from a_platform.a_core.b_domain.i_execution_context import ExecutionContext
-from a_platform.a_core.b_domain.a_artifact import Artifact
-from a_platform.d_agents.g_agent_factory import AgentFactory
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)

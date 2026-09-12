@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from a_platform.e_skills.i_skill_contract import BaseSkill, SkillContract, CORE_SKILL_CONTRACTS
+from a_platform.a_core.a_contracts.b_skill_contract import BaseSkill, SkillContract, CORE_SKILL_CONTRACTS
 
 class GenericSkillImpl(BaseSkill):
     """Implementação genérica temporária para atender ao contrato sem quebrar a pipeline."""

@@ -4,9 +4,9 @@ Long Term Memory - Implementação de memória de longo prazo
 
 from typing import Any, Dict, List, Optional, Set
 from datetime import datetime, timedelta
-from ..f_interfaces import ILongTermMemory
+from ..k_interfaces import ILongTermMemory
 from a_platform.c_brain.e_memory.q_storage import InMemoryStorage
-from a_platform.c_brain.e_memory.n_schemas import (
+from a_platform.c_brain.e_memory.b_memory_schema import (
     MemoryEntry,
     MemoryType,
     DataType,

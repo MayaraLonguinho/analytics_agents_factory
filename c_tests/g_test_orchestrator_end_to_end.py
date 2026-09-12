@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from a_platform.a_core.c_orchestration.orchestrator import MasterOrchestrator
+from a_platform.n_orchestration.b_orchestrator import MasterOrchestrator
 
 
 def test_orchestrator_materializes_and_executes_real_project(tmp_path):
@@ -29,7 +29,7 @@ def test_orchestrator_materializes_and_executes_real_project(tmp_path):
     
     # Mock LLMGateway like we did in test_phase3_flow to avoid network calls
     from unittest.mock import patch
-    from a_platform.a_core.b_domain.architecture import ArchitectureDecision
+    from a_platform.a_core.a_contracts.architecture import ArchitectureDecision
 
     def mock_gateway_init(self, *args, **kwargs):
         pass
