@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.f_gate_contract import QualityReport
 
 
 @dataclass
@@ -20,16 +21,6 @@ class QualityMetric:
         return {"name": self.name, "score": self.score, "weight": self.weight, "details": self.details}
 
 
-@dataclass
-class QualityReport:
-    overall_status: str = "FAILED"
-    score: float = 0.0
-    passed: bool = False
-    metrics: List[QualityMetric] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"overall_status": self.overall_status, "score": self.score, "passed": self.passed, "metrics": [m.to_dict() for m in self.metrics], "metadata": self.metadata}
 
 
 class QualityEngine:

@@ -6,7 +6,7 @@ from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.l_quality.a_quality_engine import QualityEngine
 from a_platform.m_certification.a_certification_engine import CertificationEngine
 from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
-from a_platform.a_core.a_contracts.h_readiness import ReadinessGate
+from a_platform.a_core.a_contracts.f_gate_contract import ReadinessResult
 from a_platform.n_orchestration.c_repair_loop import RepairLoop
 
 def test_quality_and_certification():

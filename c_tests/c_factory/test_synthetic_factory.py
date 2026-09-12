@@ -1,10 +1,10 @@
 import os
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan, Task
-from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
+from a_platform.a_core.a_contracts.e_execution_contract import Artifact
 
 from a_platform.h_factory.a_project_factory.a_project_factory import ProjectFactory
-from a_platform.h_factory.b_materializer.a_materializer import ArtifactMaterializer
+from a_platform.h_factory.d_artifact_materializer.a_materializer import ArtifactMaterializer
 from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.f_mcp.e_executor.a_executor import MCPExecutor

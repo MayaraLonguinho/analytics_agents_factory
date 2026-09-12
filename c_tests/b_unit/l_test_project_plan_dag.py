@@ -1,5 +1,5 @@
 import pytest
-from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan, Task
+from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
 
 def test_valid_dag():
     plan = ProjectPlan(project_id="p1", domain="analytics")

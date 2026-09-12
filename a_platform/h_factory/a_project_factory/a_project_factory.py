@@ -3,7 +3,7 @@ import json
 import ast
 from typing import List
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.a_core.a_contracts.e_execution_contract import Artifact
 from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 

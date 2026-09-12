@@ -1,15 +1,37 @@
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
-class Project(BaseModel):
-    """Canonical project definition resulting from planning and generation."""
+class ProjectRequest(BaseModel):
     project_id: str
-    name: str
-    domain: str
-    status: str = "REQUESTED"
-    request: str = ""
-    description: str = ""
+    prompt: str
+    dataset_path: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    artifacts: List[str] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DiscoveryResult(BaseModel):
+    project_id: str
+    business_context: str = ""
+    domain: str = ""
+    dataset_profile: Dict[str, Any] = Field(default_factory=dict)
+    assumptions: List[str] = Field(default_factory=list)
+
+class ArchitectureDecision(BaseModel):
+    project_id: str
+    decision: Dict[str, Any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class ProjectTask(BaseModel):
+    task_id: str
+    name: str
+    description: str = ""
+    assigned_agent: Optional[str] = None
+    required_skills: List[str] = Field(default_factory=list)
+    status: str = "PENDING"
+    dependencies: List[str] = Field(default_factory=list)
+
+class ProjectPlan(BaseModel):
+    project_id: str
+    tasks: List[ProjectTask] = Field(default_factory=list)
+    status: str = "PENDING"
+
+Task = ProjectTask

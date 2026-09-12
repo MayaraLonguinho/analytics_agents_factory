@@ -1,7 +1,7 @@
 # pyrefly: ignore [missing-import]
 import pytest
 from unittest.mock import MagicMock
-from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan, Task
+from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
 
 def get_mocks():
     skill_registry = MagicMock()

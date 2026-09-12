@@ -8,7 +8,7 @@ from .f_registry.f_pattern_registry import PatternRegistry
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
 from a_platform.e_skills.j_skill_registry import SkillRegistry
-from a_platform.d_agents.j_registry import AgentRegistry
+from a_platform.d_agents.n_registry.a_registry import AgentRegistry
 
 logger = logging.getLogger(__name__)
 

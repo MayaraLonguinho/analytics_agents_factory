@@ -9,27 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.e_execution_contract import ExecutionResult
 
-@dataclass
-class ExecutionResult:
-    status: str = "UNKNOWN"
-    exit_code: int = -1
-    commands: List[str] = field(default_factory=list)
-    stdout: str = ""
-    stderr: str = ""
-    diagnosis: str = ""
-    duration: float = 0.0
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "status": self.status,
-            "exit_code": self.exit_code,
-            "commands": self.commands,
-            "stdout": self.stdout,
-            "stderr": self.stderr,
-            "diagnosis": self.diagnosis,
-            "duration": self.duration,
-        }
 
 
 class ProjectRuntime:

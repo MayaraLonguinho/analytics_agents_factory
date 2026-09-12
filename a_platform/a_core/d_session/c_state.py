@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Dict, Any
 
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan, Task
+from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
 
 logger = logging.getLogger(__name__)
 

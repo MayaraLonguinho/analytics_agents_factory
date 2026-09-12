@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-from .f_agent_contract import AgentContract, AgentCapability
+from a_platform.a_core.a_contracts.a_agent_contract import AgentContract, AgentCapability
 
 
 class AgentRegistry:

@@ -7,17 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.a_core.a_contracts.f_gate_contract import CertificationResult
 
-@dataclass
-class CertificationResult:
-    passed: bool = False
-    status: str = "FAILED"
-    score: float = 0.0
-    details: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"passed": self.passed, "status": self.status, "score": self.score, "details": self.details, "metadata": self.metadata}
 
 
 class CertificationEngine:

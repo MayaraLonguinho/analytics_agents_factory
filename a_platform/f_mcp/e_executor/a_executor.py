@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .d_registry.a_registry import MCPDefinition, MCPRegistry
+from a_platform.f_mcp.d_registry.a_registry import MCPDefinition, MCPRegistry
 
 
 class MCPExecutor:

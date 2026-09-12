@@ -2,7 +2,7 @@
 from unittest.mock import patch, MagicMock
 from a_platform.k_validation.a_validation_gate import ValidationGate
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.f_project_plan import ProjectPlan
+from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan
 from a_platform.j_runtime.c_runtime import ProjectRuntime
 from a_platform.l_quality.a_quality_engine import QualityEngine
 

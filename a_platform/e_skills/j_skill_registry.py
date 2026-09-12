@@ -3,8 +3,8 @@ from typing import Dict, Any
 
 from a_platform.a_core.a_contracts.b_skill_contract import CORE_SKILL_CONTRACTS
 from a_platform.e_skills.c_profiling.a_profiler import DatasetProfilingSkill
-from a_platform.e_skills.c_analytics.a_sql_generation import SqlGenerationSkill
-from a_platform.e_skills.d_data_engineering.a_etl_scripting import EtlScriptingSkill
+from a_platform.e_skills.d_analytics.a_sql_generation import SqlGenerationSkill
+from a_platform.e_skills.b_data_engineering.a_etl_scripting import EtlScriptingSkill
 from a_platform.e_skills.e_development.b_basic_coding import BasicCodingSkill
 from a_platform.e_skills.e_development.a_api_design import ApiDesignSkill
 from a_platform.e_skills.e_development.f_consolidation_skills import (

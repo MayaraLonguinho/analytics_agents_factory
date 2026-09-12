@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Any, Dict, List
 from enum import Enum
+from a_platform.a_core.a_contracts.d_project_contract import ArchitectureDecision
 
 class MemoryType(str, Enum):
     SHORT_TERM = "short_term"
@@ -39,9 +40,6 @@ class SkillResult(BaseModel):
     skill: str
     result: Any
 
-class ArchitectureDecision(BaseModel):
-    project_id: str
-    decision: Dict[str, Any]
 
 class ArchitectureEntry(BaseModel):
     project_id: str

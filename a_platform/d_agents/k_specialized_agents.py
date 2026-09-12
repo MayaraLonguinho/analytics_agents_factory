@@ -2,9 +2,9 @@ import logging
 from typing import List, Dict, Any
 
 from a_platform.d_agents.p_base.a_base_agent import BaseAgent
-from a_platform.a_core.a_contracts.f_project_plan import Task
+from a_platform.a_core.a_contracts.d_project_contract import ProjectTask as Task
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.a_core.a_contracts.e_execution_contract import Artifact
 
 logger = logging.getLogger(__name__)
 

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.j_runtime.c_runtime import ExecutionResult
+from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport
 
 @dataclass
 class ValidationCheck:
@@ -25,22 +26,6 @@ class ValidationCheck:
         }
 
 
-@dataclass
-class ValidationReport:
-    status: str = "NOT_EXECUTED"
-    passed: bool = False
-    checks: List[ValidationCheck] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "status": self.status,
-            "passed": self.passed,
-            "checks": [item.to_dict() for item in self.checks],
-            "errors": self.errors,
-            "metadata": self.metadata,
-        }
 
 
 class ValidationGate:

@@ -5,9 +5,9 @@ from a_platform.d_agents.k_specialized_agents import (
     DataAgent, DatabaseAgent, AnalyticsAgent, TestingAgent, InfrastructureAgent
 )
 TestingAgent.__test__ = False
-from a_platform.a_core.a_contracts.f_project_plan import Task
+from a_platform.a_core.a_contracts.d_project_contract import ProjectTask as Task
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.a_artifact import Artifact
+from a_platform.a_core.a_contracts.e_execution_contract import Artifact
 
 @pytest.fixture
 def mock_request():
