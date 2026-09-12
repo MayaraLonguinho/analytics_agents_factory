@@ -20,7 +20,7 @@ Consumable by:
 """
 
 from .h_brain import Brain
-from .g_graph.b_graph_builder import GraphBuilder
+
 
 __all__ = [
     "Brain",

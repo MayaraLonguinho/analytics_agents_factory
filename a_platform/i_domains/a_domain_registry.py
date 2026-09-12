@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 class DomainRegistry:
     def __init__(self, registry_path: str = None):
         if registry_path is None:
-            registry_path = os.path.join(os.path.dirname(__file__), "registry.yaml")
+            registry_path = os.path.join(
+                os.path.dirname(__file__), 
+                'b_domains.yaml'
+            )
         
         self.registry_path = registry_path
         self.domains = {}

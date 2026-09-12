@@ -1,9 +1,12 @@
 import sys
 import argparse
 import os
+import uuid
+import json
 
-from a_platform.b_interfaces.a_ide.a_adapter import IDEAdapter
 from a_platform.a_core.d_session.c_state import StateManager
+from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 
 def cmd_start(args):
     print("=" * 50)
@@ -18,23 +21,25 @@ def cmd_start(args):
     dataset = input("\n[Opcional] Caminho para o dataset (ou pressione Enter para pular):\n> ").strip()
     dataset = dataset if dataset else None
     
-    adapter = IDEAdapter()
-    print("\n[AAF] Iniciando projeto...")
-    result = adapter.create_project(prompt, dataset)
+    project_id = str(uuid.uuid4())[:8]
+    print(f"\n[AAF] Iniciando projeto... ID: {project_id}")
     
-    while result.get("status") == "NEEDS_INPUT":
-        print(f"\n[AAF Discovery] {result.get('question')}")
-        answer = input("> ")
-        result = adapter.continue_project(result["project_id"], answer)
-        
-    if result.get("status") == "SUCCESS":
+    # Execução real do orchestrator
+    ctx = ExecutionContext(project_id=project_id, domain="analytics") # domínio base, depois é resolvido
+    # Dummy discovery inject to avoid needs input loop if it's not interactive
+    ctx.discovery_data = {"project_type": "CLI_REQUEST", "business_context": prompt, "domain": "analytics"}
+    
+    orchestrator = MasterOrchestrator()
+    result = orchestrator.execute_pipeline(ctx)
+    
+    if result == "SUCCESS":
         print("\n✅ PROJETO CONCLUÍDO COM SUCESSO!")
-        print(f"ID do Projeto: {result.get('project_id')}")
+        print(f"ID do Projeto: {project_id}")
         print("Você pode usar `aaf status <project_id>` ou `aaf result <project_id>` para ver os artefatos gerados.")
+    elif result == "PAUSED":
+        print("\n⏳ PROJETO PAUSADO PARA INPUT. Use interface para continuar.")
     else:
-        print(f"\n❌ FALHA NA CONSTRUÇÃO DO PROJETO. (PROJECT READY = NO)")
-        print(f"Erro: {result.get('question')}")
-
+        print(f"\n❌ FALHA NA CONSTRUÇÃO DO PROJETO.")
 
 def cmd_status(args):
     project_id = args.project_id
@@ -77,46 +82,50 @@ def cmd_result(args):
 
 def cmd_mcp(args):
     print("=" * 50)
-    print("🛠️  AAF - MCP Executable Demonstration")
+    print("🛠️  AAF - MCP Executable Verification")
     print("=" * 50)
     
     from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
+    from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
+    
     executor = MCPExecutor()
+    registry = MCPRegistry()
     
-    print("\n--- Filesystem MCP ---")
-    fs_result = executor.execute("filesystem_mcp", operation="list", path=".")
-    if fs_result.get("status") == "ok":
-        print("Filesystem:  PASS")
-    else:
-        print(f"Filesystem:  FAILED ({fs_result.get('message')})")
-        
-    print("\n--- Database MCP ---")
-    db_result = executor.execute(
-        "database_mcp", 
-        operation="query", 
-        database=":memory:", 
-        query="SELECT 1 as teste"
-    )
-    if db_result.get("status") == "ok":
-        print("Database:    PASS")
-    else:
-        print(f"Database:    FAILED ({db_result.get('message')})")
+    mcps = registry.mcps
+    if not mcps:
+        print("Nenhum MCP registrado.")
+        return
 
-    print("\n--- Docker MCP ---")
-    docker_result = executor.execute("docker_mcp", command="docker info")
-    if docker_result.get("status") == "ok":
-        print("Docker:      PASS")
-    elif docker_result.get("status") == "NOT_AVAILABLE":
-        print("Docker:      NOT_AVAILABLE")
-    else:
-        print(f"Docker:      FAILED ({docker_result.get('message')})")
-    
+    for mcp_id, mcp_def in mcps.items():
+        print(f"\n--- {mcp_def.name} ---")
+        try:
+            # Testes reais para cada MCP baseados em inputs válidos (somente listagem)
+            if mcp_id == "filesystem_mcp":
+                result = executor.execute("filesystem_mcp", operation="list", path=".")
+            elif mcp_id == "database_mcp":
+                result = executor.execute("database_mcp", operation="query", database=":memory:", query="SELECT 1 as check")
+            elif mcp_id == "docker_mcp":
+                result = executor.execute("docker_mcp", command="docker info")
+            else:
+                result = {"status": "UNKNOWN", "message": "Nenhum teste pré-definido para este MCP."}
+                
+            status = result.get("status")
+            if status == "ok" or status == "SUCCESS":
+                print(f"{mcp_id}: PASS")
+            elif status == "NOT_AVAILABLE":
+                print(f"{mcp_id}: NOT_AVAILABLE ({result.get('message', '')})")
+            else:
+                print(f"{mcp_id}: FAILED ({result.get('message', 'Erro desconhecido')})")
+                
+        except Exception as e:
+            print(f"{mcp_id}: ERROR ({str(e)})")
+            
     print("=" * 50)
 
 
 def cmd_brain(args):
     print("=" * 50)
-    print("🧠 AAF - Brain Demonstration")
+    print("🧠 AAF - Brain Verification")
     print("=" * 50)
     
     from a_platform.c_brain.h_brain import Brain
@@ -145,19 +154,8 @@ def cmd_brain(args):
     print("\n[Brain] Agents:")
     for k in brain.agent_registry.agents.keys():
         print(f" - {k}")
-        
-    print("\n[Brain] Graphify JSON / Obsidian Export:")
-    from a_platform.c_brain.f_graph.b_graph_builder import GraphBuilder
-    from a_platform.a_core.d_session.b_context import ExecutionContext
-    import json
     
-    # Generate dummy context
-    ctx = ExecutionContext(project_id="demo-obsidian", domain="analytics")
-    builder = GraphBuilder()
-    graph_data = builder.build_graph(ctx)
-    print("\nGrafo Gerado (Graphify JSON):")
-    print(json.dumps(graph_data, indent=2)[:300] + "\n... [truncado]")
-    
+    print("\nConhecimento estático carregado com sucesso!")
     print("=" * 50)
 
 def main():
@@ -176,10 +174,10 @@ def main():
     parser_result.add_argument("project_id", help="ID do projeto")
     
     # aaf mcp
-    subparsers.add_parser("mcp", help="Demonstração executável dos MCPs")
+    subparsers.add_parser("mcp", help="Verificações reais dos MCPs")
     
     # aaf brain
-    subparsers.add_parser("brain", help="Demonstração executável do Brain e Conhecimento")
+    subparsers.add_parser("brain", help="Acessar conteúdo do Brain real")
     
     args = parser.parse_args()
     

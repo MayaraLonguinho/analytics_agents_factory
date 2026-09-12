@@ -7,7 +7,7 @@ from a_platform.a_core.a_contracts.f_gate_contract import ReadinessResult
 from a_platform.d_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.e_skills.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain.h_brain import Brain
-from a_platform.c_brain.f_graph.b_graph_builder import GraphBuilder
+
 from a_platform.d_agents.b_architecture.a_architecture_agent import ArchitectureAgent
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.d_agents.c_planner.k_planner_agent import PlannerAgent
@@ -33,9 +33,8 @@ class MasterOrchestrator:
         self.mcp = MCPExecutor()
         self.discovery_agent = DiscoveryAgent(gateway=self.gateway)
         self.dataset_profiler = DatasetProfilingSkill()
+
         self.brain = Brain()
-        self.graph_builder = GraphBuilder()
-        
         # Initialize gateway for ArchitectureAgent
         self.architecture_agent = ArchitectureAgent(self.gateway)
         

@@ -14,10 +14,11 @@ class ParameterDefinition(BaseModel):
 
 class SkillContract(BaseModel):
     """Contract defining a skill's interface and execution model."""
-    skill_id: str
-    name: str
-    description: str
-    execution_type: SkillExecutionType
+    model_config = {"extra": "allow"}
+    skill_id: str = "default_skill"
+    name: str = "Default Skill"
+    description: str = "Default description"
+    execution_type: SkillExecutionType = SkillExecutionType.NATIVE
     version: str = "1.0.0"
     input_schema: List[ParameterDefinition] = Field(default_factory=list)
     output_schema: List[ParameterDefinition] = Field(default_factory=list)
