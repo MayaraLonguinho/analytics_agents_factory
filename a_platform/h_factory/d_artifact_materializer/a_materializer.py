@@ -27,6 +27,7 @@ class ArtifactMaterializer:
             
         domain = request.discovery_data.get("domain", "analytics").lower()
         project_dir = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id)
+        request.project_path = project_dir
         
         logger.info(f"[ArtifactMaterializer] Iniciando materialização em: {project_dir}")
         

@@ -34,6 +34,7 @@ class Gates:
 class ExecutionContext:
     project_id: str = "proj_default"
     prompt: str = ""
+    dataset_path: Optional[str] = None
     
     # Context
     project_type: Optional[str] = None
@@ -41,6 +42,11 @@ class ExecutionContext:
     domain: Optional[str] = None
     dataset_profile: Dict[str, Any] = field(default_factory=dict)
     architecture_decision: Dict[str, Any] = field(default_factory=dict)
+    discovery_data: Dict[str, Any] = field(default_factory=dict)
+    artifacts: List[Any] = field(default_factory=list)
+    project_path: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    graph_representation: Dict[str, Any] = field(default_factory=dict)
     
     # Knowledge
     brain_context: Dict[str, Any] = field(default_factory=dict)

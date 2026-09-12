@@ -10,7 +10,7 @@ class GenericSkillImpl(BaseSkill):
     def get_contract(self) -> SkillContract:
         return CORE_SKILL_CONTRACTS[self.skill_id]
 
-    def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         contract = self.get_contract()
         # Stub implementation that returns a fake artifact string
         artifact_name = f"{self.skill_id}_output.txt"

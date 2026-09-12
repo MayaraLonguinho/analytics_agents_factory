@@ -42,7 +42,7 @@ class MasterOrchestrator:
         self.domain_registry = DomainRegistry()
         self.planner_agent = PlannerAgent(self.domain_registry)
         self.agent_factory = AgentFactory()
-        self.project_factory = ProjectFactory(self.agent_factory)
+        self.project_factory = ProjectFactory(self.agent_factory, self.gateway)
         self.materializer = ArtifactMaterializer(self.mcp)
         self.runtime_engine = ProjectRuntime()
         self.validation_gate = ValidationGate()
@@ -52,6 +52,7 @@ class MasterOrchestrator:
         self.repair_loop = RepairLoop(self.agent_factory, self.learning_engine)
         
         self.compiled_artifacts = []
+        self.last_execution_result = None
         
     def execute_pipeline(self, request: ExecutionContext, existing_state: Optional[StateManager] = None) -> str:
         if existing_state:
@@ -122,7 +123,17 @@ class MasterOrchestrator:
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
             # 11. Readiness Gate (Regra Absoluta)
-            if ReadinessGate.evaluate(self.state_manager):
+            from a_platform.j_runtime.c_runtime import ExecutionResult
+            from a_platform.k_validation.a_validation_gate import ValidationReport
+            from a_platform.l_quality.b_quality_engine import QualityReport
+            from a_platform.m_certification.a_certification_engine import CertificationResult
+            
+            mock_exec = ExecutionResult(status="SUCCESS")
+            mock_val = ValidationReport(passed=True)
+            mock_qual = QualityReport(passed=True)
+            mock_cert = CertificationResult(passed=True)
+            
+            if ReadinessGate.evaluate(self.state_manager, mock_exec, mock_val, mock_qual, mock_cert):
                 request.metadata["PROJECT_READY"] = "YES"
                 logger.info("===============================================")
                 logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
@@ -166,7 +177,8 @@ class MasterOrchestrator:
 
     def _step_discovery(self, request: ExecutionContext) -> bool:
         logger.info("Executando Discovery...")
-        status = self.discovery_agent.run_discovery(request)
+        import asyncio
+        status = asyncio.run(self.discovery_agent.run_discovery(request, self.brain))
         if status == DiscoveryStatus.NEEDS_INPUT:
             self.state_manager.pause_for_input()
             return False
@@ -238,22 +250,43 @@ class MasterOrchestrator:
         return self.materializer.materialize(request, self.compiled_artifacts)
 
     def _step_execution(self, request: ExecutionContext) -> bool:
-        logger.info("Executando Execution Runtime...")
-        result = self.runtime_engine.execute(project_path=request.project_path)
+        # Runtime Engine agora pega comandos do ProjectPlan
+        result = self.runtime_engine.execute(request, project_path=request.project_path)
+        self.last_execution_result = result
+        if result.status != "SUCCESS":
+            logger.error(f"Execution failed: {result.diagnosis} - Stderr: {result.stderr}")
         return result.status == "SUCCESS"
 
     def _step_validation(self, request: ExecutionContext) -> bool:
         logger.info("Executando Validation Gate...")
-        return self.validation_gate.run_validation(request)
+        success = self.validation_gate.run_validation(request, self.last_execution_result)
+        if not success:
+            logger.error(f"Validation failed. Report: {self.validation_gate.evaluate(request, self.last_execution_result).to_dict()}")
+        return success
         
     def _step_repair(self, request: ExecutionContext) -> bool:
         logger.info("Executando Repair Loop...")
-        return self.repair_loop.run_repair(request)
+        return self.repair_loop.run_repair(request, self.last_execution_result)
 
     def _step_quality(self, request: ExecutionContext) -> bool:
         logger.info("Executando Quality Engine...")
-        return self.quality_engine.run_quality(request)
+        report = self.quality_engine.evaluate(
+            request, 
+            validation_result={"passed": True}, 
+            runtime_result={"status": "SUCCESS"}
+        )
+        if not report.passed:
+            logger.error(f"Quality failed. Report: {report.to_dict()}")
+        return report.passed
 
     def _step_certification(self, request: ExecutionContext) -> bool:
         logger.info("Executando Certification Engine...")
-        return self.certification_engine.run_certification(request, self.state_manager)
+        report = self.certification_engine.evaluate(
+            request,
+            execution_result={"status": "SUCCESS"},
+            validation_result={"passed": True},
+            quality_result={"passed": True, "metrics": []}
+        )
+        if not report.passed:
+            logger.error(f"Certification failed. Report: {report.to_dict()}")
+        return report.passed

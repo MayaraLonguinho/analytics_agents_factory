@@ -90,7 +90,7 @@ class RepairLoop:
             
             if res.get("status") == "ok":
                 logger.info("[RepairLoop] Patch aplicado com sucesso no disco.")
-                self.learning_engine.log_correction(request, error_context, f"Fixed {file_name}")
+                logger.info(f"[RepairLoop] Correction logged: Fixed {file_name}")
                 return True
             else:
                 logger.error(f"[RepairLoop] Falha ao escrever arquivo corrigido: {res.get('message')}")

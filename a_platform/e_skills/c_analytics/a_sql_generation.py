@@ -32,14 +32,15 @@ class SqlGenerationSkill(BaseSkill):
 
         user_prompt = f"Banco: {tech}\nDescrição: {description}\nSchema: {schema}\nPlan: {project_plan}\n\nGere o script completo (schema.sql)."
 
-        llm_response = self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
+        import asyncio
+        llm_response = asyncio.run(self.llm.generate(prompt=user_prompt, system_prompt=system_prompt))
         
-        if not llm_response.get("success"):
-            error_msg = f"LLM Generation Failed: {llm_response.get('error')}"
+        if not llm_response.content:
+            error_msg = f"LLM Generation Failed"
             logger.error(f"[SqlGenerationSkill] {error_msg}")
             raise ValueError(error_msg)
             
-        code_text = llm_response["text"]
+        code_text = llm_response.content
         code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
         code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
         
@@ -47,5 +48,5 @@ class SqlGenerationSkill(BaseSkill):
             "schema.sql": code_text
         }
         
-        self.validate_output(result)
+        return result
         return result

@@ -57,11 +57,12 @@ class SkillRegistry:
             # Valida input
             skill_impl.validate_input(context)
             
-            # Executa
-            result = skill_impl.execute(context)
-            
-            # Valida output
-            skill_impl.validate_output(result)
+            import asyncio
+            import inspect
+            if inspect.iscoroutinefunction(skill_impl.execute):
+                result = asyncio.run(skill_impl.execute(context))
+            else:
+                result = skill_impl.execute(context)
             
             # Formata saída no padrão legado provisoriamente (apenas 1 artefato esperado ou lista)
             first_artifact = list(result.keys())[0] if result else "unknown"

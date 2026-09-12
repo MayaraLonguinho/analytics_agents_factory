@@ -44,15 +44,16 @@ class BaseAgent:
                 
                 # Se faltar algum input vital, poderíamos invocar o LLM para preencher. 
                 # Para manter estabilidade, geramos via LLM uma extração dos inputs se necessário.
-                missing = [r for r in contract.required_inputs if r not in base_context]
+                missing = [p.name for p in contract.input_schema if p.required and p.name not in base_context]
                 if missing:
                     logger.warning(f"[{self.name}] Faltam inputs para a skill {skill_name}: {missing}. LLM tentará inferir.")
                     system_prompt = f"Gere um JSON preenchendo os seguintes campos: {missing} baseando-se no contexto."
                     prompt = f"Task: {task.description}\nArch: {json.dumps(base_context['architecture'])}"
-                    resp = self.gateway.generate(prompt, system_prompt=system_prompt)
-                    if resp.get("success"):
+                    import asyncio
+                    resp = asyncio.run(self.gateway.generate(prompt, system_prompt=system_prompt))
+                    if resp.content:
                         try:
-                            text = resp.get("text", "")
+                            text = resp.content
                             match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
                             if match:
                                 text = match.group(1).strip()
@@ -76,12 +77,13 @@ class BaseAgent:
         
         for art in missing_artifacts:
             prompt = f"Gere código final para {task.name} no contexto de {base_context['architecture'].get('architecture_pattern')}\nDeve produzir o arquivo: {art}"
-            llm_resp = self.gateway.generate(prompt, system_prompt=f"Você é o {self.name}", model_preference="openai")
-            if llm_resp.get("success"):
-                content = llm_resp.get("text")
+            import asyncio
+            llm_resp = asyncio.run(self.gateway.generate(prompt, system_prompt=f"Você é o {self.name}", model_preference="openai"))
+            if llm_resp.content:
+                content = llm_resp.content
                 artifacts.append(Artifact(name=art, content=content, type="source_code", metadata={"generator": "llm", "agent_name": self.name}))
             else:
-                logger.error(f"[{self.name}] Erro no LLM para {art}: {llm_resp.get('error')}")
+                logger.error(f"[{self.name}] Erro no LLM para {art}")
 
         logger.info(f"[{self.name}] Task {task.name} concluída. {len(artifacts)} artefatos gerados.")
         return artifacts
