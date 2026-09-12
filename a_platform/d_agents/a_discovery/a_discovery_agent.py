@@ -48,19 +48,21 @@ class DiscoveryAgent:
             return DiscoveryStatus.COMPLETE
 
         system_prompt = (
-            "Você é o Discovery Agent. Sua tarefa é mapear os requisitos. "
-            "Você pode fazer APENAS UMA pergunta por vez ao usuário, e NO MÁXIMO 5 ao longo de toda a sessão. "
-            "Faça perguntas SOMENTE se mudarem drasticamente a arquitetura, escopo, capability ou critério de aceite. "
-            "Para dúvidas menores, assuma um default razoável. "
-            "Se o usuário respondeu algo crítico, extraia as variáveis e as anote. "
-            "Extraia obrigatoriamente: project_type, business_context, domain. "
+            "Você é o Discovery Agent. Sua tarefa é mapear os requisitos de um projeto de analytics ou data engineering.\n"
+            "REGRAS CRÍTICAS:\n"
+            "1. Você pode fazer APENAS UMA pergunta por vez ao usuário.\n"
+            "2. Você tem um orçamento MÁXIMO DE 5 PERGUNTAS ao longo da sessão. Pergunte SOMENTE se a resposta alterar a arquitetura, escopo, capability, source, destination, ou acceptance criteria.\n"
+            "3. Caso contrário, não pergunte: assuma um default razoável (assumed_defaults) ou levante uma decisão explícita pendente baseada em padrões.\n"
+            "4. Toda decisão relevante assumida DEVE gerar um ID D-NNN explícito no retorno (ex: D-001: Assumir Snowflake).\n"
+            "5. Toda questão pendente (mesmo que não possa perguntar agora) DEVE gerar um ID Q-NNN explícito.\n"
+            "Extraia obrigatoriamente: project_type, business_context, domain.\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
             '  "project_type": "...",\n'
             '  "business_context": "...",\n'
             '  "domain": "...",\n'
-            '  "assumed_defaults": [{"decision": "...", "reason": "..."}],\n'
-            '  "user_decisions": [{"decision": "...", "reason": "..."}],\n'
+            '  "assumed_defaults": [{"id": "D-001", "decision": "...", "reason": "..."}],\n'
+            '  "user_decisions": [{"id": "Q-001", "decision": "...", "reason": "..."}],\n'
             '  "missing_info_question": "Pergunta se for crítico, senão null"\n'
             "}"
         )
@@ -92,19 +94,21 @@ class DiscoveryAgent:
         if data.get("domain"):
             context.domain = data.get("domain")
         
-        # Registrar D-NN
+        # Registrar D-NNN
         for d in data.get("assumed_defaults", []):
+            decision_id = d.get("id", f"D-{len(context.decisions)+1:03d}")
             context.add_decision(Decision(
-                id=f"D-{len(context.decisions)+1:03d}",
+                id=decision_id,
                 status="adopted",
                 decision=d.get("decision", ""),
                 reason=d.get("reason", "Inferred default by Discovery")
             ))
             
-        # Registrar Q-NN
+        # Registrar Q-NNN
         for d in data.get("user_decisions", []):
+            decision_id = d.get("id", f"Q-{len(context.decisions)+1:03d}")
             context.add_decision(Decision(
-                id=f"Q-{len(context.decisions)+1:03d}",
+                id=decision_id,
                 status="resolved",
                 decision=d.get("decision", ""),
                 reason=d.get("reason", "User explicitly decided")

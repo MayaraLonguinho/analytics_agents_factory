@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any, List
 
-from .f_registry.d_knowledge_registry import KnowledgeRegistry
-from .f_registry.g_rule_registry import RuleRegistry
-from .f_registry.f_pattern_registry import PatternRegistry
+from .g_registry.d_knowledge_registry import KnowledgeRegistry
+from .g_registry.g_rule_registry import RuleRegistry
+from .g_registry.f_pattern_registry import PatternRegistry
 
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
@@ -52,7 +52,10 @@ class Brain:
             "decision_rule": "Qualquer mudança arquitetural ou regra nova deve ser registrada como uma Decisão (D-NN) no contexto.",
             "evidence_rule": "Falhas e sucessos operacionais exigem evidências reais do ExecutionResult (ex: exit code).",
             "no_placeholder_rule": "É proibido gerar código com placeholders, comentários de 'TODO' ou lógica vazia.",
-            "no_manual_generation_rule": "É proibido pedir para o usuário gerar arquivos manualmente no terminal ou na IDE."
+            "no_manual_generation_rule": "É proibido pedir para o usuário gerar arquivos manualmente no terminal ou na IDE.",
+            "no_invention_rule": "Não inventar regra de negócio. Não inventar colunas. Não inventar resultados.",
+            "no_fake_success_rule": "Não declarar sucesso sem evidência (testes, checagens estáticas, execução).",
+            "brain_override_rule": "Não permitir que o LLM ignore uma regra do Brain sob NENHUMA circunstância."
         }
         
         for role, desc in roles.items():
@@ -154,28 +157,35 @@ class Brain:
             "capabilities_requested": capabilities
         }
         
-        # Recupera informações do Domínio e Capabilities através dos Registries reais
-        try:
-            domain_config = self.domain_registry.get_domain_config(domain)
-            pack["domain_rules"] = domain_config
-        except Exception:
-            pack["domain_rules"] = "Domain not found or not specified"
-            
-        # Adicionar regras e knowledge
-        platform_kb = self.knowledge_registry.search_by_domain("platform")
-        platform_stack = {}
-        for kb in platform_kb:
-            platform_stack.update({k: v for k, v in kb.items() if k not in ["domain", "tags"]})
-            
-        pack["platform_stack"] = platform_stack
-        pack["architecture_rules"] = self.get_rules("architecture")
-        pack["security_rules"] = self.get_rules("security")
+        # Adicionar regras críticas sempre
         pack["team_standards"] = self.get_rules("team_standard")
         
-        domain_lower = (domain or "").lower()
-        patterns = self.pattern_registry.search_by_domain(domain_lower)
-        if patterns:
-            pack["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"
+        # Carregamentos sob demanda baseados no contexto
+        if context_request.get("fetch_domain_rules"):
+            try:
+                domain_config = self.domain_registry.get_domain_config(domain)
+                pack["domain_rules"] = domain_config
+            except Exception:
+                pack["domain_rules"] = "Domain not found"
+                
+        if context_request.get("fetch_platform_stack"):
+            platform_kb = self.knowledge_registry.search_by_domain("platform")
+            platform_stack = {}
+            for kb in platform_kb:
+                platform_stack.update({k: v for k, v in kb.items() if k not in ["domain", "tags"]})
+            pack["platform_stack"] = platform_stack
+            
+        if context_request.get("fetch_architecture_rules"):
+            pack["architecture_rules"] = self.get_rules("architecture")
+            
+        if context_request.get("fetch_security_rules"):
+            pack["security_rules"] = self.get_rules("security")
+            
+        if context_request.get("fetch_patterns"):
+            domain_lower = (domain or "").lower()
+            patterns = self.pattern_registry.search_by_domain(domain_lower)
+            if patterns:
+                pack["domain_patterns"] = f"Padrões recomendados: {patterns[0].get('pattern')}"
 
         # Aplicar controle de limite de tamanho de forma ingênua/segura
         import json

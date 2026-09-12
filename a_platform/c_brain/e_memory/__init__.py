@@ -12,7 +12,7 @@ from .k_interfaces import (
     ISkillMemory,
 )
 
-from .m_memory_manager import MemoryManager
+from .a_memory_manager import MemoryManager
 
 __all__ = [
     "IMemory",
