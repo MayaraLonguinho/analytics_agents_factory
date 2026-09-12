@@ -37,25 +37,35 @@ class Brain:
         self.project_knowledge = {}
 
     def _initialize_team_standards(self):
-        standards = [
-            "Owner decide regras de negócio",
-            "Agent não inventa regra",
-            "Architecture decide stack",
-            "Planner decide sequência",
-            "Agent executa tarefa",
-            "Skill executa capability",
-            "Gate decide evidência",
-            "Falha nunca vira PASS",
-            "Mudança deve registrar decisão (D-NN)",
-            "Contexto deve ser compacto",
-            "Apenas informação relevante deve ser carregada"
-        ]
-        for i, std in enumerate(standards):
-            self.rule_registry.register(f"team_std_{i}", {
-                "rule": std,
-                "tags": ["team_standard"]
+        roles = {
+            "Owner": "Decide regras de negócio e prioridades do produto",
+            "Architect": "Decide a stack tecnológica e padrões de arquitetura",
+            "Data Engineer": "Responsável por pipelines (ETL/ELT), armazenamento e qualidade de dados",
+            "Analytics Engineer": "Responsável por modelagem de dados, transformações (dbt) e métricas de negócio",
+            "QA": "Garante a qualidade através de testes automatizados e critérios de aceitação",
+            "Reviewer": "Revisa o código, arquitetura e garante a aderência aos padrões da equipe"
+        }
+        
+        rules = {
+            "definition_of_ready": "Discovery e Planning devem estar completos com datasets profileados e arquitetura definida.",
+            "definition_of_done": "Execution, Tests, Validation, Quality e Certification devem retornar PASS.",
+            "decision_rule": "Qualquer mudança arquitetural ou regra nova deve ser registrada como uma Decisão (D-NN) no contexto.",
+            "evidence_rule": "Falhas e sucessos operacionais exigem evidências reais do ExecutionResult (ex: exit code).",
+            "no_placeholder_rule": "É proibido gerar código com placeholders, comentários de 'TODO' ou lógica vazia.",
+            "no_manual_generation_rule": "É proibido pedir para o usuário gerar arquivos manualmente no terminal ou na IDE."
+        }
+        
+        for role, desc in roles.items():
+            self.rule_registry.register(f"role_{role.lower().replace(' ', '_')}", {
+                "rule": f"ROLE {role}: {desc}",
+                "tags": ["team_standard", "role"]
             })
             
+        for rule_name, desc in rules.items():
+            self.rule_registry.register(f"rule_{rule_name}", {
+                "rule": f"RULE {rule_name}: {desc}",
+                "tags": ["team_standard", "rule"]
+            })
     def apply_intelligent_defaults(self, context_request: Dict[str, Any]) -> Dict[str, Any]:
         """Aplica defaults razoáveis para arquitetura e escopo se não especificados."""
         if not context_request.get("architecture"):
