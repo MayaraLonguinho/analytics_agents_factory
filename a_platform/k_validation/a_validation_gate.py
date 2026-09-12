@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.j_runtime.c_runtime import ExecutionResult
+from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
 from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport
 
 @dataclass

@@ -5,7 +5,7 @@ from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
 from a_platform.a_core.a_contracts.f_gate_contract import ReadinessResult
 from a_platform.d_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
-from a_platform.e_skills.c_profiling.a_profiler import DatasetProfilingSkill
+from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain.h_brain import Brain
 
 from a_platform.d_agents.b_architecture.a_architecture_agent import ArchitectureAgent
@@ -13,9 +13,9 @@ from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.d_agents.c_planner.k_planner_agent import PlannerAgent
 from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory.a_project_factory.a_project_factory import ProjectFactory
-from a_platform.h_factory.d_artifact_materializer.a_materializer import ArtifactMaterializer
+from a_platform.h_factory.b_materializer.a_materializer import ArtifactMaterializer
 from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
-from a_platform.j_runtime.c_runtime import ProjectRuntime
+from a_platform.j_runtime.a_execution.c_runtime import ProjectRuntime
 from a_platform.k_validation.a_validation_gate import ValidationGate
 from a_platform.l_quality.a_quality_engine import QualityEngine
 from a_platform.m_certification.a_certification_engine import CertificationEngine
@@ -122,7 +122,7 @@ class MasterOrchestrator:
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
             # 11. Readiness Gate (Regra Absoluta)
-            from a_platform.j_runtime.c_runtime import ExecutionResult
+            from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
             from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport
             from a_platform.l_quality.a_quality_engine import QualityReport
             from a_platform.m_certification.a_certification_engine import CertificationResult

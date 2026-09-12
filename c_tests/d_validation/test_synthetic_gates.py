@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
 from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
-from a_platform.j_runtime.c_runtime import ExecutionResult
+from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
 
 from a_platform.k_validation.a_validation_gate import ValidationGate
 from a_platform.l_quality.a_quality_engine import QualityEngine

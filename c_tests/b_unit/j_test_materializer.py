@@ -1,7 +1,7 @@
 import os
 import pytest
 from unittest.mock import MagicMock, patch
-from a_platform.h_factory.d_artifact_materializer.a_materializer import ArtifactMaterializer
+from a_platform.h_factory.b_materializer.a_materializer import ArtifactMaterializer
 from a_platform.a_core.a_contracts.e_execution_contract import Artifact
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task

@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
-from a_platform.e_skills.j_skill_registry import SkillRegistry
+from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
 from a_platform.a_core.a_contracts.d_project_contract import ProjectTask as Task
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.a_contracts.e_execution_contract import Artifact

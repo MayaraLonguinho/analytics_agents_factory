@@ -11,9 +11,9 @@ def test_runtime_failure_blocks_readiness():
     adapter = setup_ide_adapter()
     mock_func = get_mocked_generate_function(interactive=False, repair_error=False)
     
-    from a_platform.j_runtime.c_runtime import ExecutionResult
+    from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
     with patch("a_platform.g_llm_gateway.gateway.LLMGateway.generate", side_effect=mock_func), \
-         patch("a_platform.j_runtime.c_runtime.ProjectRuntime.execute", return_value=ExecutionResult(status="FAILED")):
+         patch("a_platform.j_runtime.a_execution.c_runtime.ProjectRuntime.execute", return_value=ExecutionResult(status="FAILED")):
          
         response = adapter.create_project("Test runtime failure", domain="analytics")
         
