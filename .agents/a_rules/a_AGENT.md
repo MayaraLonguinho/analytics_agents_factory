@@ -1,37 +1,62 @@
-# IDE Agent Integration Rules
+# Regras do Agente da IDE: Analytics Agents Factory (AAF)
 
-Este arquivo é a **FONTE DE VERDADE ABSOLUTA** sobre como você (IDE Agent / AI Assistant) deve interagir com a Analytics Agents Factory (AAF).
-Você NÃO deve duplicar regras de negócio ou regras arquiteturais do Analytics AI Factory; regras do núcleo pertencem apenas à AAF.
+## 1. Identidade e Propósito
+- Tratar este sistema como a Analytics Agents Factory (AAF).
+- Usar a AAF para gerar projetos especializados em Analytics + ETL/ELT.
+- Manter o projeto agnóstico a qualquer domínio de negócio específico.
+- Utilizar somente os domínios e capacidades suportados pela arquitetura.
 
-## 1. Escopo de Domínios
-O escopo permitido nesta versão é exclusivamente:
-- **Analytics**
-- **Data Engineering**
+## 2. Fluxo de Execução Principal
+Siga esta sequência exata para a geração de projetos:
+1. IDE Chat
+2. IDE Adapter
+3. Discovery
+4. Dataset Profiling
+5. Brain
+6. Architecture
+7. Planner
+8. Project Factory
+9. Agents + Skills + MCPs + LLM Gateway
+10. Artifact Materializer
+11. e_generated_projects/
+12. Execution Runtime
+13. Validation Gate
+14. Repair Loop
+15. Quality Engine
+16. Certification Engine
+17. PROJECT READY
 
-Qualquer outra solicitação deve ser recusada ou redirecionada, pois não deve ser tratada como implementação ativa pelo agente. Os domínios técnicos são distintos do contexto de negócio (Business Context). Business Context (ex: Sales, Finance, HR) não é um Domain (Analytics/Data Engineering).
+Respeite a restrição de sequência: `Context → Plan → Decisions → Skills → Gates`
 
-## 2. Porta de Entrada e Operação (CLI AAF)
-A única porta de entrada autorizada para criar e orquestrar projetos com a fábrica é através do CLI oficial `aaf`. Você atua apenas como executor da AAF, e NÃO como gerador de projeto.
+## 3. Protocolo de Discovery
+- Fazer no **máximo 5 perguntas** de descoberta no total.
+- Fazer **uma pergunta por vez**.
+- Só perguntar quando a resposta puder alterar arquitetura, escopo, capacidade, fonte, destino ou critério de aceite.
+- Converter pequenas incertezas em **assumptions** (premissas) declaradas.
+- Registrar decisões não resolvidas como `Q-NN`.
 
-Comandos obrigatórios de ativação:
-- `aaf start`: Inicia nova solicitação de projeto através da AAF. Solicite a descrição do projeto ao usuário caso necessário.
-- `aaf continue <project_id>`: Retoma sessão existente, enviando as respostas do questionário Discovery de volta à fábrica.
-- `aaf status <project_id>`: Consulta o estado atual da esteira.
-- `aaf result <project_id>`: Mostra o resultado e logs de um projeto finalizado.
+## 4. Limites Operacionais
+- **Do not execute Git commands anywhere in this project.** (Não executar comandos Git em nenhum lugar deste projeto). Isto inclui comandos utilizados apenas para inspeção, como git status, git log, etc.
+- Não inventar regras de negócio.
+- Não gerar placeholders, mocks ou TODOs.
+- Não aceitar "fake success" (falso sucesso) como implementação.
+- Não marcar o projeto como `PROJECT READY` sem evidência real de que passou em todos os gates.
+- Não construir manualmente um projeto se a automação da AAF falhar. Se a geração falhar, apenas reporte a falha.
+- Respeitar sempre os gates de validação e qualidade.
 
-## 3. Regra de Delegação Exclusiva (No-Manual-Generation & No-Placeholder)
-- **NÃO** crie projetos de dados, componentes, arquivos de backend, frontend, scripts ETL, APIs ou interfaces diretamente no workspace de forma manual.
-- **NÃO** utilize placeholders ou dados fictícios gerados por você. Se faltam informações, questione o usuário (via `NEEDS_INPUT`).
-- Você **DEVE** sempre instanciar e delegar o fluxo de geração à AAF executando a ferramenta `aaf`.
+## 5. Padrões Arquiteturais
+- Manter **Modular Monolith** (Monolito Modular) como padrão arquitetural.
+- Não criar microserviços no MVP.
+- **Documentation (Documentação) não substitui a implementação.**
+- **Graph (Grafo) não substitui o Brain.**
 
-## 4. Fluxo de Execução Obrigatório e Interatividade
-- Quando a AAF parar no Discovery e retornar status `NEEDS_INPUT`, você deve interagir com o usuário, repassando as perguntas.
-- Ao receber as respostas do usuário, você deve invocar `aaf continue <project_id>` passando o input.
+## 6. Agentes e Skills
+- Agentes devem utilizar **Skills reais** do registry.
+- Respeitar a hierarquia: `Planner → Task.skills → Agent → SkillRegistry`
+- Agentes não devem escolher arbitrariamente suas próprias Skills.
 
-## 5. Uso de Ferramentas (Skills e MCPs)
-A AAF possui seus próprios Agents e módulos (Skills, MCPs) em `a_platform/`.
-Como IDE Agent, você deve apoiar a manutenção do repositório da fábrica, mas para construir produtos de dados solicitados, você delega o uso das Skills e do MCP (Model Context Protocol) para a AAF através do comando `aaf start`.
-
-## 6. Tratamento de Falhas (PROJECT READY)
-- Se por qualquer motivo o processo falhar e a AAF retornar `PROJECT READY = NO` (Status: FAILED), o projeto **não está pronto**.
-- **NÃO** tente corrigir o código, a compilação ou o pipeline manualmente. O Master Orchestrator da AAF possui as próprias rotinas de validação e *repair loop*. Você deve apenas informar o erro que foi retornado pela fábrica. Apenas quando a certificação emitir `PROJECT READY = YES`, considere o trabalho finalizado.
+## 7. Interfaces e Integrações
+- Todos os LLMs devem ser acessados estritamente pelo **LLM Gateway**.
+- Agentes não devem conhecer diretamente as SDKs da OpenAI/Gemini/Anthropic.
+- **MCPs** devem obedecer aos seus contratos e limites definidos.
+- O **Runtime** deve executar e validar o projeto realmente gerado, não um mock.
