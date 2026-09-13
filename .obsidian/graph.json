@@ -1,0 +1,63 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showSearch": false,
+  "local": false,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "path:a_platform/c_brain",
+      "color": {
+        "a": 1,
+        "rgb": 14701138
+      }
+    },
+    {
+      "query": "path:.agents/a_rules",
+      "color": {
+        "a": 1,
+        "rgb": 11657298
+      }
+    },
+    {
+      "query": "path:a_platform/d_agents",
+      "color": {
+        "a": 1,
+        "rgb": 5406085
+      }
+    },
+    {
+      "query": "path:a_platform/e_skills",
+      "color": {
+        "a": 1,
+        "rgb": 5419350
+      }
+    },
+    {
+      "query": "path:b_documentation",
+      "color": {
+        "a": 1,
+        "rgb": 15049539
+      }
+    },
+    {
+      "query": "path:a_platform/j_runtime/c_artifacts/graph",
+      "color": {
+        "a": 1,
+        "rgb": 9923835
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1,
+  "close": true
+}

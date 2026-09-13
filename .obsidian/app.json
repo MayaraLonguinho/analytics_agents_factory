@@ -1,1 +1,12 @@
-{}
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "attachmentFolderPath": "./",
+  "userIgnoreFilters": [
+    "c_tests/",
+    "e_generated_projects/",
+    "__pycache__/",
+    "d_input/",
+    "analytics_agents_factory.egg-info/"
+  ]
+}
