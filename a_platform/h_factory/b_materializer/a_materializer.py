@@ -25,8 +25,8 @@ class ArtifactMaterializer:
             logger.error("[ArtifactMaterializer] ProjectPlan não encontrado. Não é possível validar a materialização.")
             return False
             
-        domain = request.discovery_data.get("domain", "analytics").lower()
-        project_dir = os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id)
+        project_name = request.project_id
+        project_dir = os.path.join(os.getcwd(), "e_generated_projects", project_name)
         request.project_path = project_dir
         
         logger.info(f"[ArtifactMaterializer] Iniciando materialização em: {project_dir}")
@@ -70,9 +70,11 @@ class ArtifactMaterializer:
             logger.error(f"[ArtifactMaterializer] FALHA NA MATERIALIZAÇÃO. Artefatos ausentes logicamente: {missing_files}. Artefatos ausentes fisicamente no disco: {physically_missing}")
             return False
 
-        # Cria explicitamente o .gitkeep para garantir que o path existe e versiona vazios se necessário
-        gitkeep_path = os.path.join(project_dir, ".gitkeep")
-        self.mcp.execute("filesystem_mcp", operation="write", path=gitkeep_path, content="")
+        # Cria explicitamente o .gitkeep se for exigido por algum motivo externo,
+        # porém o prompt 4 afirma evitar sujeiras no repositório. Como os projetos
+        # não usam mais o formato /domain/project_id, não precisamos desse dummy genérico.
+        # gitkeep_path = os.path.join(project_dir, ".gitkeep")
+        # self.mcp.execute("filesystem_mcp", operation="write", path=gitkeep_path, content="")
 
         logger.info("[ArtifactMaterializer] Materialização concluída com sucesso. Todos os artefatos esperados foram gravados e validados fisicamente no disco.")
         return True

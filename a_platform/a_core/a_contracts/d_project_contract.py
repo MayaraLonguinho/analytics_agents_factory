@@ -2,6 +2,11 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
+class Artifact(BaseModel):
+    name: str
+    path: str
+    content: Optional[str] = None
+
 class ProjectRequest(BaseModel):
     project_id: str
     prompt: str

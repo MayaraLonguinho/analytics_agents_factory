@@ -49,3 +49,6 @@ class ReadinessResult(BaseModel):
     status: str = "NOT_EXECUTED"
     missing_requirements: List[str] = Field(default_factory=list)
     metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class ReadinessGate:
+    pass

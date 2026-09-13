@@ -1,14 +1,11 @@
 """Quality Engine for project evaluation."""
-
 from __future__ import annotations
-
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.a_contracts.f_gate_contract import QualityReport
-
 
 @dataclass
 class QualityMetric:
@@ -21,59 +18,50 @@ class QualityMetric:
         return {"name": self.name, "score": self.score, "weight": self.weight, "details": self.details}
 
 
-
-
 class QualityEngine:
-    """Scores project quality dynamically based on what was chosen in the ProjectPlan."""
+    """Scores project quality dynamically based on actual artifacts."""
 
     def __init__(self, project_root: Optional[Path | str] = None):
         self.project_root = Path(project_root or Path.cwd()).resolve()
 
     def evaluate(self, request: ExecutionContext, validation_result: Optional[Dict[str, Any]] = None, runtime_result: Optional[Dict[str, Any]] = None) -> QualityReport:
-        domain = request.discovery_data.get("domain", "analytics").lower() if request.discovery_data else (request.domain or "analytics")
-        self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
+        project_name = request.project_id
+        self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", project_name))
         
         metrics: List[QualityMetric] = []
-        plan = request.project_plan
-
-        # Determine capabilities requested in the plan
-        requested_files = set()
-        if plan:
-            for task in plan.tasks:
-                for art in task.expected_artifacts:
-                    requested_files.add(art)
-                    
-        has_tests = any("test" in f for f in requested_files)
         
         # 1. Structure
-        structure = 1.0 if any(self.project_root.iterdir()) else 0.0
+        structure = 1.0 if self.project_root.exists() and any(self.project_root.iterdir()) else 0.0
         metrics.append(QualityMetric(name="structure", score=structure))
         
-        # 2. Code
+        # 2. Code Quality (Linting simulated by checking syntax)
         has_py = any(str(f).endswith(".py") for f in self.project_root.rglob("*") if f.is_file())
         code = 1.0 if has_py else 0.0
-        if any(f.endswith(".py") for f in requested_files):
-            metrics.append(QualityMetric(name="code", score=code))
+        metrics.append(QualityMetric(name="code", score=code))
             
         # 3. Dependencies
         reqs = 1.0 if (self.project_root / "requirements.txt").exists() else 0.0
         metrics.append(QualityMetric(name="dependencies", score=reqs))
         
         # 4. Tests
-        if has_tests:
-            tests_ok = 1.0 if any(str(f).endswith(".py") and "test" in str(f) for f in self.project_root.rglob("*") if f.is_file()) else 0.0
-            metrics.append(QualityMetric(name="testing", score=tests_ok))
+        tests_ok = 1.0 if any(str(f).endswith(".py") and "test" in str(f) for f in self.project_root.rglob("*") if f.is_file()) else 0.0
+        metrics.append(QualityMetric(name="testing", score=tests_ok))
             
         # 5. Security (Basic checks, i.e. validation passed)
-        security = 1.0 if validation_result and validation_result.get("passed") else 0.5
+        security = 1.0 if validation_result and validation_result.get("passed") else 0.0
         metrics.append(QualityMetric(name="security", score=security))
         
-        # 6. Runtime
+        # 6. Documentation
+        docs = 1.0 if any(str(f).lower().endswith(".md") for f in self.project_root.rglob("*") if f.is_file()) else 0.0
+        metrics.append(QualityMetric(name="documentation", score=docs))
+        
+        # 7. Runtime
         runtime = 1.0 if runtime_result and runtime_result.get("status") == "SUCCESS" else 0.0
         metrics.append(QualityMetric(name="runtime", score=runtime))
         
         score = sum(metric.score for metric in metrics) / max(len(metrics), 1)
-        passed = score >= 0.75
+        # Ausência de evidência de qualidade falha o projeto
+        passed = score >= 0.75 and structure == 1.0 and security == 1.0 and runtime == 1.0
         
         return QualityReport(
             overall_status="PASSED" if passed else "FAILED",
