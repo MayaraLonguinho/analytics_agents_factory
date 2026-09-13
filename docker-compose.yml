@@ -1,8 +1,16 @@
 version: '3.8'
+
 services:
-  core:
-    build: .
+  aaf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aaf_monolith
+    env_file:
+      - .env
     volumes:
-      - .:/app
-    environment:
-      - APP_ENV=development
+      # Montamos estritamente os diretórios de input e output, preservando a pureza estrutural do app
+      - ./d_input:/app/d_input:ro
+      - ./e_generated_projects:/app/e_generated_projects
+    stdin_open: true # Necessário para rodar a CLI interativa (ex: aaf start)
+    tty: true        # Necessário para TTY
