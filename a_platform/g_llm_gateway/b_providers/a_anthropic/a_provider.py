@@ -10,6 +10,9 @@ class AnthropicProvider(BaseLLMProvider):
         if not api_key:
             raise ValueError("Anthropic API key is missing. No dummy keys allowed.")
 
+    async def health_check(self) -> bool:
+        return True
+
     async def generate(self, request: LLMRequest) -> LLMResponse:
         raise ValueError("Anthropic SDK not fully wrapped yet. Cannot return dummy success.")
 

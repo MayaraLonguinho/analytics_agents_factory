@@ -62,22 +62,22 @@ class ProjectRuntime:
                 result.exit_code = proc.returncode
                 
                 if proc.returncode != 0:
-                    result.status = "FAILED"
+                    result.success = False
                     result.diagnosis = f"Comando falhou: {cmd_str}"
                     break
                     
             except subprocess.TimeoutExpired as exc:
                 all_stderr.append(f"$ {cmd_str}\nTimeout Expired: {exc}")
-                result.status = "FAILED"
+                result.success = False
                 result.diagnosis = f"Timeout (300s) atingido no comando: {cmd_str}"
                 break
             except Exception as exc:  # pragma: no cover
                 all_stderr.append(f"$ {cmd_str}\n{exc}")
-                result.status = "FAILED"
+                result.success = False
                 result.diagnosis = f"Erro de execução em: {cmd_str}"
                 break
         else:
-            result.status = "SUCCESS"
+            result.success = True
             result.diagnosis = "Execução concluída com sucesso."
 
         result.stdout = "\n\n".join(all_stdout)

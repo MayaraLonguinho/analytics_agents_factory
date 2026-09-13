@@ -24,7 +24,7 @@ class CertificationEngine:
         project_name = request.project_id
         self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", project_name))
 
-        execution_ok = bool(execution_result and execution_result.get("status") == "SUCCESS")
+        execution_ok = bool(execution_result and execution_result.get("success"))
         
         # Ausência de evidência falha o projeto
         tests_ok = False
@@ -32,15 +32,15 @@ class CertificationEngine:
         
         if quality_result and hasattr(quality_result, 'metrics'):
             for m in quality_result.metrics:
-                if m.name == "testing" and m.score == 1.0:
+                if getattr(m, "metric_id", getattr(m, "name", "")) == "testing" and getattr(m, "value", getattr(m, "score", 0.0)) == 1.0:
                     tests_ok = True
-                if m.name == "documentation" and m.score == 1.0:
+                if getattr(m, "metric_id", getattr(m, "name", "")) == "documentation" and getattr(m, "value", getattr(m, "score", 0.0)) == 1.0:
                     documentation_ok = True
         elif quality_result and isinstance(quality_result, dict) and "metrics" in quality_result:
             for m in quality_result["metrics"]:
                 # Suporta tanto QualityMetric model quanto dict manual no mock/teste antigo
-                name = m.name if hasattr(m, "name") else m.get("name")
-                score = m.score if hasattr(m, "score") else m.get("score", 0.0)
+                name = m.metric_id if hasattr(m, "metric_id") else m.get("metric_id", m.get("name"))
+                score = m.value if hasattr(m, "value") else m.get("value", m.get("score", 0.0))
                 if name == "testing" and score == 1.0:
                     tests_ok = True
                 if name == "documentation" and score == 1.0:

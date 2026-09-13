@@ -48,17 +48,17 @@ class LearningEngine:
             source=source, kind=kind, payload=payload)
         candidate = self.knowledge_generator.from_feedback(
             title=title, summary=summary, evidence=evidence, confidence=confidence, metadata=metadata)
-        decision = self.brain_updater.approve(candidate=candidate.to_dict())
+        decision = self.brain_updater.approve(candidate=candidate.model_dump())
         run = LearningRun(
             job_id=f"learning-{source}-{candidate.ts.replace(':', '-').replace('.', '-')}")
-        run.raw_feedback.append(raw.to_dict())
-        run.candidate_knowledge.append(candidate.to_dict())
+        run.raw_feedback.append(raw.model_dump())
+        run.candidate_knowledge.append(candidate.model_dump())
 
         if decision.approved:
             run.approved_knowledge.append(
-                {**candidate.to_dict(), "approval": decision.to_dict()})
+                {**candidate.model_dump(), "approval": decision.model_dump()})
             incorporated = self.brain_updater.incorporate(
-                approved_payload={**candidate.to_dict(), "approval": decision.to_dict()})
+                approved_payload={**candidate.model_dump(), "approval": decision.model_dump()})
             run.incorporated_knowledge.append(incorporated)
             run.status = "approved_and_incorporated"
         else:

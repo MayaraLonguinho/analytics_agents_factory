@@ -38,7 +38,7 @@ class BaseAgent:
         }
         
         # 2. Chamar Skills requeridas preenchendo contratos
-        for skill_name in task.skills:
+        for skill_name in task.required_skills:
             if skill_name in CORE_SKILL_CONTRACTS:
                 contract = CORE_SKILL_CONTRACTS[skill_name]
                 
@@ -73,7 +73,7 @@ class BaseAgent:
 
         # 3. Invocar LLM para gerar código complementar (se houver expected_artifacts que não foram gerados)
         generated_files = [a.name for a in artifacts]
-        missing_artifacts = [ea for ea in task.expected_artifacts if ea not in generated_files]
+        missing_artifacts = [ea for ea in getattr(task, "expected_artifacts", []) if ea not in generated_files]
         
         for art in missing_artifacts:
             prompt = f"Gere código final para {task.name} no contexto de {base_context['architecture'].get('architecture_pattern')}\nDeve produzir o arquivo: {art}"

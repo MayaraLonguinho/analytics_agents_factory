@@ -25,23 +25,23 @@ class ProjectFactory:
             logger.error("[ProjectFactory] ProjectPlan ausente ou vazio. Não há como montar o projeto.")
             return []
 
-        logger.info(f"[ProjectFactory] Iniciando montagem do projeto {request.project_id} ({plan.domain})")
+        logger.info(f"[ProjectFactory] Iniciando montagem do projeto {request.project_id} ({request.domain})")
         compiled_artifacts = []
         
         for task in plan.tasks:
-            logger.info(f"[ProjectFactory] Despachando task {task.id} para {task.agent}...")
-            agent = self.agent_factory.get_agent(task.agent)
+            logger.info(f"[ProjectFactory] Despachando task {task.task_id} para {task.assigned_agent}...")
+            agent = self.agent_factory.get_agent(task.assigned_agent)
             
             task_artifacts = agent.execute_task(task, request)
             
             if not task_artifacts:
-                logger.warning(f"[ProjectFactory] O agente {task.agent} não gerou artefatos para a task {task.id}.")
+                logger.warning(f"[ProjectFactory] O agente {task.assigned_agent} não gerou artefatos para a task {task.task_id}.")
             else:
                 compiled_artifacts.extend(task_artifacts)
                 
             # Verifica se os artefatos esperados foram gerados
             generated_names = {art.name for art in task_artifacts} if task_artifacts else set()
-            missing = set(task.expected_artifacts) - generated_names
+            missing = set(getattr(task, "expected_artifacts", [])) - generated_names
             
             # Se for requirements.txt e estiver faltando, ignoramos por agora (pode ser gerado pelo LLM depois, ou a gente vai remover essa geração e depender apenas da task)
             # Mas o request diz "requirements.txt deve ser derivado da arquitetura/skills realmente utilizadas."
@@ -49,8 +49,8 @@ class ProjectFactory:
             # A geração automática ainda está em _generate_requirements se quisermos fallback LLM puro.
             
             if missing and missing != {"requirements.txt"}:
-                logger.error(f"[ProjectFactory] Task {task.id} falhou. Artefatos esperados não gerados: {missing}")
-                raise ValueError(f"Task {task.id} não gerou todos os artefatos esperados. Faltam: {missing}")
+                logger.error(f"[ProjectFactory] Task {task.task_id} falhou. Artefatos esperados não gerados: {missing}")
+                raise ValueError(f"Task {task.task_id} não gerou todos os artefatos esperados. Faltam: {missing}")
 
         reqs = self._generate_requirements(request)
         if reqs and reqs.content.strip():
@@ -111,4 +111,4 @@ class ProjectFactory:
                 if len(lines) > 2:
                     content = "\n".join(lines[1:-1])
                     
-        return Artifact(name="requirements.txt", content=content, type="config")
+        return Artifact(artifact_id="reqs_001", name="requirements.txt", content=content, metadata={"type": "config"})

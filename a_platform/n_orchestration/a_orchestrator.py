@@ -128,10 +128,10 @@ class MasterOrchestrator:
             from a_platform.m_certification.a_certification_engine import CertificationResult
             
             # Recupera os resultados reais armazenados no state manager ou request
-            real_exec = self.last_execution_result or ExecutionResult(status="FAILED", stderr="No execution ran")
-            real_val = getattr(self, "last_validation_report", ValidationReport(passed=False, score=0.0))
+            real_exec = self.last_execution_result or ExecutionResult(task_id="", success=False, error="No execution ran")
+            real_val = getattr(self, "last_validation_report", ValidationReport(passed=False))
             real_qual = getattr(self, "last_quality_report", QualityReport(passed=False, score=0.0))
-            real_cert = getattr(self, "last_certification_report", CertificationResult(passed=False, score=0.0))
+            real_cert = getattr(self, "last_certification_report", CertificationResult(project_id=request.project_id, passed=False, score=0.0))
             
             if self.validation_gate.evaluate(request, real_exec).passed and real_qual.passed and real_cert.passed:
                 request.metadata["PROJECT_READY"] = "YES"
@@ -253,16 +253,16 @@ class MasterOrchestrator:
         # Runtime Engine agora pega comandos do ProjectPlan
         result = self.runtime_engine.execute(request, project_path=request.project_path)
         self.last_execution_result = result
-        if result.status != "SUCCESS":
+        if not result.success:
             logger.error(f"Execution failed: {result.diagnosis} - Stderr: {result.stderr}")
-        return result.status == "SUCCESS"
+        return result.success
 
     def _step_validation(self, request: ExecutionContext) -> bool:
         logger.info("Executando Validation Gate...")
         report = self.validation_gate.evaluate(request, self.last_execution_result)
         self.last_validation_report = report
         if not report.passed:
-            logger.error(f"Validation failed. Report: {report.to_dict()}")
+            logger.error(f"Validation failed. Report: {report.model_dump()}")
         return report.passed
         
     def _step_repair(self, request: ExecutionContext) -> bool:
@@ -275,7 +275,7 @@ class MasterOrchestrator:
         # Cria um dict simulado para compatibility com a assinatura (que pede dict em runtime_result)
         # O certo seria refatorar a assinatura inteira, mas para manter o contrato atual:
         exec_dict = self.last_execution_result.__dict__ if self.last_execution_result else None
-        val_dict = self.last_validation_report.to_dict() if hasattr(self, "last_validation_report") else None
+        val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
         
         report = self.quality_engine.evaluate(
             request, 
@@ -284,16 +284,16 @@ class MasterOrchestrator:
         )
         self.last_quality_report = report
         if not report.passed:
-            logger.error(f"Quality failed. Report: {report.to_dict()}")
+            logger.error(f"Quality failed. Report: {report.model_dump()}")
         return report.passed
 
     def _step_certification(self, request: ExecutionContext) -> bool:
         logger.info("Executando Certification Engine...")
         
         exec_dict = self.last_execution_result.__dict__ if self.last_execution_result else None
-        val_dict = self.last_validation_report.to_dict() if hasattr(self, "last_validation_report") else None
+        val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
         # O quality report já é um dataclass mas a assinatura atual pede dict
-        qual_dict = self.last_quality_report.to_dict() if hasattr(self, "last_quality_report") else None
+        qual_dict = self.last_quality_report.model_dump() if hasattr(self, "last_quality_report") else None
         
         report = self.certification_engine.evaluate(
             request,
@@ -303,5 +303,5 @@ class MasterOrchestrator:
         )
         self.last_certification_report = report
         if not report.passed:
-            logger.error(f"Certification failed. Report: {report.to_dict()}")
+            logger.error(f"Certification failed. Report: {report.model_dump()}")
         return report.passed

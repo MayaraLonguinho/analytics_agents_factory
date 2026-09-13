@@ -117,9 +117,11 @@ class StateManager:
         }
         
         if request.project_plan:
+            # Usa model_dump se pydantic v2 ou dict() se v1
+            dump_func = lambda t: t.model_dump() if hasattr(t, "model_dump") else t.dict()
             req_dict["project_plan"] = {
-                "tasks": [asdict(t) for t in request.project_plan.tasks],
-                "run_commands": request.project_plan.run_commands
+                "tasks": [dump_func(t) for t in request.project_plan.tasks],
+                "run_commands": getattr(request.project_plan, "run_commands", [])
             }
             
         data = {

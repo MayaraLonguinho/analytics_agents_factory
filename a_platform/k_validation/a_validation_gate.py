@@ -3,30 +3,11 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
-from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport
-
-@dataclass
-class ValidationCheck:
-    name: str
-    status: str = "NOT_EXECUTED"
-    details: str = ""
-    evidence: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "status": self.status,
-            "details": self.details,
-            "evidence": self.evidence,
-        }
-
-
-
+from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport, ValidationCheck
 
 class ValidationGate:
     """Base validation gate that enforces requirements derived from the project plan."""
@@ -52,32 +33,33 @@ class ValidationGate:
 
         # Check expected artifacts
         for task in plan.tasks:
-            for artifact in task.expected_artifacts:
-                status = "PASS"
+            for artifact in getattr(task, "expected_artifacts", []):
+                passed_check = True
                 details = f"Found {artifact}"
                 if not (self.project_root / artifact).exists():
                     print(f"DEBUG: path not found: {self.project_root / artifact}")
-                    status = "FAIL"
+                    passed_check = False
                     details = f"Missing {artifact}"
-                checks.append(ValidationCheck(name=f"artifact_{artifact}", status=status, details=details))
+                checks.append(ValidationCheck(check_id=f"artifact_{artifact}", passed=passed_check, message=details))
 
         # Check execution code
-        status = "PASS"
+        passed_check = True
         details = "Execution returned exit code 0"
-        if execution_result.exit_code != 0:
-            status = "FAIL"
-            details = f"Execution returned exit code {execution_result.exit_code}"
-        checks.append(ValidationCheck(name="execution_exit_code", status=status, details=details))
+        exit_code = getattr(execution_result, "exit_code", 0 if execution_result.success else 1)
+        if exit_code != 0:
+            passed_check = False
+            details = f"Execution returned exit code {exit_code}"
+        checks.append(ValidationCheck(check_id="execution_exit_code", passed=passed_check, message=details))
 
         # Check execution status
-        status = "PASS"
+        passed_check = True
         details = "Execution status is SUCCESS"
-        if execution_result.status != "SUCCESS":
-            status = "FAIL"
-            details = f"Execution status is {execution_result.status}"
-        checks.append(ValidationCheck(name="execution_status", status=status, details=details))
+        if not execution_result.success:
+            passed_check = False
+            details = f"Execution failed: {execution_result.error}"
+        checks.append(ValidationCheck(check_id="execution_status", passed=passed_check, message=details))
 
-        passed = bool(checks) and all(check.status == "PASS" for check in checks)
+        passed = bool(checks) and all(check.passed for check in checks)
         return ValidationReport(
             status="PASSED" if passed else "FAILED",
             passed=passed,

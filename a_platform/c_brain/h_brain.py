@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any, List
 
-from .g_registry.d_knowledge_registry import KnowledgeRegistry
-from .g_registry.g_rule_registry import RuleRegistry
-from .g_registry.f_pattern_registry import PatternRegistry
+from .g_registry.a_knowledge_registry import KnowledgeRegistry
+from .g_registry.b_pattern_registry import PatternRegistry
+from .g_registry.c_rule_registry import RuleRegistry
 
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.f_mcp.d_registry.a_registry import MCPRegistry

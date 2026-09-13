@@ -12,6 +12,9 @@ class OpenAIProvider(BaseLLMProvider):
             raise ValueError("OpenAI API key is missing. No dummy keys allowed.")
         self._client = openai.AsyncOpenAI(api_key=api_key)
 
+    async def health_check(self) -> bool:
+        return True
+
     async def generate(self, request: LLMRequest) -> LLMResponse:
         try:
             response = await self._client.chat.completions.create(

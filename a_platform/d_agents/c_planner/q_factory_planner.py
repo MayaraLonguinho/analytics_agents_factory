@@ -145,7 +145,7 @@ class ProjectPlanner:
                 parallelizable=len(phase.dependencies) == 0 or phase.name in [
                     "backend", "frontend"],
             )
-            tasks.append(task.to_dict())
+            tasks.append(task.model_dump())
         return tasks
 
     def _assign_agents(self, domain_template: Any, tasks: List[Dict[str, Any]]) -> Dict[str, List[str]]:

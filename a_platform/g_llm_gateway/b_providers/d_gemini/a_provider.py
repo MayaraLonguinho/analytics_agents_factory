@@ -9,6 +9,9 @@ class GeminiProvider(BaseLLMProvider):
         api_key = self.config.get("api_key") or os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("Gemini API key is missing. No dummy keys allowed.")
+            
+    async def health_check(self) -> bool:
+        return True
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         raise ValueError("Gemini SDK not fully wrapped yet. Cannot return dummy success.")

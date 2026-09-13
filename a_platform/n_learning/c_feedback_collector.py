@@ -42,7 +42,7 @@ class FeedbackCollector:
         file_path = self.raw_root / \
             f"{record.ts.replace(':', '-').replace('.', '-')}__{kind}.json"
         file_path.write_text(json.dumps(
-            record.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+            record.model_dump(), indent=2, ensure_ascii=False), encoding="utf-8")
         return record
 
     def list_raw(self) -> List[Path]:

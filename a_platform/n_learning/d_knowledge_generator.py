@@ -52,7 +52,7 @@ class KnowledgeGenerator:
         file_path = self.candidate_root / \
             f"{candidate.ts.replace(':', '-').replace('.', '-')}__{title.lower().replace(' ', '_')}.json"
         file_path.write_text(json.dumps(
-            candidate.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+            candidate.model_dump(), indent=2, ensure_ascii=False), encoding="utf-8")
         return candidate
 
     def list_candidates(self) -> List[Path]:
