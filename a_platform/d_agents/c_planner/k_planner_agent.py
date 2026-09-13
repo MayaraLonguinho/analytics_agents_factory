@@ -35,7 +35,7 @@ class PlannerAgent:
         allowed_mcps = domain_config.get("mcps", [])
         
         # Etapa 7: Extrair lições aprendidas do KnowledgeRegistry
-        from a_platform.c_brain.f_registry.d_knowledge_registry import KnowledgeRegistry
+        from a_platform.c_brain.g_registry.a_knowledge_registry import KnowledgeRegistry
         k_registry = KnowledgeRegistry()
         learned_rules = k_registry.get_learned_rules_for_domain(domain_name)
         
