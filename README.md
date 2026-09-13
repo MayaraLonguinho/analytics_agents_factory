@@ -85,5 +85,3 @@ Para que a plataforma considere um **PROJECT READY**, as premissas são inflexí
 
 **Regra Dourada:** A ausência de evidência estrutural ou erro de testes significa **falha** (`PASS = FALSE`). Projetos gerados devem obrigatoriamente ser executáveis e comprovados pela plataforma. Projetos gerados são persistidos dentro da pasta `e_generated_projects/`.
 
----
-*Referência Conceitual Arquitetural: [ai-project-pipeline](https://github.com/gustavomot4/ai-project-pipeline)*
