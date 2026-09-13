@@ -1,34 +1,89 @@
 # Analytics Agents Factory (AAF)
 
 ## Objetivo
-Uma fábrica de software totalmente gerida por agentes autônomos, focada em engenharia de dados e analytics. A AAF atua em todo o ciclo de vida do projeto: discovery, planning, arquitetura, codificação, validação, qualidade e certificação. Não utiliza templates fixos ou caminhos engessados.
-
-## Funcionamento
-O sistema opera através de um hub de especialidades (Agents) operados por um `MasterOrchestrator`. A lógica operacional é **100% autônoma**, guiada por capabilities e domains. O `Brain` atua como fonte de verdade de conhecimento e padrões, ditando restrições de arquitetura e contexto, substituindo o uso de documentação extensa (Markdown) em favor de operações compactas (Context Packs).
-
-## Como Executar
-
-Para iniciar a experiência completa e solicitar a criação de um projeto:
-```bash
-python aaf start
-```
-*(Durante a execução, o agente de discovery fará o alinhamento antes do planejamento e execução).*
-
-Para rodar demonstrações de Model Context Protocols (MCPs):
-```bash
-python aaf mcp
-```
+A **Analytics Agents Factory (AAF)** é uma fábrica de software operada por agentes autônomos especializados na construção de pipelines de **Analytics e ETL/ELT**. Ela foi concebida de forma completamente **agnóstica ao domínio de negócio**, sendo capaz de modelar bases, transformar dados e expor indicadores sem engessamento conceitual. (A geração de projetos de *Personal Finance*, por exemplo, é uma mera capacidade opcional e não o domínio exclusivo do núcleo).
 
 ## Arquitetura
-A AAF possui um design pautado em camadas rigorosas (Gates):
-- **Core / Brain**: Registros de conhecimento, regras de negócio e limites de memória (Context Pack).
-- **Agents & Skills**: Entidades isoladas com ferramentas focadas (ex: DiscoveryAgent, PlannerAgent).
-- **Factory & Materializer**: Foca em produzir e injetar o plano físico.
-- **Validation, Quality, Certification**: Tripla checagem onde um projeto só sobrevive se o código real executar (Exit Code 0), tiver testes passando e atingir patamar mínimo de qualidade estrutural e de dependências.
+A plataforma opera sob um padrão de **Modular Monolith**. Todos os serviços, *agents*, *skills* e orquestrações pertencem ao mesmo repositório e contexto, o que simplifica o estado, validação e governança, rejeitando a complexidade indevida de microserviços.
 
-## Demo
-O funcionamento básico e as integrações são demonstradas via `aaf start` e também pelo script sintético de validação dos portões:
-```bash
-python test_synthetic_gates.py
-```
-*(Demonstra o ciclo de sucesso ou reparo - Repair Loop - a partir de uma quebra no meio da execução).*
+## Fluxo Operacional
+O ciclo de vida da geração de um projeto respeita rigorosamente as seguintes etapas:
+`IDE Chat` → `IDE Adapter` → `Discovery` → `Dataset Profiling` → `Brain` → `Architecture` → `Planner` → `Project Factory` → `Agents + Skills + MCPs + LLM Gateway` → `Artifact Materializer` → `e_generated_projects/` → `Execution Runtime` → `Validation Gate` → `Repair Loop` → `Quality Engine` → `Certification Engine` → **PROJECT READY**.
+
+O AAF não gera meramente "arquivos de texto"; ele de fato os materializa, executa na engine, valida, avalia a estrutura via testes, repara bugs através do *Repair Loop* (caso os *Gates* não passem) e só então certifica a prontidão do projeto.
+
+## Estruturas Principais
+
+### Agentes Principais
+Os agentes lidam com especialidades autônomas, comunicando-se com o *Brain* e sendo guiados pelo *Planner*.
+- **Agent Factory:** Fábrica responsável pela inicialização.
+- **Planner Agent:** Gera e rastreia planos de execução.
+- **Discovery Agent:** Entende a necessidade e faz profiling.
+- **Data & Analytics Agents:** Escrevem lógicas de transformação e cálculo.
+- Outros: Testing, Documentation, Database, Backend, Frontend, Chatbot, Infrastructure e Base Agents.
+
+### Skills
+Capacidades determinísticas e injetáveis fornecidas aos agentes.
+
+### MCPs (Model Context Protocol)
+Integrações seguras utilizadas:
+- **Filesystem MCP**: Leitura, listagem e escrita segura.
+- **Database MCP**: Manipulação de *engines* suportadas (ex: SQLite).
+- **Docker MCP**: Informações de containerização e isolamento.
+
+*(Aviso: Integrações de Git MCP não fazem parte do escopo da plataforma).*
+
+### LLM Gateway
+Acesso unificado abstraindo provedores (sem lógicas acopladas diretamente no agente):
+- **OpenAI**
+- **Gemini**
+- **Anthropic**
+
+*(Aviso: Ollama ou LLMs locais não integram a stack).*
+
+### Brain & Graph (Obsidian)
+- **Brain**: O repositório central de inteligência da plataforma, contendo restrições operacionais e conhecimento (`c_brain/`).
+- **Graph/Obsidian**: Utilizado puramente como camada visual representativa, sem a construção de aplicações gráficas acopladas.
+
+## Como Executar (CLI Oficial)
+A execução interativa da fábrica, testes e checagem de orquestração se dão através do entrypoint da CLI (construído em Python). **Não utilize Continue IDE ou outras ferramentas externas para emular a orquestração. O Git também não faz parte da operação do agente nem da fábrica.**
+
+Para interagir com o ecossistema localmente, os **comandos canônicos** são:
+- Iniciar uma fábrica (requisição interativa):
+  ```bash
+  python -m a_platform.b_interfaces.b_cli.b_cli start
+  ```
+- Obter status:
+  ```bash
+  python -m a_platform.b_interfaces.b_cli.b_cli status <project_id>
+  ```
+- Ver os resultados e artefatos de um projeto finalizado:
+  ```bash
+  python -m a_platform.b_interfaces.b_cli.b_cli result <project_id>
+  ```
+- Executar os testes estáticos de MCPs:
+  ```bash
+  python -m a_platform.b_interfaces.b_cli.b_cli mcp
+  ```
+- Despejar conhecimento carregado do Brain:
+  ```bash
+  python -m a_platform.b_interfaces.b_cli.b_cli brain
+  ```
+
+*(Para rodar via docker, utilize: `docker-compose run aaf python -m a_platform.b_interfaces.b_cli.b_cli <comando>`)*
+
+## Golden Paths & Qualidade
+
+Para que a plataforma considere um **PROJECT READY**, as premissas são inflexíveis:
+- **Discovery** = `COMPLETE`
+- **Planning** = `COMPLETE`
+- **Materialization** = `SUCCESS`
+- **Execution** = `SUCCESS`
+- **Validation** = `PASS`
+- **Quality** = `PASS`
+- **Certification** = `PASS`
+
+**Regra Dourada:** A ausência de evidência estrutural ou erro de testes significa **falha** (`PASS = FALSE`). Projetos gerados devem obrigatoriamente ser executáveis e comprovados pela plataforma. Projetos gerados são persistidos dentro da pasta `e_generated_projects/`.
+
+---
+*Referência Conceitual Arquitetural: [ai-project-pipeline](https://github.com/gustavomot4/ai-project-pipeline)*
