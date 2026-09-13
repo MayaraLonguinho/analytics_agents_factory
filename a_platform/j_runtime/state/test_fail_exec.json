@@ -1,0 +1,109 @@
+{
+  "state_manager": {
+    "current_phase": "FAILED",
+    "project_ready": false,
+    "repair_attempts": 0,
+    "phases": {
+      "INIT": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "NEEDS_INPUT": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "DISCOVERY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "DATASET_PROFILING": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "BRAIN": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "ARCHITECTURE": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PLANNER": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "PROJECT_FACTORY": {
+        "status": "COMPLETED",
+        "details": {}
+      },
+      "MATERIALIZATION": {
+        "status": "FAILED",
+        "details": {
+          "error": "Unknown MCP: filesystem_mcp"
+        }
+      },
+      "EXECUTION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "VALIDATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "REPAIR_LOOP": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "QUALITY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "CERTIFICATION": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "READY": {
+        "status": "PENDING",
+        "details": {}
+      },
+      "FAILED": {
+        "status": "PENDING",
+        "details": {}
+      }
+    }
+  },
+  "request": {
+    "prompt": "Fail app",
+    "dataset_path": null,
+    "project_type": null,
+    "business_context": null,
+    "domain": "analytics",
+    "project_id": "test_fail_exec",
+    "metadata": {
+      "PROJECT_READY": "NO"
+    },
+    "discovery_data": {
+      "domain": "analytics"
+    },
+    "dataset_profile": {},
+    "architecture_decision": {
+      "architecture": "mock"
+    },
+    "graph_representation": {},
+    "artifacts": [],
+    "project_plan": {
+      "tasks": [
+        {
+          "task_id": "t1",
+          "name": "Create app",
+          "description": "",
+          "assigned_agent": "DataAgent",
+          "required_skills": [],
+          "status": "PENDING",
+          "dependencies": []
+        }
+      ],
+      "run_commands": []
+    }
+  }
+}
