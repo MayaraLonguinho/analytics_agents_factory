@@ -6,17 +6,17 @@ class AgentCapability(BaseModel):
     description: str
 
 class AgentContract(BaseModel):
-    """Contract defining an agent's interface and responsibilities."""
+    model_config = {"extra": "forbid"}
     agent_id: str
     name: str
     description: str
-    responsibility: str  # Primary responsibility
+    responsibility: str
     input_schema: Dict[str, Any] = Field(default_factory=dict)
     output_schema: Dict[str, Any] = Field(default_factory=dict)
     allowed_skills: List[str] = Field(default_factory=list)
     allowed_mcps: List[str] = Field(default_factory=list)
     applicable_rules: List[str] = Field(default_factory=list)
-    required_context: List[str] = Field(default_factory=list)  # Context types needed
+    required_context: List[str] = Field(default_factory=list)
     capabilities: List[AgentCapability] = Field(default_factory=list)
     version: str = "1.0.0"
     tags: List[str] = Field(default_factory=list)

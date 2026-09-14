@@ -8,7 +8,7 @@ import shutil
 from unittest.mock import patch
 from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, ProjectTask
+from a_platform.b_contracts import ProjectPlan, ProjectTask
 from a_platform.g_llm_gateway.f_interfaces.a_base_provider import LLMResponse
 
 @patch("a_platform.f_mcp.e_executor.a_executor.MCPExecutor.execute")
@@ -57,7 +57,7 @@ def test_golden_path(mock_planner, mock_generate, mock_structured, mock_mcp):
     )
     
     # Mock execution result to bypass real runtime 
-    from a_platform.a_core.a_contracts.e_execution_contract import ExecutionResult
+    from a_platform.b_contracts import ExecutionResult
     orchestrator.last_execution_result = ExecutionResult(task_id="t1", success=True)
     
     # Patches para simular sucesso no Execution step

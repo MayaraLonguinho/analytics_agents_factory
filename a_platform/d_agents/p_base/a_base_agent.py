@@ -6,10 +6,10 @@ from typing import Dict, Any, List
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
 from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
-from a_platform.a_core.a_contracts.d_project_contract import ProjectTask as Task
+from a_platform.b_contracts import ProjectTask as Task
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.e_execution_contract import Artifact
-from a_platform.a_core.a_contracts.b_skill_contract import CORE_SKILL_CONTRACTS
+from a_platform.b_contracts import Artifact
+from a_platform.b_contracts import CORE_SKILL_CONTRACTS
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,16 @@ class BaseAgent:
             if res.get("success"):
                 art_name = res.get("artifact", "unknown.txt")
                 content = res.get("content", "")
-                artifacts.append(Artifact(name=art_name, content=content, type="skill_output", metadata={"generator": "skill", "skill_name": skill_name}))
+                import uuid
+                artifacts.append(Artifact(
+                    identity=str(uuid.uuid4()),
+                    name=art_name,
+                    path=art_name,
+                    type="skill_output",
+                    content=content,
+                    metadata={"generator": "skill", "skill_name": skill_name},
+                    producer=self.name
+                ))
                 logger.info(f"[{self.name}] Skill {skill_name} gerou artefato {art_name}")
             else:
                 logger.warning(f"[{self.name}] Falha na skill {skill_name}: {res.get('error')}")
@@ -81,7 +90,16 @@ class BaseAgent:
             llm_resp = asyncio.run(self.gateway.generate(prompt, system_prompt=f"Você é o {self.name}", model_preference="openai"))
             if llm_resp.content:
                 content = llm_resp.content
-                artifacts.append(Artifact(name=art, content=content, type="source_code", metadata={"generator": "llm", "agent_name": self.name}))
+                import uuid
+                artifacts.append(Artifact(
+                    identity=str(uuid.uuid4()),
+                    name=art,
+                    path=art,
+                    type="source_code",
+                    content=content,
+                    metadata={"generator": "llm", "agent_name": self.name},
+                    producer=self.name
+                ))
             else:
                 logger.error(f"[{self.name}] Erro no LLM para {art}")
 

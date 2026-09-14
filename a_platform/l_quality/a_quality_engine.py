@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.f_gate_contract import QualityReport, QualityMetric
+from a_platform.b_contracts import QualityResult
 
 class QualityEngine:
     """Scores project quality dynamically based on actual artifacts."""
@@ -12,7 +12,7 @@ class QualityEngine:
     def __init__(self, project_root: Optional[Path | str] = None):
         self.project_root = Path(project_root or Path.cwd()).resolve()
 
-    def evaluate(self, request: ExecutionContext, validation_result: Optional[Dict[str, Any]] = None, runtime_result: Optional[Dict[str, Any]] = None) -> QualityReport:
+    def evaluate(self, request: ExecutionContext, validation_result: Optional[Dict[str, Any]] = None, runtime_result: Optional[Dict[str, Any]] = None) -> QualityResult:
         project_name = request.project_id
         self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", project_name))
         
@@ -51,7 +51,7 @@ class QualityEngine:
         # Ausência de evidência de qualidade falha o projeto
         passed = score >= 0.75 and structure == 1.0 and security == 1.0 and runtime == 1.0
         
-        return QualityReport(
+        return QualityResult(
             overall_status="PASSED" if passed else "FAILED",
             score=round(score, 3),
             passed=passed,

@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
-from a_platform.a_core.a_contracts.f_gate_contract import ReadinessResult
+from a_platform.b_contracts import ReadinessResult, ExecutionResult, ValidationResult, QualityResult, CertificationResult
 from a_platform.d_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain.h_brain import Brain
@@ -60,6 +60,12 @@ class MasterOrchestrator:
         else:
             self.state_manager = StateManager(request.project_id)
             logger.info(f"Iniciando novo pipeline para {request.project_id}")
+        
+        from a_platform.b_contracts.a_project import ProjectContext
+        import os
+        if not hasattr(request, "project_context") or request.project_context is None:
+            project_path = os.path.join(os.getcwd(), "e_generated_projects", request.project_id)
+            request.project_context = ProjectContext(project_id=request.project_id, project_name=request.project_id, project_path=project_path)
         
         try:
             # 1. Discovery
@@ -122,18 +128,13 @@ class MasterOrchestrator:
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
             # 11. Readiness Gate (Regra Absoluta)
-            from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
-            from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport
-            from a_platform.l_quality.a_quality_engine import QualityReport
-            from a_platform.m_certification.a_certification_engine import CertificationResult
             
-            # Recupera os resultados reais armazenados no state manager ou request
-            real_exec = self.last_execution_result or ExecutionResult(task_id="", success=False, error="No execution ran")
-            real_val = getattr(self, "last_validation_report", ValidationReport(passed=False))
-            real_qual = getattr(self, "last_quality_report", QualityReport(passed=False, score=0.0))
-            real_cert = getattr(self, "last_certification_report", CertificationResult(project_id=request.project_id, passed=False, score=0.0))
+            real_exec = self.last_execution_result or ExecutionResult(status="FAILED", errors=["No execution ran"])
+            real_val = getattr(self, "last_validation_report", ValidationResult(status="FAILED"))
+            real_qual = getattr(self, "last_quality_report", QualityResult(status="FAILED"))
+            real_cert = getattr(self, "last_certification_report", CertificationResult(status="FAILED"))
             
-            if self.validation_gate.evaluate(request, real_exec).passed and real_qual.passed and real_cert.passed:
+            if self.validation_gate.evaluate(request, real_exec).status == "PASSED" and real_qual.status == "PASSED" and real_cert.status == "PASSED":
                 request.metadata["PROJECT_READY"] = "YES"
                 logger.info("===============================================")
                 logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
@@ -250,20 +251,19 @@ class MasterOrchestrator:
         return self.materializer.materialize(request, self.compiled_artifacts)
 
     def _step_execution(self, request: ExecutionContext) -> bool:
-        # Runtime Engine agora pega comandos do ProjectPlan
-        result = self.runtime_engine.execute(request, project_path=request.project_path)
+        result = self.runtime_engine.execute(request, project_path=request.project_context.project_path)
         self.last_execution_result = result
-        if not result.success:
-            logger.error(f"Execution failed: {result.diagnosis} - Stderr: {result.stderr}")
-        return result.success
+        if result.status != "PASSED":
+            logger.error(f"Execution failed: {result.evidence}")
+        return result.status == "PASSED"
 
     def _step_validation(self, request: ExecutionContext) -> bool:
         logger.info("Executando Validation Gate...")
         report = self.validation_gate.evaluate(request, self.last_execution_result)
         self.last_validation_report = report
-        if not report.passed:
+        if report.status != "PASSED":
             logger.error(f"Validation failed. Report: {report.model_dump()}")
-        return report.passed
+        return report.status == "PASSED"
         
     def _step_repair(self, request: ExecutionContext) -> bool:
         logger.info("Executando Repair Loop...")
@@ -272,9 +272,7 @@ class MasterOrchestrator:
     def _step_quality(self, request: ExecutionContext) -> bool:
         logger.info("Executando Quality Engine...")
         
-        # Cria um dict simulado para compatibility com a assinatura (que pede dict em runtime_result)
-        # O certo seria refatorar a assinatura inteira, mas para manter o contrato atual:
-        exec_dict = self.last_execution_result.__dict__ if self.last_execution_result else None
+        exec_dict = self.last_execution_result.model_dump() if self.last_execution_result else None
         val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
         
         report = self.quality_engine.evaluate(
@@ -283,16 +281,15 @@ class MasterOrchestrator:
             runtime_result=exec_dict
         )
         self.last_quality_report = report
-        if not report.passed:
+        if report.status != "PASSED":
             logger.error(f"Quality failed. Report: {report.model_dump()}")
-        return report.passed
+        return report.status == "PASSED"
 
     def _step_certification(self, request: ExecutionContext) -> bool:
         logger.info("Executando Certification Engine...")
         
-        exec_dict = self.last_execution_result.__dict__ if self.last_execution_result else None
+        exec_dict = self.last_execution_result.model_dump() if self.last_execution_result else None
         val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
-        # O quality report já é um dataclass mas a assinatura atual pede dict
         qual_dict = self.last_quality_report.model_dump() if hasattr(self, "last_quality_report") else None
         
         report = self.certification_engine.evaluate(
@@ -302,6 +299,6 @@ class MasterOrchestrator:
             quality_result=qual_dict
         )
         self.last_certification_report = report
-        if not report.passed:
+        if report.status != "PASSED":
             logger.error(f"Certification failed. Report: {report.model_dump()}")
-        return report.passed
+        return report.status == "PASSED"

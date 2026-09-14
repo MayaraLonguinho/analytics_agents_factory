@@ -3,7 +3,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-dummy'
 os.environ['ANTHROPIC_API_KEY'] = 'sk-dummy'
 os.environ['GEMINI_API_KEY'] = 'sk-dummy'
 
-from a_platform.a_core.a_contracts.d_project_contract import ProjectRequest, ProjectPlan, ProjectTask
+from a_platform.b_contracts import ProjectRequest, ProjectPlan, ProjectTask
 
 def test_project_contract_instantiation():
     req = ProjectRequest(project_id="p1", prompt="test")

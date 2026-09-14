@@ -8,7 +8,7 @@ import shutil
 from unittest.mock import patch
 from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, ProjectTask
+from a_platform.b_contracts import ProjectPlan, ProjectTask
 from a_platform.g_llm_gateway.f_interfaces.a_base_provider import LLMResponse
 
 @patch("a_platform.g_llm_gateway.e_gateway.LLMGateway.structured_output")
@@ -35,7 +35,7 @@ def test_execution_failure_blocks_readiness(mock_planner, mock_generate, mock_st
         discovery_data={"domain": "analytics"}
     )
     
-    from a_platform.a_core.a_contracts.e_execution_contract import ExecutionResult
+    from a_platform.b_contracts import ExecutionResult
     with patch("a_platform.j_runtime.a_execution.c_runtime.ProjectRuntime.execute", return_value=ExecutionResult(task_id="t1", success=False, error="SyntaxError")):
         result = orchestrator.execute_pipeline(ctx)
         

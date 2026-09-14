@@ -2,7 +2,7 @@ import logging
 import os
 from typing import List
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.e_execution_contract import Artifact
+from a_platform.b_contracts import Artifact
 from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
@@ -20,20 +20,18 @@ class ArtifactMaterializer:
             logger.error("[ArtifactMaterializer] Nenhum artefato recebido para materialização.")
             return False
             
-        plan = request.project_plan
+        plan = getattr(request.project_context, "plan", [])
         if not plan:
-            logger.error("[ArtifactMaterializer] ProjectPlan não encontrado. Não é possível validar a materialização.")
+            logger.error("[ArtifactMaterializer] Plano de execução (ProjectTask list) vazio ou não encontrado.")
             return False
             
-        project_name = request.project_id
-        project_dir = os.path.join(os.getcwd(), "e_generated_projects", project_name)
-        request.project_path = project_dir
+        project_dir = request.project_context.project_path
         
         logger.info(f"[ArtifactMaterializer] Iniciando materialização em: {project_dir}")
         
         # Coletar os artefatos esperados do plano de projeto
         expected_files = set()
-        for task in plan.tasks:
+        for task in plan:
             for art in getattr(task, "expected_artifacts", []):
                 expected_files.add(art)
                 
@@ -61,12 +59,12 @@ class ArtifactMaterializer:
         missing_files = expected_files - written_files
         
         # Retirar o requirements.txt se ele não foi prometido em nenhuma task e falhou em gerar no _generate_requirements
-        if "requirements.txt" in missing_files and "requirements.txt" not in [art for task in plan.tasks for art in getattr(task, "expected_artifacts", [])]:
+        if "requirements.txt" in missing_files and "requirements.txt" not in [art for task in plan for art in getattr(task, "expected_artifacts", [])]:
             missing_files.remove("requirements.txt")
         
         physically_missing = set()
         for expected_file in expected_files:
-            if expected_file == "requirements.txt" and "requirements.txt" not in [art for task in plan.tasks for art in getattr(task, "expected_artifacts", [])]:
+            if expected_file == "requirements.txt" and "requirements.txt" not in [art for task in plan for art in getattr(task, "expected_artifacts", [])]:
                 continue
             file_path = os.path.join(project_dir, expected_file)
             if not os.path.exists(file_path):

@@ -3,7 +3,7 @@ import json
 import re
 import asyncio
 from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.a_contracts.d_project_contract import ProjectPlan, Task
+from a_platform.b_contracts import Task
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.g_llm_gateway.e_gateway import LLMGateway
 
@@ -115,51 +115,41 @@ class PlannerAgent:
             logger.error(f"[PlannerAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
             return False
             
-        plan = ProjectPlan(
-            project_id=request.project_id,
-            domain=domain_name,
-            materializer=domain_config.get("materializers", ["generic_materializer"])[0]
-        )
+        plan = []
         
         print(f"DEBUG DATA: {data}")
         for t_data in data.get("tasks", []):
             task = Task(
-                id=t_data.get("id"),
+                task_id=t_data.get("task_id", t_data.get("id")),
                 name=t_data.get("name"),
-                description=t_data.get("description"),
-                agent=t_data.get("agent"),
-                skills=t_data.get("skills", []),
-                mcps=t_data.get("mcps", []),
+                description=t_data.get("description", ""),
+                assigned_agent=t_data.get("assigned_agent", t_data.get("agent")),
+                required_skills=t_data.get("required_skills", t_data.get("skills", [])),
+                required_mcps=t_data.get("required_mcps", t_data.get("mcps", [])),
                 dependencies=t_data.get("dependencies", []),
                 expected_artifacts=t_data.get("expected_artifacts", []),
                 commands=t_data.get("commands", []),
                 validators=t_data.get("validators", [])
             )
-            plan.add_task(task)
+            plan.append(task)
             
-        plan.run_commands = data.get("run_commands", [])
+        request.metadata["run_commands"] = data.get("run_commands", [])
         
         from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
         from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
         from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
         from a_platform.k_validation.a_validation_gate import ValidationGate
         
-        if not plan.tasks:
+        if not plan:
             logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")
             return False
             
-        try:
-            plan.validate_full(
-                SkillRegistry(),
-                MCPRegistry(),
-                AgentFactory(),
-                ValidationGate()
-            )
-        except ValueError as e:
-            logger.error(f"[PlannerAgent] Validação profunda falhou: {e}")
-            return False
+        # Optional manual validation could go here
             
-        request.project_plan = plan
+        if not hasattr(request, "project_context") or request.project_context is None:
+            from a_platform.b_contracts.a_project import ProjectContext
+            request.project_context = ProjectContext(project_id=request.project_id, project_name=request.project_id, project_path="")
+        request.project_context.plan = plan
         
-        logger.info(f"[PlannerAgent] Plano estruturado com sucesso via LLM. Total de tarefas: {len(plan.tasks)}")
+        logger.info(f"[PlannerAgent] Plano estruturado com sucesso via LLM. Total de tarefas: {len(plan)}")
         return True

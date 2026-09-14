@@ -13,8 +13,7 @@ class ParameterDefinition(BaseModel):
     constraints: Dict[str, Any] = Field(default_factory=dict)
 
 class SkillContract(BaseModel):
-    """Contract defining a skill's interface and execution model."""
-    model_config = {"extra": "allow"}
+    model_config = {"extra": "forbid"}
     skill_id: str = "default_skill"
     name: str = "Default Skill"
     description: str = "Default description"
@@ -22,16 +21,15 @@ class SkillContract(BaseModel):
     version: str = "1.0.0"
     input_schema: List[ParameterDefinition] = Field(default_factory=list)
     output_schema: List[ParameterDefinition] = Field(default_factory=list)
-    dependencies: List[str] = Field(default_factory=list)  # Skill IDs
-    compatible_agents: List[str] = Field(default_factory=list)  # Agent IDs
+    dependencies: List[str] = Field(default_factory=list)
+    compatible_agents: List[str] = Field(default_factory=list)
     required_mcps: List[str] = Field(default_factory=list)
     required_brain_context: List[str] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
-    source: str = ""  # Where the skill is implemented
-    category: str = ""  # discovery, dataset, analytics, data_engineering, development, quality
+    source: str = ""
+    category: str = ""
     author: str = ""
     documentation_url: str = ""
 
-CORE_SKILL_CONTRACTS = {}
-
 BaseSkill = SkillContract
+CORE_SKILL_CONTRACTS = {}

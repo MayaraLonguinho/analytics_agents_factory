@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Any, Dict, List
 from enum import Enum
-from a_platform.a_core.a_contracts.d_project_contract import ArchitectureDecision
+from a_platform.b_contracts import ArchitectureDecision
 
 class MemoryType(str, Enum):
     SHORT_TERM = "short_term"

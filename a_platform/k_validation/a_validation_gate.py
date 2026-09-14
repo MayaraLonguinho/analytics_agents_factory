@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.j_runtime.a_execution.c_runtime import ExecutionResult
-from a_platform.a_core.a_contracts.f_gate_contract import ValidationReport, ValidationCheck
+from a_platform.b_contracts import ValidationResult
 
 class ValidationGate:
     """Base validation gate that enforces requirements derived from the project plan."""
@@ -16,12 +16,10 @@ class ValidationGate:
         self.project_root = Path(project_root or Path.cwd()).resolve()
 
     def run_validation(self, request: ExecutionContext, execution_result: ExecutionResult) -> bool:
-        domain = request.discovery_data.get("domain", "analytics").lower() if request.discovery_data else (request.domain or "analytics")
-        self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
         report = self.evaluate(request, execution_result)
-        return report.passed
+        return report.status == "PASSED"
 
-    def evaluate(self, request: ExecutionContext, execution_result: ExecutionResult) -> ValidationReport:
+    def evaluate(self, request: ExecutionContext, execution_result: ExecutionResult) -> ValidationResult:
         domain = request.discovery_data.get("domain", "analytics").lower() if request.discovery_data else (request.domain or "analytics")
         self.project_root = Path(os.path.join(os.getcwd(), "e_generated_projects", domain, request.project_id))
         
@@ -29,7 +27,7 @@ class ValidationGate:
         checks: List[ValidationCheck] = []
 
         if not plan:
-            return ValidationReport(status="FAILED", passed=False, errors=["No project plan"])
+            return ValidationResult(status="FAILED", passed=False, errors=["No project plan"])
 
         # Check expected artifacts
         for task in plan.tasks:
@@ -60,7 +58,7 @@ class ValidationGate:
         checks.append(ValidationCheck(check_id="execution_status", passed=passed_check, message=details))
 
         passed = bool(checks) and all(check.passed for check in checks)
-        return ValidationReport(
+        return ValidationResult(
             status="PASSED" if passed else "FAILED",
             passed=passed,
             checks=checks,

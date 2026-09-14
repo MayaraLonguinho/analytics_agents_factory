@@ -15,8 +15,8 @@ __all__ = [
 
 def __getattr__(name):
     if name in {"ProjectGenerationBundle", "ProjectTask"}:
-        from .bundle import ProjectGenerationBundle, ProjectTask
-        return {"ProjectGenerationBundle": ProjectGenerationBundle, "ProjectTask": ProjectTask}[name]
+        from a_platform.b_contracts import ProjectTask
+        return {"ProjectTask": ProjectTask}[name]
     if name == "ProjectPlanner":
         from .h_planner import ProjectPlanner
         return ProjectPlanner

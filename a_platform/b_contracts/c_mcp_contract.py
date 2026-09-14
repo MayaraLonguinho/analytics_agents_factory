@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 class MCPContract(BaseModel):
-    """Contract defining a Model Context Protocol tool."""
+    model_config = {"extra": "forbid"}
     mcp_id: str
     name: str
     description: str
