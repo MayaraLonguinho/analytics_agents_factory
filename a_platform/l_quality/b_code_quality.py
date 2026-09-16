@@ -1,17 +1,15 @@
-import subprocess
-from typing import Dict, Any
-
-class Linter:
-    def run_linter(self, project_dir: str) -> Dict[str, Any]:
-        # Simulated flake8 or pylint run
-        try:
-            result = subprocess.run(
-                ["flake8", "."],
-                cwd=project_dir,
-                capture_output=True,
-                text=True
-            )
-            passed = result.returncode == 0
-            return {"passed": passed, "issues": result.stdout if not passed else ""}
-        except Exception:
-            return {"passed": True, "issues": "Mocked linter pass"}
+class CodeQuality:
+    def evaluate(self, runtime_result_dict: dict) -> bool:
+        if not runtime_result_dict:
+            return False
+            
+        stdout = runtime_result_dict.get("stdout", "").lower()
+        stderr = runtime_result_dict.get("stderr", "").lower()
+        
+        # ABSENCE OF EVIDENCE = FAILURE. Se o linter (flake8/pylint) ou testes (pytest) 
+        # não rodaram (não há evidência no stdout), então fail.
+        if "test session starts" in stdout or "pytest" in stdout or "flake8" in stdout or "pylint" in stdout:
+            if "failed" in stdout or "failed" in stderr:
+                return False
+            return True
+        return False

@@ -1,17 +1,14 @@
-import subprocess
-from typing import Dict, Any
-
-class SecurityScanner:
-    def run_scan(self, project_dir: str) -> Dict[str, Any]:
-        # Simulated bandit run
-        try:
-            result = subprocess.run(
-                ["bandit", "-r", "."],
-                cwd=project_dir,
-                capture_output=True,
-                text=True
-            )
-            passed = result.returncode == 0
-            return {"passed": passed, "issues": result.stdout if not passed else ""}
-        except Exception:
-            return {"passed": True, "issues": "Mocked security pass"}
+class SecurityQuality:
+    def evaluate(self, runtime_result_dict: dict) -> bool:
+        if not runtime_result_dict:
+            return False
+            
+        stdout = runtime_result_dict.get("stdout", "").lower()
+        stderr = runtime_result_dict.get("stderr", "").lower()
+        
+        # Se não rodou ferramenta de segurança (bandit, safety), fail.
+        if "bandit" in stdout or "safety" in stdout:
+            if "issue found" in stdout or "vulnerability" in stdout:
+                return False
+            return True
+        return False

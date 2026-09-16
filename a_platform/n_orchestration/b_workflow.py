@@ -1,10 +1,4 @@
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field
+from enum import Enum
 
-class WorkflowStep(BaseModel):
-    name: str
-    dependencies: List[str] = Field(default_factory=list)
-
-class Workflow(BaseModel):
-    id: str
-    steps: List[WorkflowStep] = Field(default_factory=list)
+class WorkflowConstants:
+    MAX_REPAIR_ATTEMPTS = 3
