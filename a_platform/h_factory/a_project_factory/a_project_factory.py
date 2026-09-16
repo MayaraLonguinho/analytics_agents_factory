@@ -4,8 +4,8 @@ import ast
 from typing import List
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.b_contracts import Artifact
-from a_platform.d_agents.m_agent_factory.a_agent_factory import AgentFactory
-from a_platform.g_llm_gateway.e_gateway import LLMGateway
+from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
+from a_platform.i_llm_gateway.e_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

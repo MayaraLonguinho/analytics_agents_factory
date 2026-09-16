@@ -85,8 +85,8 @@ def cmd_mcp(args):
     print("🛠️  AAF - MCP Executable Verification")
     print("=" * 50)
     
-    from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
-    from a_platform.f_mcp.d_registry.a_registry import MCPRegistry
+    from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
+    from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
     
     executor = MCPExecutor()
     registry = MCPRegistry()

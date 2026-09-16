@@ -9,11 +9,11 @@ from unittest.mock import patch
 from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.b_contracts import ProjectPlan, ProjectTask
-from a_platform.g_llm_gateway.f_interfaces.a_base_provider import LLMResponse
+from a_platform.i_llm_gateway.f_interfaces.a_base_provider import LLMResponse
 
-@patch("a_platform.g_llm_gateway.e_gateway.LLMGateway.structured_output")
-@patch("a_platform.g_llm_gateway.e_gateway.LLMGateway.generate")
-@patch("a_platform.d_agents.c_planner.k_planner_agent.PlannerAgent.generate_plan")
+@patch("a_platform.i_llm_gateway.e_gateway.LLMGateway.structured_output")
+@patch("a_platform.i_llm_gateway.e_gateway.LLMGateway.generate")
+@patch("a_platform.g_agents.c_planner.k_planner_agent.PlannerAgent.generate_plan")
 def test_execution_failure_blocks_readiness(mock_planner, mock_generate, mock_structured):
     mock_generate.return_value = LLMResponse(content='{"domain": "mock_domain", "patterns": []}', model="mock", provider="mock")
     mock_structured.return_value = LLMResponse(content='{"architecture": "mock"}', model="mock", provider="mock")

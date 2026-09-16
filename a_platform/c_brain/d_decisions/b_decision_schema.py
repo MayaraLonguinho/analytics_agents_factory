@@ -1,2 +1,0 @@
-class DecisionSchema:
-    pass

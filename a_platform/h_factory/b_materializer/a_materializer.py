@@ -3,7 +3,7 @@ import os
 from typing import List
 from a_platform.a_core.d_session.b_context import ExecutionContext
 from a_platform.b_contracts import Artifact
-from a_platform.f_mcp.e_executor.a_executor import MCPExecutor
+from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
 
 logger = logging.getLogger(__name__)
 
