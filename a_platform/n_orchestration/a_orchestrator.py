@@ -12,8 +12,8 @@ from a_platform.g_agents.b_architecture.a_architecture_agent import Architecture
 from a_platform.i_domains.a_domain_registry import DomainRegistry
 from a_platform.g_agents.c_planner.k_planner_agent import PlannerAgent
 from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
-from a_platform.h_factory.a_project_factory.a_project_factory import ProjectFactory
-from a_platform.h_factory.b_materializer.a_materializer import ArtifactMaterializer
+from a_platform.h_factory import ProjectFactory
+from a_platform.h_materializer.a_materializer import ArtifactMaterializer
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
 from a_platform.j_runtime.a_execution.c_runtime import ProjectRuntime
 from a_platform.k_validation.a_validation_gate import ValidationGate
