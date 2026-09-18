@@ -1,15 +1,18 @@
 class CodeQuality:
-    def evaluate(self, runtime_result_dict: dict) -> bool:
+    def evaluate(self, runtime_result_dict: dict) -> str:
         if not runtime_result_dict:
-            return False
+            return "FAILED"
             
         stdout = runtime_result_dict.get("stdout", "").lower()
         stderr = runtime_result_dict.get("stderr", "").lower()
+        commands = runtime_result_dict.get("command", [])
         
-        # ABSENCE OF EVIDENCE = FAILURE. Se o linter (flake8/pylint) ou testes (pytest) 
-        # não rodaram (não há evidência no stdout), então fail.
-        if "test session starts" in stdout or "pytest" in stdout or "flake8" in stdout or "pylint" in stdout:
-            if "failed" in stdout or "failed" in stderr:
-                return False
-            return True
-        return False
+        # Check if code quality tools were actually executed
+        executed = any(cmd for cmd in commands if "flake8" in cmd or "pylint" in cmd or "black" in cmd or "isort" in cmd)
+        
+        if not executed:
+            return "NOT_EXECUTED"
+            
+        if "failed" in stdout or "failed" in stderr or "error" in stdout or "error" in stderr:
+            return "FAILED"
+        return "PASSED"

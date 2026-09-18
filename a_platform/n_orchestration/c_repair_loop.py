@@ -14,18 +14,57 @@ class RepairLoop:
             logger.info("Nenhuma falha para reparar.")
             return True
             
-        logger.warning(f"Iniciando Repair Loop para a falha: {runtime_result.evidence}")
+        logger.warning(f"Iniciando Repair Loop para a falha. Task: {runtime_result.task_id}, Error: {runtime_result.error}")
         
-        # Como o AAF não utiliza LLM mockado, em um cenário real o RepairLoop invocaria o LLM
-        # passando stdout e stderr. Mas, pelo pipeline estrito:
-        # ABSENCE OF EVIDENCE = FAIL
-        # Retornamos sucesso APENAS se fomos capazes de realizar um conserto efetivo.
+        # Identify the failed task
+        plan = getattr(request.project_context, "plan", [])
+        failed_task = None
+        for t in plan:
+            if t.task_id == runtime_result.task_id:
+                failed_task = t
+                break
+                
+        if not failed_task:
+            logger.error(f"Task falha não encontrada no plano: {runtime_result.task_id}")
+            return False
+            
+        agent_name = getattr(failed_task, "assigned_agent", None)
+        if not agent_name:
+            logger.error("A tarefa falha não possui agente designado.")
+            return False
+            
+        agent = self.agent_factory.get_agent(agent_name)
+        if not agent:
+            logger.error(f"Agente designado {agent_name} não encontrado na Factory.")
+            return False
+            
+        logger.info(f"Invocando agente responsável {agent_name} para realizar o reparo.")
         
-        # AQUI INVOCAR O AGENTE REAL
-        # agent = self.agent_factory.get_agent_for_repair()
-        # novo_artefato = agent.fix(runtime_result.stderr)
-        # request.generated_artifacts.append(novo_artefato)
+        # Criamos um contexto temporário para indicar ao agente a falha no prompt
+        original_prompt = request.prompt
+        request.prompt = f"REPARO DE TAREFA NECESSÁRIO! A tarefa {failed_task.task_id} falhou.\nComando executado: {runtime_result.command}\nOutput: {runtime_result.stdout}\nErro: {runtime_result.stderr}\nCorrija o código de acordo."
         
-        # Como não executamos LLM real nesta simulação e é proibido usar mock:
-        logger.error("Repair loop não pôde resolver automaticamente sem o LLM.")
-        return False
+        try:
+            # Reexecuta a tarefa via agente
+            fixed_artifacts = agent.execute_task(failed_task, request)
+            
+            # Restaura prompt original
+            request.prompt = original_prompt
+            
+            # Rematerializa os artefatos corrigidos
+            from a_platform.h_materializer.a_materializer import ArtifactMaterializer
+            from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
+            mcp = MCPExecutor()
+            materializer = ArtifactMaterializer(mcp)
+            
+            mat_res = materializer.materialize(request, fixed_artifacts)
+            if mat_res.status == "FAILED":
+                logger.error(f"Materialização do reparo falhou: {mat_res.evidence}")
+                return False
+                
+            logger.info("Reparo concluído e materializado. Solicitando reexecução.")
+            return True
+        except Exception as e:
+            logger.error(f"O agente falhou ao processar o reparo: {e}")
+            request.prompt = original_prompt
+            return False

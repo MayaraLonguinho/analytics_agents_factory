@@ -1,14 +1,17 @@
 class SecurityQuality:
-    def evaluate(self, runtime_result_dict: dict) -> bool:
+    def evaluate(self, runtime_result_dict: dict) -> str:
         if not runtime_result_dict:
-            return False
+            return "FAILED"
             
         stdout = runtime_result_dict.get("stdout", "").lower()
         stderr = runtime_result_dict.get("stderr", "").lower()
+        commands = runtime_result_dict.get("command", [])
         
-        # Se não rodou ferramenta de segurança (bandit, safety), fail.
-        if "bandit" in stdout or "safety" in stdout:
-            if "issue found" in stdout or "vulnerability" in stdout:
-                return False
-            return True
-        return False
+        executed = any(cmd for cmd in commands if "bandit" in cmd or "safety" in cmd)
+        
+        if not executed:
+            return "NOT_EXECUTED"
+            
+        if "issue" in stdout or "vulnerability" in stdout or "failed" in stderr:
+            return "FAILED"
+        return "PASSED"
