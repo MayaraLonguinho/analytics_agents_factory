@@ -137,7 +137,7 @@ class PlannerAgent:
         
         from a_platform.e_skills.g_registry.a_skill_registry import SkillRegistry
         from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
-        from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
+        from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
         from a_platform.k_validation.a_validation_gate import ValidationGate
         
         if not plan:

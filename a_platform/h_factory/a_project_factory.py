@@ -2,7 +2,7 @@ import logging
 from typing import List
 from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
-from a_platform.g_agents.n_registry.a_registry import AgentRegistry
+from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from .b_capability_resolver import CapabilityResolver
 from .c_artifact_collector import ArtifactCollector
 from .d_generation_context import GenerationContext
@@ -10,8 +10,8 @@ from .d_generation_context import GenerationContext
 logger = logging.getLogger(__name__)
 
 class ProjectFactory:
-    def __init__(self, agent_registry: AgentRegistry):
-        self.agent_registry = agent_registry
+    def __init__(self, agent_factory: AgentFactory):
+        self.agent_factory = agent_factory
 
     def generate(self, request: ExecutionContext) -> List[Artifact]:
         plan = getattr(request.project_context, "plan", [])
@@ -34,8 +34,8 @@ class ProjectFactory:
                 logger.error(f"[ProjectFactory] ProjectTask {task.task_id} não possui agente designado.")
                 continue
                 
-            agent_class = self.agent_registry.get_agent(agent_name)
-            if not agent_class:
+            agent_instance = self.agent_factory.get_agent(agent_name)
+            if not agent_instance:
                 logger.error(f"[ProjectFactory] Agente {agent_name} não encontrado no registro.")
                 continue
                 

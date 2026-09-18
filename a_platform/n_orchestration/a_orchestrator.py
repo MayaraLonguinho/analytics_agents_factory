@@ -4,14 +4,14 @@ from typing import Any, Optional
 from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts.f_state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.b_contracts import ExecutionResult, ValidationResult, QualityResult, CertificationResult
-from a_platform.g_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
+from a_platform.g_agents.b_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain import Brain
 
-from a_platform.g_agents.b_architecture.a_architecture_agent import ArchitectureAgent
+from a_platform.g_agents.c_architecture.a_architecture_agent import ArchitectureAgent
 from a_platform.c_brain.a_domain_registry import DomainRegistry
-from a_platform.g_agents.c_planner.k_planner_agent import PlannerAgent
-from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
+from a_platform.g_agents.d_planner.k_planner_agent import PlannerAgent
+from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory import ProjectFactory
 from a_platform.h_materializer.a_materializer import ArtifactMaterializer
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
@@ -163,18 +163,34 @@ class MasterOrchestrator:
             return True
             
         self.state_manager.transition_to(phase)
-        result = step_func(request)
+        
+        try:
+            result = step_func(request)
+        except Exception as e:
+            logger.error(f"[Orchestrator] Fase {phase.name} falhou com exceção: {e}")
+            self.state_manager.phases[phase].status = PhaseStatus.FAILED
+            raise
+            
+        if hasattr(result, "status"):
+            status_val = str(result.status).upper()
+            if status_val in ("FAILED", "ERROR"):
+                logger.error(f"[Orchestrator] Fase {phase.name} retornou status de falha: {status_val}")
+                self.state_manager.phases[phase].status = PhaseStatus.FAILED
+                if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION, ProjectPhase.REPAIR_LOOP]:
+                    return False
+                raise Exception(f"Phase {phase.name} returned failure status: {status_val}")
         
         if result is False:
-            if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION]:
+            if phase in [ProjectPhase.EXECUTION, ProjectPhase.VALIDATION, ProjectPhase.REPAIR_LOOP]:
+                self.state_manager.phases[phase].status = PhaseStatus.FAILED
                 return False
-            # O Discovery retorna False se precisar de Input, isso é capturado lá fora
             if phase == ProjectPhase.DISCOVERY and self.state_manager.current_phase == ProjectPhase.NEEDS_INPUT:
                 return False
-            raise Exception(f"Phase {phase.name} returned failure.")
+            self.state_manager.phases[phase].status = PhaseStatus.FAILED
+            raise Exception(f"Phase {phase.name} returned boolean False.")
             
         self.state_manager.phases[phase].status = PhaseStatus.COMPLETED
-        return result
+        return True
 
     def _step_discovery(self, request: ExecutionContext) -> bool:
         logger.info("Executando Discovery...")

@@ -13,7 +13,7 @@ from a_platform.i_llm_gateway.f_interfaces.a_base_provider import LLMResponse
 
 @patch("a_platform.i_llm_gateway.e_gateway.LLMGateway.structured_output")
 @patch("a_platform.i_llm_gateway.e_gateway.LLMGateway.generate")
-@patch("a_platform.g_agents.c_planner.k_planner_agent.PlannerAgent.generate_plan")
+@patch("a_platform.g_agents.d_planner.k_planner_agent.PlannerAgent.generate_plan")
 def test_execution_failure_blocks_readiness(mock_planner, mock_generate, mock_structured):
     mock_generate.return_value = LLMResponse(content='{"domain": "mock_domain", "patterns": []}', model="mock", provider="mock")
     mock_structured.return_value = LLMResponse(content='{"architecture": "mock"}', model="mock", provider="mock")
