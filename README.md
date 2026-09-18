@@ -1,149 +1,166 @@
 # Analytics Agents Factory (AAF)
 
-## 1. Propósito
-O Analytics Agents Factory (AAF) é uma plataforma para geração automatizada de projetos de Analytics e Data Engineering. O AAF recebe solicitações em linguagem natural e materializa repositórios estruturados e executáveis através de uma pipeline baseada em múltiplos agentes, ferramentas MCP (Model Context Protocol), e validação de código rigorosa. O propósito é garantir a geração de um artefato final ("PROJECT READY") com base em evidências de execução com sucesso e validação de estrutura.
+## 1. Visão Geral
 
-## 2. Escopo
-O escopo do projeto compreende as seguintes funcionalidades centrais de infraestrutura e engenharia de software:
-- Coleta de metadados, contexto e requisitos via interação de Chat (CLI ou IDE).
-- Profiling de datasets físicos para ancorar as capacidades dos LLMs em esquemas de dados reais.
-- Extração de padrões arquiteturais e conhecimento através de um "Brain".
-- Planejamento algorítmico, modular, com uma cadeia de geração usando agentes especializados e Skills (MCPs).
-- Geração material do projeto e subsequente execução estruturada (runtime isolado).
-- Avaliação criteriosa por meio de Quality e Certification Engines focadas em _evidências_ concretas (logs, códigos de saída e falhas estruturais).
-- Repair Loop acionado automaticamente quando ocorrem erros estruturais ou de execução de processos.
+O **Analytics Agents Factory (AAF)** é uma plataforma multiagente especializada na geração automatizada de projetos de **Analytics e Data Engineering**.
 
-## 3. O que o AAF Gera
-- Projetos completos em Data Engineering, como extração de dados, scripts SQL, pipelines de processamento ETL/ELT e automações estruturadas e tipadas em Python.
-- Projetos de Data Analytics, dashboards conceituais (ou estrutura pronta para tais), modelos e análises exploratórias.
-- Arquitetura robusta de repositório de dados: contêineres Docker, scripts CLI e artefatos testáveis para análise de dados e implantação na nuvem.
+O AAF recebe uma solicitação em linguagem natural, analisa requisitos e dados, define uma arquitetura, planeja a execução, coordena Agents especializados e materializa um projeto estruturado.
 
-## 4. O que o AAF NÃO Pretende Gerar
-- O AAF não foca no desenvolvimento generalista de Software Web (Frontend/Webapps), não cria Microserviços avulsos sem relação a dados, nem cria aplicativos móveis. O domínio base sempre será restrito ao conhecimento prévio do *Brain*, direcionado exclusivamente a `analytics` e `data_engineering`.
+A proposta da plataforma não é apenas gerar código. O fluxo foi projetado para também executar, validar, avaliar qualidade e certificar o projeto produzido.
 
-## 5. Arquitetura Modular Monolith
-O sistema adere a uma arquitetura de Monolito Modular orientada a Domínio (DDD) implementada em Python. As partes não cruzam limites de pacote inadvertidamente, não há dependência cíclica, a configuração é tratada top-down e contratos/interfaces residem estritamente no pacote `b_contracts`. Nenhuma skill acessa provedores de LLM externos sem passar pelo LLM Gateway, nem agentes criam artefatos físicos no disco pulando a Factory ou Materializer.
+Em resumo:
 
-### Separação Estrita de Responsabilidades: IDE Chat vs Agents Nativos do AAF
-- **IDE Chat (Interface e Transporte):** O chat da IDE atua estritamente como canal de entrada/saída e camada de transporte com o usuário. O comando `aaf start` é a invocação do ponto de entrada do AAF; **não** constitui autorização para o agente da IDE gerar arquivos de projeto, criar scripts manuais de contorno ou alterar o código-fonte da plataforma durante solicitações de geração.
-- **Agents Internos do AAF:** Todo o raciocínio, levantamento de requisitos, arquitetura, planejamento, geração de código e verificação pertencem com exclusividade aos agentes nativos da plataforma (`DiscoveryAgent`, `ArchitectureAgent`, `PlannerAgent`, `ProjectFactory`, etc.) orquestrados pelo `MasterOrchestrator`.
+**Intenção → Planejamento → Geração → Execução → Validação → Projeto**
 
-## 6. Fluxo Completo de Funcionamento
+---
 
-```mermaid
-flowchart TD
-    IDE[IDE Chat / CLI] --> ENTRY[AAF Entry Point: f_cli / IDEAdapter]
-    ENTRY --> ORC[MasterOrchestrator: o_orchestration]
-    ORC --> DIS[DiscoveryAgent: g_agents/b_discovery]
-    DIS <-->|NEEDS_INPUT / --answer| STATE[(StateManager: PAUSED / RESUME)]
-    DIS --> PROF[DatasetProfilingSkill: e_skills/a_dataset_profiling]
-    PROF --> BRAIN[Brain SSOT: c_brain]
-    BRAIN --> ARCH[ArchitectureAgent: g_agents/c_architecture]
-    ARCH --> DEC[ArchitectureDecision]
-    DEC --> PLAN[PlannerAgent: g_agents/d_planner]
-    PLAN --> PVAL[Planner Preflight Validations:\nDomain, Agent, Skill, MCP, Stack, Commands, Evidence]
-    PVAL --> CP_PRE[CommandPolicy: Preflight Check]
-    CP_PRE --> PPLAN[ProjectPlan]
-    PPLAN --> FACT[ProjectFactory: h_factory]
-    FACT --> AGF[AgentFactory: g_agents/n_factory]
-    AGF --> AG[Agents Especializados]
-    AG --> SK[Skills: e_skills]
-    AG --> MCP[MCPs: f_mcps]
-    AG --> BRAIN
-    AG --> LLM[LLM Gateway: j_llm_gateway]
-    LLM --> OPENAI[OpenAI Provider: gpt-4o-mini]
-    AG --> ART[Artifacts Pydantic]
-    ART --> MAT[ArtifactMaterializer: i_materializer]
-    MAT --> GEN[e_generated_projects / project_id]
-    GEN --> RUN[Runtime: k_runtime]
-    RUN --> CP_ENF[CommandPolicy: Execution Enforcement]
-    CP_ENF --> CER[CommandExecutionResult / ExecutionResult]
-    CER --> VAL[Validation Gate: l_validation]
-    VAL -->|FAILED / retries <= 3| REP[Repair Loop: o_orchestration/c_repair_loop]
-    REP --> AG
-    VAL -->|PASSED| QUAL[Quality Engine: m_quality]
-    QUAL --> CERT[Certification Engine: n_certification]
-    CERT --> READY{PROJECT READY = YES / NO}
-```
+## 2. Objetivo
 
-## 7. Componentes Principais
+O objetivo do AAF é transformar uma necessidade de Analytics ou Data Engineering em um projeto executável utilizando uma fábrica composta por:
 
-### Discovery e Ciclo de Pause / Resume
-- O **DiscoveryAgent** coleta metadados e requisitos de negócio. 
-- Quando dados essenciais estão ausentes e não são inferíveis de defaults da fábrica, o agente emite `missing_info_question`, transicionando a sessão para o estado `NEEDS_INPUT` (`PAUSED`) via `StateManager` (`j_state_manager.py`).
-- O usuário responde diretamente à pergunta pendente na **mesma sessão** através de `aaf start --project-id <id> --answer "<resposta>"`. A sessão é retomada de forma idempotente sem perda de histórico nem reinício do Discovery.
-- Se um dataset for fornecido (`--dataset`), o Discovery proíbe perguntas redundantes sobre características físicas do arquivo (linhas, colunas, tipos), delegando essa análise estritamente à etapa subsequente de `DatasetProfilingSkill`.
+- **Brain** — contexto, regras, padrões, domínios e decisões;
+- **Agents** — especialistas responsáveis por diferentes etapas;
+- **Skills** — capacidades reutilizáveis utilizadas pelos Agents;
+- **MCPs** — interfaces controladas para recursos operacionais;
+- **LLM Gateway** — abstração para utilização de modelos de linguagem;
+- **Project Factory** — coordenação da geração;
+- **Materializer** — criação física dos arquivos;
+- **Runtime** — execução do projeto gerado;
+- **Validation** — validação estrutural e de execução;
+- **Quality** — avaliação das evidências de qualidade;
+- **Certification** — gate final de prontidão.
 
-### Dataset Profiling
-Skill física nativa executada via Pandas (`DatasetProfilingSkill`) para extração determinística de metadados estruturais (`row_count`, `column_count`, `columns`, tipos brutos, duplicatas, warnings), injetando evidências concretas no contexto antes da tomada de decisão arquitetural.
+O AAF é **agnóstico ao domínio de negócio**, mas especializado tecnicamente em **Analytics e Data Engineering**.
 
-### Brain (SSOT)
-Cérebro de conhecimento contextual. Centraliza regras de arquitetura (`b_rules`), domínios (`d_domains`), decisões registradas (`e_decisions`) e padrões de engenharia. O *Learning Engine* (`h_learning_engine.py`) encontra-se fora do Golden Path oficial de produção.
+---
 
-### Architecture
-O **ArchitectureAgent** analisa o contexto enriquecido do Brain e do dataset, gerando a decisão arquitetural formal (`ArchitectureDecision`) com restrições tecnológicas de stack, persistência e modelagem analítica.
+## 3. Como Funciona
 
-### Planning e Validações Pré-Execução
-O **PlannerAgent** atua como Single Source of Truth do plano de execução (`ProjectPlan`). Durante o planejamento, o agente realiza validações estritas de:
-- **Domínio técnico:** restrito a analytics e data engineering;
-- **Agent Registry / Factory:** apenas agentes formalmente autorizados no domínio;
-- **SkillRegistry:** validação de skills declaradas no catálogo `b_skills.yaml`;
-- **MCP Registry:** verificação de ferramentas de I/O autorizadas;
-- **Stack tecnológico e dependências:** compatibilidade com as premissas arquiteturais;
-- **CommandPolicy Preflight:** verificação estática prévia de cada comando de execução;
-- **Requisitos de evidência tipada:** comandos obrigatórios para geração de evidências concretas.
-
-### CommandPolicy: Atuação em Duas Posições
-A **CommandPolicy** (`a_platform/k_runtime/b_command_policy/`) atua de forma preventiva e em tempo de execução:
-1. **Planning (Preflight):** Valida estaticamente os comandos propostos no plano antes da instanciação de tarefas, rejeitando binários proibidos ou sintaxes inseguras.
-2. **Runtime (Enforcement):** Aplica a política de isolamento no momento da execução dos subprocessos em `k_runtime`, exigindo argumentos estruturados (`shlex`, `shell=False`) e bloqueando chamadas não autorizadas (`DENIED`).
-
-### Project Factory e Materializer
-- **ProjectFactory:** Orquestra os agentes via `AgentFactory` para converter as tarefas planejadas em objetos Pydantic `Artifact` lógicos.
-- **ArtifactMaterializer (`i_materializer`):** Grava fisicamente os arquivos de forma estrita no path seguro `e_generated_projects/<project_id>`, manipulando permissões e isolamento.
-
-### Runtime e Observabilidade (Separação Arquitetural)
-A plataforma distingue formalmente dois conceitos de runtime:
-- **`a_platform/k_runtime/` (Execution Runtime):** Executa comandos do projeto gerado (`run_commands`) de forma isolada (`shell=False`, timeouts explícitos, limites globais, `CommandPolicy`). Cada comando executado produz uma entidade tipada `CommandExecutionResult` contendo código de saída, stdout, stderr, duração e status. A ausência de erros de texto não constitui aprovação; a plataforma exige evidências tipadas de conclusão com sucesso.
-- **`h_runtime/state/` (Session Runtime State):** Persiste o estado operacional das sessões do próprio AAF (`<project_id>.json`) via `StateManager`, viabilizando ciclos interativos de pause e resume durante a fase de Discovery.
-
-### Validation Gate e Repair Loop
-- **ValidationGate (`l_validation`):** Avalia validações estruturais e evidências de execução (`CommandExecutionResult.status == PASSED` e `return_code == 0`).
-- **RepairLoop (`o_orchestration/c_repair_loop.py`):** Em caso de falha de validação ou execução, reencaminha os diagnósticos de erro ao respectivo agente para nova elaboração, com limite de até 3 tentativas (`max_repair_attempts`). Se as tentativas se esgotarem sem sucesso, a orquestração falha definitivamente.
-
-### Quality Engine
-Avalia, por meio do argv executável (`CommandExecutionResult.executable`), se os verificadores de Code Quality, Testes e Segurança (`pytest`, `ruff`, etc.) foram de fato acionados. Se não executados, são classificados como `FAILED`. Exige nota mínima (>= 0.75) e pontuação máxima (1.0) nas dimensões críticas.
-
-### Certification Engine e Regra de PROJECT READY
-A **CertificationEngine** (`n_certification`) atua como juiz supremo.
-
-**Fórmula Canônica de Readiness:**
-`PROJECT READY = YES` é emitido **exclusiva e imutavelmente** se e somente se:
-- `Discovery` = COMPLETE
-- `Planning` = COMPLETE
-- `Materialization` = SUCCESS
-- `Execution` = SUCCESS (`CommandExecutionResult.status == PASSED` e `return_code == 0`)
-- `Validation` = PASS
-- `Quality` = PASS
-- `Certification` = PASS (`CertificationResult.passed == True`)
-
-Se qualquer uma das etapas falhar, o veredito final é inegociável: `PROJECT READY = NO` sob estado `FAILED`. Nenhum default passivo ou flag simulada é tolerado.
-
-```mermaid
-flowchart LR
-    D[Discovery COMPLETE] --> R[Readiness Gate]
-    P[Planning COMPLETE] --> R
-    M[Materialization SUCCESS] --> R
-    E[Execution SUCCESS] --> R
-    V[Validation PASS] --> R
-    Q[Quality PASS] --> R
-    R --> C[Certification PASS]
-    C --> Y[PROJECT READY = YES]
-```
-
-## 8. Estrutura do Repositório
+O Golden Path conceitual do AAF é:
 
 ```text
+IDE Chat / CLI
+      ↓
+Discovery
+      ↓
+Dataset Profiling
+      ↓
+Brain
+      ↓
+Architecture
+      ↓
+Planner
+      ↓
+Project Factory
+      ↓
+Agents
+ ┌────┼─────┐
+Skills MCPs LLM
+ └────┼─────┘
+      ↓
+Artifacts
+      ↓
+Materializer
+      ↓
+e_generated_projects/
+      ↓
+Runtime
+      ↓
+Validation
+      │
+      └── FAIL → Repair Loop
+      ↓
+Quality
+      ↓
+Certification
+      ↓
+PROJECT READY
+```
+
+### Discovery
+
+O `DiscoveryAgent` entende a solicitação, coleta requisitos relevantes e pode pausar a sessão quando uma decisão do usuário é necessária.
+
+Dataset Profiling
+
+Quando existe um dataset, o DatasetProfilingSkill utiliza Pandas para obter evidências reais como:
+
+quantidade de registros;
+quantidade de colunas;
+nomes das colunas;
+tipos;
+duplicidades;
+warnings relevantes.
+Brain
+
+O Brain funciona como o SSOT operacional de conhecimento e contexto do AAF.
+
+Ele organiza:
+
+contexto;
+regras;
+padrões;
+domínios;
+decisões;
+relações entre conhecimentos.
+Architecture
+
+O ArchitectureAgent utiliza os requisitos, o profiling e o contexto do Brain para definir a arquitetura técnica do projeto.
+
+Planner
+
+O PlannerAgent transforma a arquitetura em um ProjectPlan, definindo:
+
+tarefas;
+Agents;
+Skills;
+MCPs;
+artifacts;
+comandos;
+evidências necessárias.
+Project Factory
+
+A ProjectFactory distribui as tarefas planejadas entre os Agents especializados e reúne os Artifacts produzidos.
+
+Materializer
+
+O Materializer transforma os Artifacts lógicos em arquivos físicos dentro de:
+
+e_generated_projects/<project_id>/
+Runtime
+
+O Runtime executa os comandos necessários do projeto gerado de forma controlada.
+
+Validation e Repair Loop
+
+O Validation verifica estrutura e evidências de execução.
+
+Quando ocorre uma falha recuperável, o Repair Loop pode solicitar uma correção, materializar novamente, executar novamente e revalidar.
+
+Quality
+
+O Quality Engine avalia evidências relacionadas a testes, qualidade de código, segurança e dependências.
+
+Certification
+
+O Certification Engine consolida os gates obrigatórios.
+
+A regra conceitual é:
+
+Discovery        COMPLETE
+Planning         COMPLETE
+Materialization  SUCCESS
+Execution        SUCCESS
+Validation       PASS
+Quality          PASS
+Certification    PASS
+        ↓
+PROJECT READY = YES
+
+Caso algum gate obrigatório falhe:
+
+PROJECT READY = NO
+4. Estrutura do Projeto
 analytics_agents_factory/
 ├── .agents/
 ├── .obsidian/
@@ -165,110 +182,538 @@ analytics_agents_factory/
 ├── c_tests/
 ├── d_documentation/
 │   ├── a_documentation_functional/
-│   │   ├── a_aaf.md
-│   │   ├── b_discovery.md
-│   │   ├── c_dataset_profiling.md
-│   │   ├── d_brain.md
-│   │   ├── e_architecture.md
-│   │   ├── f_planner.md
-│   │   ├── g_project_factory.md
-│   │   ├── h_agents.md
-│   │   ├── i_skills.md
-│   │   ├── j_mcps.md
-│   │   ├── k_llm_gateway.md
-│   │   ├── l_artifact.md
-│   │   ├── m_materializer.md
-│   │   ├── n_generated_projects.md
-│   │   ├── o_runtime.md
-│   │   ├── p_validation.md
-│   │   ├── q_repair_loop.md
-│   │   ├── r_quality.md
-│   │   ├── s_certification.md
-│   │   └── t_project_ready.md
 │   └── b_documentation_technical/
-│       ├── a_architecture.md
-│       ├── b_operation.md
-│       ├── c_brain.md
-│       ├── d_skills.md
-│       ├── e_mcps.md
-│       ├── f_agents.md
-│       ├── g_llm_provider.md
-│       ├── h_command_policy.md
-│       ├── i_runtime.md
-│       ├── j_validation.md
-│       ├── k_quality_certification.md
-│       ├── l_graph_obsidian.md
-│       └── m_presentation.md
 ├── e_generated_projects/
-│   └── .gitkeep
 ├── f_cli/
 ├── g_configuration/
 ├── h_runtime/
 │   └── state/
-│       └── .gitkeep
 ├── README.md
 ├── requirements.txt
 ├── Dockerfile
 └── docker-compose.yml
-```
+5. Principais Pastas
+.agents/
 
-## 9. Configuração e Segurança de Execução
-A configuração é realizada por meio do `g_configuration/`. 
-Políticas restritas existem sob `a_platform/k_runtime/b_command_policy/`. Subprocessos ocorrem invariavelmente via argumentos explícitos.
-Shell execution está bloqueada (`shell=False`).
-As APIs do *Anthropic* e *Gemini* lançam *NotImplementedError* uma vez que o AAF depende majoritariamente de conexões padronizadas via API do *OpenAI* ou SDK *OpenAI* em `j_llm_gateway`. 
+Contém regras e instruções utilizadas no desenvolvimento e manutenção do AAF.
 
-## 10. CLI
-O ponto de entrada CLI suportado usa o arquivo `f_cli/a_main.py`.
+.obsidian/
 
-**Comandos Disponíveis:**
-- `aaf start --project-id <id> --prompt <descricao> [--dataset <path>]`: Inicia o fluxo de pipeline do AAF.
-- `aaf start --project-id <id> --answer <resposta>`: Retoma uma sessão pausada em `NEEDS_INPUT`.
-- `aaf status <project_id>`: Consulta o estado de Readiness e Transição do Projeto especificado.
-- `aaf result <project_id>`: Retorna a prova de materialização e Certification result gerado para um Project_Id.
-- `aaf brain`: Expõe de forma global políticas registradas de *Brain* e configurações carregadas.
-- `aaf mcp`: Lista as capacidades/MCPS reais disponíveis para geração.
+Contém a configuração do workspace utilizado para visualização da documentação e do grafo de conhecimento através do Obsidian.
 
-## 11. Entrada de Datasets
-Ao iniciar o workflow (`aaf start`), pode ser fornecido o parâmetro estrito `--dataset`. A skill física `DatasetProfilingSkill` fará uma verificação imediata via `Pandas` do esquema dos dados, e disponibilizará inferências e metadados lidos fisicamente no *Brain Context* antes da geração da Arquitetura do projeto. 
+a_platform/
 
-## 12. Projetos Gerados
-Qualquer conteúdo construído com sucesso que receber `Materialization = SUCCESS` estará contido _única e exclusivamente_ no repositório `e_generated_projects/<ID do Projeto>`. Os testes e verificações de Validação correrão neste path isolado, onde todas as manipulações de comando de runtime possuirão um `cwd` confinado para assegurar sanidade. 
+É o núcleo funcional da plataforma.
 
-## 13. Observabilidade e Evidências
-Cada comando despachado pelo sistema pelo Pipeline Executivo de Runtimes é documentado e avaliado pela entidade `CommandExecutionResult`. A ausência de logs textuais de falha não significa aprovação. Componentes sistêmicos dependem de *Evidências Tipadas* no retorno de `exec_obj`.
+b_contracts/
 
-## 14. Golden Paths Suportados
-O Golden Path suporta _Data Engineering_ e _Analytics_. Tentar solicitar um projeto WebApp Front-end moderno (Next.js, Vue), Servidor Rust nativo, e domínios não alinhados farão o pipeline falhar com erro de "Domínio técnico inválido ou ausente". 
+Define os contratos compartilhados entre os componentes.
 
-## 15. Limitações Atuais Declaradas
-- **Status da Execução E2E:** O teste ponta a ponta executado anteriormente alcançou o `PlannerAgent` e falhou na validação de agentes/comandos. As estabilizações subsequentes (Prompts 01, 02 e 03) foram rigorosamente verificadas por análise estática e compilação de bytecode, mas o pipeline E2E completo ainda **não** foi executado até o final. Não há alegação de conclusão E2E homologada.
-- **Provedores de LLM:** O suporte operacional ativo é exclusivo para o provedor OpenAI (`gpt-4o-mini`). Os conectores Anthropic e Gemini declaram-se intencionalmente como `NotImplementedError`.
-- **Learning Engine:** O módulo `h_learning_engine.py` no Brain encontra-se fora do Golden Path oficial e não é invocado na esteira regular de geração.
-- **Interface:** A CLI (`f_cli/a_main.py`) e o `IDEAdapter` são os pontos de entrada estruturados; a IDE atua apenas como transporte e não realiza raciocínio autônomo sobre os projetos.
+Entre eles:
 
-## 16. Troubleshooting e Demonstração Recomendada
-Para verificar inconsistências:
-1. Revise se o `project_id` passado pelo CLI não está em uso.
-2. Certifique-se que o pacote principal de dependências (pip install -r requirements.txt) está completo.
-3. Verifique se o `OPENAI_API_KEY` encontra-se exportado na sua máquina (ex: `export OPENAI_API_KEY=...`).
-4. Execute `aaf mcp` para verificar a sanidade do Registry.
-5. Inicie um projeto de demonstração via CLI:
-   `python f_cli/a_main.py start --project-id etl_simple --prompt "Crie um script de ETL que leia um csv de clientes em data/ e escreva um csv de output em output/"`
+Project
+AgentContract
+SkillContract
+MCPContract
+Task
+ProjectPlan
+Artifact
+Execution
+ExecutionContext
+State
+Validation
+Quality
+Certification
+c_brain/
 
-## 17. Obsidian Graph e Documentação
-A documentação da plataforma reside em `d_documentation/`, dividida em duas categorias estritas:
-- `a_documentation_functional/`: Documentação da jornada do Golden Path em ordem cronológica de execução (20 etapas de `a_aaf.md` a `t_project_ready.md`).
-- `b_documentation_technical/`: Documentação de arquitetura, implementação e mecanismos internos em ordem lógica (`a_architecture.md` a `m_presentation.md`).
+Implementa o Brain do AAF.
 
-As visualizações da arquitetura e inter-relações via grafos conceituais no _Obsidian_ são configuradas via `.obsidian/`. O grafo atua como camada de visualização passiva e não substitui o SSOT contido no `Brain` (`a_platform/c_brain/`).
+c_brain/
+├── a_context/
+├── b_rules/
+├── c_patterns/
+├── d_domains/
+├── e_decisions/
+├── f_graph/
+├── g_brain.py
+└── h_learning_engine.py
 
-## 18. Definition of Ready
-- Os requisitos foram compreendidos pelo Discovery Engine.
-- Contexto enriquecido de Metadados e Profile injetados pelo Master Orchestrator. 
-- Brain Context instanciado.
+O LearningEngine existe estruturalmente, mas está fora do Golden Path operacional atual.
 
-## 19. Definition of Done
-- Fluxo _Certification Engine_ atestado como _PASSED_.
-- Propriedade MasterOrchestrator em _PROJECT READY = YES_ impressa.
-- Arquivos localizados e comprovados sem falsos-positivos em _Validation_ ou _Execution_ dentro de `e_generated_projects/<project_id>`.
+e_skills/
+
+Contém as capacidades reutilizáveis dos Agents.
+
+e_skills/
+├── a_dataset_profiling/
+├── b_etl/
+├── c_sql/
+├── d_analytics/
+├── e_quality/
+├── f_documentation/
+├── g_optional/
+└── h_registry/
+
+Conceitualmente:
+
+Agent
+  ↓
+SkillRegistry
+  ↓
+Skill
+  ↓
+validate_input
+  ↓
+execute
+  ↓
+validate_output
+
+Agent é quem executa uma responsabilidade.
+Skill é aquilo que o Agent sabe fazer.
+
+f_mcps/
+
+Contém os MCPs disponíveis:
+
+f_mcps/
+├── a_filesystem/
+├── b_database/
+├── c_docker/
+└── d_registry/
+
+Os MCPs representam interfaces controladas para interação com recursos operacionais.
+
+g_agents/
+
+Contém os especialistas da fábrica.
+
+g_agents/
+├── a_base/
+├── b_discovery/
+├── c_architecture/
+├── d_planner/
+├── e_data/
+├── f_database/
+├── g_analytics/
+├── h_testing/
+├── i_documentation/
+├── j_backend/
+├── k_frontend/
+├── l_chatbot/
+├── m_infrastructure/
+├── n_factory/
+├── o_registry/
+└── p_declarations/
+
+Agents principais:
+
+DiscoveryAgent
+ArchitectureAgent
+PlannerAgent
+DataAgent
+DatabaseAgent
+AnalyticsAgent
+TestingAgent
+DocumentationAgent
+
+Agents como Backend, Frontend, Chatbot e Infrastructure são condicionais e dependem das necessidades do projeto.
+
+h_factory/
+
+Contém a ProjectFactory, responsável por coordenar a geração dos Artifacts através dos Agents.
+
+i_materializer/
+
+Responsável por transformar Artifacts em arquivos físicos.
+
+Também aplica políticas para controlar os caminhos onde os arquivos podem ser materializados.
+
+j_llm_gateway/
+
+Abstrai a utilização dos modelos de linguagem.
+
+Agent / Skill
+     ↓
+LLM Gateway
+     ↓
+Provider
+
+O objetivo é impedir que Agents e Skills fiquem diretamente acoplados a um fornecedor específico.
+
+No Golden Path atual, o provider operacional é OpenAI.
+
+Anthropic e Gemini permanecem estruturados, porém não fazem parte do provider operacional ativo atual.
+
+k_runtime/
+
+Execution Runtime responsável pela execução controlada dos projetos gerados.
+
+Inclui a CommandPolicy, responsável por validar e controlar comandos permitidos.
+
+A execução de subprocessos utiliza argumentos estruturados e shell=False.
+
+l_validation/
+
+Responsável pelo Validation Gate.
+
+Verifica estrutura e evidências de execução antes de permitir a continuidade do projeto.
+
+m_quality/
+
+Contém o Quality Engine e as verificações relacionadas a qualidade, testes, segurança e dependências.
+
+n_certification/
+
+Responsável pela certificação final e consolidação dos gates obrigatórios.
+
+o_orchestration/
+
+Coordena o Golden Path completo.
+
+Também contém o Repair Loop utilizado quando uma falha recuperável precisa ser corrigida e revalidada.
+
+6. Entrada de Dados
+
+A pasta:
+
+b_input/
+
+contém datasets utilizados como entrada para os projetos.
+
+Entre os datasets presentes no projeto está:
+
+c_dados_vendas.csv
+
+Quando um dataset é fornecido ao workflow, o Dataset Profiling pode analisar fisicamente seu conteúdo antes da definição da arquitetura.
+
+7. Testes
+
+A pasta:
+
+c_tests/
+
+centraliza a estratégia de testes da plataforma, incluindo testes unitários, integração, validação e cenários end-to-end.
+
+8. Documentação
+
+A documentação está organizada em duas perspectivas:
+
+d_documentation/
+├── a_documentation_functional/
+└── b_documentation_technical/
+Documentação Funcional
+
+Explica o que acontece durante o Golden Path, seguindo sua ordem funcional:
+
+AAF
+Discovery
+Dataset Profiling
+Brain
+Architecture
+Planner
+Project Factory
+Agents
+Skills
+MCPs
+LLM Gateway
+Artifact
+Materializer
+Generated Projects
+Runtime
+Validation
+Repair Loop
+Quality
+Certification
+Project Ready
+Documentação Técnica
+
+Explica como a plataforma é implementada, incluindo:
+
+arquitetura;
+operação;
+Brain;
+Skills;
+MCPs;
+Agents;
+LLM Provider;
+CommandPolicy;
+Runtime;
+Validation;
+Quality e Certification;
+Obsidian;
+apresentação da arquitetura.
+9. Brain e Obsidian
+
+Brain e Obsidian possuem responsabilidades diferentes.
+
+Brain
+
+O Brain é operacional.
+
+Ele fornece ao AAF:
+
+contexto;
+regras;
+padrões;
+domínios;
+decisões;
+relações de conhecimento.
+Obsidian
+
+O Obsidian é uma camada de visualização e navegação voltada para pessoas.
+
+O Graph View permite visualizar relações entre conceitos como:
+
+AAF
+├── Brain
+├── Discovery
+├── Architecture
+├── Planner
+├── Agents
+├── Skills
+├── MCPs
+├── Runtime
+├── Validation
+├── Quality
+└── Certification
+
+Em resumo:
+
+Brain ajuda o AAF a trabalhar com conhecimento e contexto.
+Obsidian ajuda uma pessoa a visualizar e navegar por esse conhecimento.
+
+O Obsidian não é uma dependência de execução do Golden Path.
+
+10. Projetos Gerados
+
+Os projetos materializados pelo AAF ficam em:
+
+e_generated_projects/
+
+Cada projeto utiliza seu próprio diretório:
+
+e_generated_projects/<project_id>/
+
+Essa separação permite que o projeto gerado seja executado e analisado de forma independente da implementação interna da plataforma.
+
+11. Exemplo — ETL e Analytics de Vendas
+
+O repositório contém um exemplo simples de projeto de ETL e Analytics:
+
+e_generated_projects/vendas_analytics/
+├── README.md
+├── requirements.txt
+├── pipeline.py
+├── test_pipeline.py
+├── vendas.db
+└── resumo_vendas_por_categoria.csv
+
+A fonte utilizada é:
+
+b_input/c_dados_vendas.csv
+
+O projeto demonstra o seguinte fluxo:
+
+c_dados_vendas.csv
+        ↓
+      Pandas
+        ↓
+Limpeza / Transformação
+        ↓
+      SQLite
+        ↓
+   tabela vendas
+        ↓
+       SQL
+        ↓
+    Analytics
+        ↓
+resumo_vendas_por_categoria.csv
+Transformações
+
+O pipeline:
+
+lê o CSV;
+remove * dos campos necessários;
+converte datas;
+converte valores numéricos;
+valida IDs;
+remove duplicidades;
+carrega os registros tratados no SQLite.
+Analytics
+
+Depois da carga, uma consulta SQL calcula:
+
+quantidade de vendas por categoria;
+faturamento total por categoria.
+
+O resultado é exportado para:
+
+resumo_vendas_por_categoria.csv
+Executando o exemplo
+
+Entre no projeto:
+
+cd e_generated_projects/vendas_analytics
+
+Crie e ative um ambiente virtual, caso necessário:
+
+python3 -m venv venv
+source venv/bin/activate
+
+Instale as dependências:
+
+python3 -m pip install -r requirements.txt
+
+Execute:
+
+python3 pipeline.py
+
+O fluxo demonstrado é:
+
+CSV → Pandas/ETL → SQLite → SQL → Analytics → CSV
+
+Para executar os testes do projeto:
+
+python3 -m pytest test_pipeline.py -v
+12. CLI do AAF
+
+O ponto de entrada está em:
+
+f_cli/a_main.py
+
+A CLI disponibiliza operações relacionadas a:
+
+aaf start
+aaf status
+aaf result
+aaf brain
+aaf mcp
+
+O aaf start inicia o fluxo de geração.
+
+Quando o Discovery precisa de uma informação que realmente altera o projeto, a sessão pode entrar em estado de pausa e posteriormente ser retomada.
+
+13. Session State
+
+A plataforma diferencia dois conceitos de Runtime.
+
+Execution Runtime
+a_platform/k_runtime/
+
+Responsável por executar os comandos dos projetos gerados.
+
+Session Runtime State
+h_runtime/state/
+
+Responsável por persistir o estado operacional das sessões do próprio AAF.
+
+Essa separação permite cenários como:
+
+Discovery
+   ↓
+NEEDS_INPUT
+   ↓
+PAUSED
+   ↓
+h_runtime/state/
+   ↓
+Resposta do usuário
+   ↓
+RESUME
+14. Guardrails
+
+O AAF possui diferentes mecanismos de controle ao longo do fluxo.
+
+Entre eles:
+
+contratos tipados;
+validação de Agents;
+Skill Registry;
+MCP Registry;
+validação de domínio;
+CommandPolicy;
+PathPolicy;
+Validation Gate;
+Quality Engine;
+Certification Engine;
+evidências tipadas de execução.
+
+O objetivo é evitar que uma simples geração de arquivos seja interpretada como evidência de que um projeto está pronto.
+
+15. Limitações Atuais
+
+O projeto possui algumas limitações explicitamente reconhecidas:
+
+o Golden Path é especializado em Analytics e Data Engineering;
+OpenAI é o provider operacional ativo do LLM Gateway;
+Anthropic e Gemini não fazem parte do fluxo operacional ativo atual;
+o Learning Engine está fora do Golden Path;
+a IDE atua como interface/transporte, enquanto o raciocínio da fábrica pertence aos componentes internos do AAF;
+a existência de um projeto materializado não significa automaticamente que todo o Golden Path E2E do AAF foi homologado.
+16. Definition of Ready
+
+Um projeto está pronto para entrar no processo de geração quando:
+
+os requisitos necessários foram compreendidos;
+o contexto relevante foi identificado;
+datasets disponíveis foram analisados quando aplicável;
+o Brain Context está disponível para arquitetura e planejamento.
+17. Definition of Done
+
+O objetivo final do Golden Path é atingir:
+
+Discovery        COMPLETE
+Planning         COMPLETE
+Materialization  SUCCESS
+Execution        SUCCESS
+Validation       PASS
+Quality          PASS
+Certification    PASS
+
+Somente com todos os gates aprovados:
+
+PROJECT READY = YES
+18. Resumo
+
+O Analytics Agents Factory organiza a geração de projetos através de responsabilidades especializadas:
+
+Brain          → conhecimento, contexto e regras
+Agents         → especialistas
+Skills         → capacidades
+MCPs           → acesso controlado a recursos
+LLM Gateway    → inteligência generativa
+ProjectFactory → coordenação da geração
+Materializer   → criação dos arquivos
+Runtime        → execução
+Validation     → validação
+Repair Loop    → recuperação de falhas
+Quality        → evidências de qualidade
+Certification  → decisão final
+
+O AAF transforma:
+
+Intenção humana
+      ↓
+Contexto
+      ↓
+Arquitetura
+      ↓
+Plano
+      ↓
+Agents + Skills + MCPs + LLM
+      ↓
+Projeto
+      ↓
+Execução
+      ↓
+Validação
+      ↓
+Qualidade
+      ↓
+Certificação
+
+O AAF não é apenas um Agent que gera código: é uma fábrica multiagente de projetos de Analytics e Data Engineering projetada para transformar uma intenção em uma implementação estruturada, executável e validável.
+
+
+Essa versão também incorpora o **`vendas_analytics` como demonstração prática**, o que ajuda bastante quem abrir o GitHub depois da apresentação: a pessoa consegue entender o AAF conceitualmente e logo depois executar um exemplo pequeno.
