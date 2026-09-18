@@ -22,7 +22,7 @@
       }
     },
     {
-      "query": "path:a_platform/g_agents",
+      "query": "path:a_platform/d_agents",
       "color": {
         "a": 1,
         "rgb": 5406085
@@ -36,14 +36,14 @@
       }
     },
     {
-      "query": "path:d_documentation",
+      "query": "path:b_documentation",
       "color": {
         "a": 1,
         "rgb": 15049539
       }
     },
     {
-      "query": "path:a_platform/k_runtime/c_artifacts/graph",
+      "query": "path:a_platform/j_runtime/c_artifacts/graph",
       "color": {
         "a": 1,
         "rgb": 9923835
@@ -60,6 +60,6 @@
   "repelStrength": 10,
   "linkStrength": 1,
   "linkDistance": 250,
-  "scale": 1.5300216356800247,
+  "scale": 0.9063045420094618,
   "close": true
 }

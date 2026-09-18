@@ -2,7 +2,8 @@ import logging
 import re
 from typing import Dict, Any
 from a_platform.b_contracts import BaseSkill, ParameterDefinition
-from a_platform.j_llm_gateway.d_gateway import LLMGateway
+# pyrefly: ignore [missing-import]
+from a_platform.j_llm_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

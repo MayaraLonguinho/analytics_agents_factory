@@ -102,8 +102,10 @@ A **CommandPolicy** (`a_platform/k_runtime/b_command_policy/`) atua de forma pre
 - **ProjectFactory:** Orquestra os agentes via `AgentFactory` para converter as tarefas planejadas em objetos Pydantic `Artifact` lógicos.
 - **ArtifactMaterializer (`i_materializer`):** Grava fisicamente os arquivos de forma estrita no path seguro `e_generated_projects/<project_id>`, manipulando permissões e isolamento.
 
-### Runtime e Observabilidade
-Encapsula a execução de subprocessos (`shell=False`, timeouts explícitos, limites globais). Cada comando executado produz uma entidade tipada `CommandExecutionResult` contendo código de saída, stdout, stderr, duração e status. A ausência de erros de texto não constitui aprovação; a plataforma exige evidências tipadas de conclusão com sucesso.
+### Runtime e Observabilidade (Separação Arquitetural)
+A plataforma distingue formalmente dois conceitos de runtime:
+- **`a_platform/k_runtime/` (Execution Runtime):** Executa comandos do projeto gerado (`run_commands`) de forma isolada (`shell=False`, timeouts explícitos, limites globais, `CommandPolicy`). Cada comando executado produz uma entidade tipada `CommandExecutionResult` contendo código de saída, stdout, stderr, duração e status. A ausência de erros de texto não constitui aprovação; a plataforma exige evidências tipadas de conclusão com sucesso.
+- **`h_runtime/state/` (Session Runtime State):** Persiste o estado operacional das sessões do próprio AAF (`<project_id>.json`) via `StateManager`, viabilizando ciclos interativos de pause e resume durante a fase de Discovery.
 
 ### Validation Gate e Repair Loop
 - **ValidationGate (`l_validation`):** Avalia validações estruturais e evidências de execução (`CommandExecutionResult.status == PASSED` e `return_code == 0`).
@@ -144,7 +146,6 @@ flowchart LR
 ```text
 analytics_agents_factory/
 ├── .agents/
-│   └── a_rules/
 ├── .obsidian/
 ├── a_platform/
 │   ├── b_contracts/
@@ -161,21 +162,54 @@ analytics_agents_factory/
 │   ├── n_certification/
 │   └── o_orchestration/
 ├── b_input/
-│   └── a_datasets/
 ├── c_tests/
 ├── d_documentation/
+│   ├── a_documentation_functional/
+│   │   ├── a_aaf.md
+│   │   ├── b_discovery.md
+│   │   ├── c_dataset_profiling.md
+│   │   ├── d_brain.md
+│   │   ├── e_architecture.md
+│   │   ├── f_planner.md
+│   │   ├── g_project_factory.md
+│   │   ├── h_agents.md
+│   │   ├── i_skills.md
+│   │   ├── j_mcps.md
+│   │   ├── k_llm_gateway.md
+│   │   ├── l_artifact.md
+│   │   ├── m_materializer.md
+│   │   ├── n_generated_projects.md
+│   │   ├── o_runtime.md
+│   │   ├── p_validation.md
+│   │   ├── q_repair_loop.md
+│   │   ├── r_quality.md
+│   │   ├── s_certification.md
+│   │   └── t_project_ready.md
+│   └── b_documentation_technical/
+│       ├── a_architecture.md
+│       ├── b_operation.md
+│       ├── c_brain.md
+│       ├── d_skills.md
+│       ├── e_mcps.md
+│       ├── f_agents.md
+│       ├── g_llm_provider.md
+│       ├── h_command_policy.md
+│       ├── i_runtime.md
+│       ├── j_validation.md
+│       ├── k_quality_certification.md
+│       ├── l_graph_obsidian.md
+│       └── m_presentation.md
 ├── e_generated_projects/
 │   └── .gitkeep
 ├── f_cli/
 ├── g_configuration/
-├── h_scripts/
-├── j_runtime/
+├── h_runtime/
 │   └── state/
-├── .env.example
-├── Dockerfile
-├── docker-compose.yml
+│       └── .gitkeep
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+├── Dockerfile
+└── docker-compose.yml
 ```
 
 ## 9. Configuração e Segurança de Execução
@@ -222,8 +256,12 @@ Para verificar inconsistências:
 5. Inicie um projeto de demonstração via CLI:
    `python f_cli/a_main.py start --project-id etl_simple --prompt "Crie um script de ETL que leia um csv de clientes em data/ e escreva um csv de output em output/"`
 
-## 17. Obsidian Graph
-As visualizações da arquitetura e inter-relações via grafos e Knowledge bases, formatadas em _Obsidian_, estão suportadas na pasta `d_documentation/` e configuradas via `.obsidian/`. O plugin de visualização em grafo reflete as relações funcionais da esteira do AAF.
+## 17. Obsidian Graph e Documentação
+A documentação da plataforma reside em `d_documentation/`, dividida em duas categorias estritas:
+- `a_documentation_functional/`: Documentação da jornada do Golden Path em ordem cronológica de execução (20 etapas de `a_aaf.md` a `t_project_ready.md`).
+- `b_documentation_technical/`: Documentação de arquitetura, implementação e mecanismos internos em ordem lógica (`a_architecture.md` a `m_presentation.md`).
+
+As visualizações da arquitetura e inter-relações via grafos conceituais no _Obsidian_ são configuradas via `.obsidian/`. O grafo atua como camada de visualização passiva e não substitui o SSOT contido no `Brain` (`a_platform/c_brain/`).
 
 ## 18. Definition of Ready
 - Os requisitos foram compreendidos pelo Discovery Engine.

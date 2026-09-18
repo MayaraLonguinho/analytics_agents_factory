@@ -3,6 +3,7 @@ import re
 import asyncio
 from typing import Dict, Any
 from a_platform.b_contracts import BaseSkill, SkillContract
+# pyrefly: ignore [missing-import]
 from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
@@ -20,10 +21,10 @@ class LLMGeneratedSkill(BaseSkill):
         self.role_prompt = role_prompt
         self.llm = LLMGateway()
 
-    async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        self.validate_input(input_data)
-        description = input_data.get("task_description", f"Gerar artefato para skill: {self.skill_id}")
-        project_plan = input_data.get("project_plan", {})
+    async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        self.validate_input(context)
+        description = context.get("task_description", f"Gerar artefato para skill: {self.skill_id}")
+        project_plan = context.get("project_plan", {})
 
         system_prompt = (
             f"Você é um engenheiro sênior. O seu papel é: {self.role_prompt}\n"
@@ -33,7 +34,7 @@ class LLMGeneratedSkill(BaseSkill):
         )
         user_prompt = (
             f"Gere o conteúdo completo para a habilidade '{self.skill_id}'.\n"
-            f"Descrição: {description}\nContexto: {input_data}\nPlan: {project_plan}"
+            f"Descrição: {description}\nContexto: {context}\nPlan: {project_plan}"
         )
 
         llm_response = await self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
