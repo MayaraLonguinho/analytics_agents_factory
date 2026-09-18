@@ -1,9 +1,40 @@
 domains:
   analytics:
-    description: "Geração de projetos focados em análise de dados (EDA, Datasets, Pandas)"
-    allowed_skills: ["dataset_profiler", "pandas_analysis"]
-    allowed_mcps: ["filesystem_mcp", "database_mcp"]
+    description: "Geração de projetos focados em análise de dados (EDA, Datasets, Pandas, SQLite)"
+    allowed_agents:
+      - "AnalyticsAgent"
+      - "DatabaseAgent"
+      - "TestingAgent"
+      - "DocumentationAgent"
+      - "DataAgent"
+    allowed_skills:
+      - "dataset_profiling"
+      - "analytics"
+      - "sql_generation"
+      - "etl_scripting"
+      - "basic_coding"
+      - "testing"
+      - "documentation"
+      - "cleaning"
+    allowed_mcps:
+      - "filesystem_mcp"
+      - "database_mcp"
   data_engineering:
     description: "Geração de projetos focados em pipelines, ETL, orquestração e banco de dados"
-    allowed_skills: ["sql_generation", "etl_pipeline"]
-    allowed_mcps: ["filesystem_mcp", "database_mcp"]
+    allowed_agents:
+      - "DataAgent"
+      - "DatabaseAgent"
+      - "TestingAgent"
+      - "DocumentationAgent"
+      - "AnalyticsAgent"
+    allowed_skills:
+      - "etl_scripting"
+      - "sql_generation"
+      - "dataset_profiling"
+      - "basic_coding"
+      - "cleaning"
+      - "testing"
+      - "documentation"
+    allowed_mcps:
+      - "filesystem_mcp"
+      - "database_mcp"

@@ -25,7 +25,9 @@ class GenericRegistry:
                 results.append(v)
         return results
 
-class KnowledgeRegistry(GenericRegistry): pass
+class KnowledgeRegistry(GenericRegistry):
+    def get_learned_rules_for_domain(self, domain: str) -> List[Any]:
+        return self.search_by_domain(domain)
 class RuleRegistry(GenericRegistry): pass
 class PatternRegistry(GenericRegistry): pass
 

@@ -70,8 +70,19 @@ class DomainRegistry:
 
     def get_domain_config(self, domain_name: str) -> Dict[str, Any]:
         domain_name = self.normalize_domain(domain_name)
-        if domain_name in self.domains:
-            return self.domains[domain_name]
+        if domain_name not in self.domains:
+            logger.error(f"Domínio '{domain_name}' não encontrado no registry.yaml.")
+            raise ValueError(f"Domínio '{domain_name}' estritamente não suportado pela Factory.")
             
-        logger.error(f"Domínio '{domain_name}' não encontrado no registry.yaml.")
-        raise ValueError(f"Domínio '{domain_name}' estritamente não suportado pela Factory.")
+        config = self.domains[domain_name]
+        required_keys = ("allowed_agents", "allowed_skills", "allowed_mcps")
+        for key in required_keys:
+            if key not in config:
+                raise ValueError(
+                    f"Configuração inválida para o domínio '{domain_name}': chave obrigatória '{key}' ausente."
+                )
+            if not isinstance(config[key], list) or not config[key]:
+                raise ValueError(
+                    f"Configuração inválida para o domínio '{domain_name}': '{key}' deve ser uma lista não-vazia."
+                )
+        return config
