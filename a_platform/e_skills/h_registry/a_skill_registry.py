@@ -62,7 +62,10 @@ class SkillRegistry:
             else:
                 result = skill_impl.execute(context)
             
-            # Formata saída no padrão legado provisoriamente (apenas 1 artefato esperado ou lista)
+            # Valida output
+            skill_impl.validate_output(result)
+            
+            # Formata saída no padrão esperado (apenas 1 artefato esperado ou lista)
             first_artifact = list(result.keys())[0] if result else "unknown"
             content = result.get(first_artifact, "")
             

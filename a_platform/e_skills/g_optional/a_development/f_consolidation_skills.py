@@ -9,14 +9,19 @@ logger = logging.getLogger(__name__)
 
 class LLMGeneratedSkill(BaseSkill):
     """Implementação real baseada em LLM para habilidades sob demanda."""
-    def __init__(self, skill_id: str, extension: str, role_prompt: str):
-        super().__init__()
+    def __init__(self, skill_id: str, extension: str, role_prompt: str, **data: Any):
+        super().__init__(
+            skill_id=skill_id,
+            name=f"{skill_id.capitalize()} Skill",
+            **data
+        )
         self.skill_id = skill_id
         self.extension = extension
         self.role_prompt = role_prompt
         self.llm = LLMGateway()
 
     async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        self.validate_input(input_data)
         description = input_data.get("task_description", f"Gerar artefato para skill: {self.skill_id}")
         project_plan = input_data.get("project_plan", {})
 
@@ -48,7 +53,9 @@ class LLMGeneratedSkill(BaseSkill):
         elif self.skill_id == "docker":
             artifact_name = "docker-compose.yml"
 
-        return {artifact_name: code_text}
+        result = {artifact_name: code_text}
+        self.validate_output(result)
+        return result
 
 class CleaningSkill(LLMGeneratedSkill):
     def __init__(self): super().__init__("cleaning", "py", "Engenheiro de Dados focado em limpeza de dataframes Pandas/Spark.")

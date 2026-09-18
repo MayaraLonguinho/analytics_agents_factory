@@ -56,16 +56,28 @@ class DatasetProfile:
         }
 
 
-class DatasetProfilingSkill:
+from a_platform.b_contracts import BaseSkill, ParameterDefinition
+
+
+class DatasetProfilingSkill(BaseSkill):
     """
     Physical profiler. Reads the dataset from disk and returns a DatasetProfile.
     Supports CSV and JSON. Does NOT call the LLM.
     """
 
+    def __init__(self, **data: Any):
+        super().__init__(
+            skill_id="dataset_profiling",
+            name="Dataset Profiling Skill",
+            input_schema=[
+                ParameterDefinition(name="dataset_path", data_type="string", required=True),
+            ],
+            **data
+        )
+
     def validate_input(self, context: Dict[str, Any]) -> None:
+        super().validate_input(context)
         path = context.get("dataset_path")
-        if not path:
-            raise ValueError("[DatasetProfilingSkill] 'dataset_path' is required but was not provided.")
         if not os.path.exists(path):
             raise FileNotFoundError(f"[DatasetProfilingSkill] Dataset not found: {path}")
         if not os.path.isfile(path):
@@ -75,6 +87,16 @@ class DatasetProfilingSkill:
             raise ValueError(
                 f"[DatasetProfilingSkill] Unsupported format '{ext}'. Supported: {SUPPORTED_FORMATS}"
             )
+
+    def validate_output(self, result: Dict[str, Any]) -> None:
+        super().validate_output(result)
+        if "dataset_profile" not in result:
+            raise ValueError("[DatasetProfilingSkill] Output must contain 'dataset_profile'.")
+        dp = result["dataset_profile"]
+        if not isinstance(dp, dict):
+            raise ValueError("[DatasetProfilingSkill] 'dataset_profile' must be a dict.")
+        if "row_count" not in dp or "column_count" not in dp:
+            raise ValueError("[DatasetProfilingSkill] 'dataset_profile' missing row_count or column_count.")
 
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -154,4 +176,6 @@ class DatasetProfilingSkill:
             f"{column_count} columns, {duplicate_rows} duplicates."
         )
 
-        return {"dataset_profile": profile.to_dict()}
+        res = {"dataset_profile": profile.to_dict()}
+        self.validate_output(res)
+        return res

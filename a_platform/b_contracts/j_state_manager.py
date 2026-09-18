@@ -49,7 +49,7 @@ class StateManager:
         self.project_ready: bool = False
         self.repair_attempts: int = 0
         self.max_repair_attempts: int = 3
-        self.state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "j_runtime", "state")
+        self.state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "h_runtime", "state")
         
         self.phases: Dict[ProjectPhase, PhaseState] = {
             phase: PhaseState(name=phase.name) for phase in ProjectPhase
@@ -157,7 +157,7 @@ class StateManager:
 
     @classmethod
     def state_exists(cls, project_id: str) -> bool:
-        state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "j_runtime", "state")
+        state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "h_runtime", "state")
         state_file = os.path.join(state_dir, f"{project_id}.json")
         return os.path.isfile(state_file)
 
@@ -175,7 +175,7 @@ class StateManager:
 
     @classmethod
     def load_state(cls, project_id: str) -> tuple['StateManager', ExecutionContext]:
-        state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "j_runtime", "state")
+        state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "h_runtime", "state")
         state_file = os.path.join(state_dir, f"{project_id}.json")
         
         if not os.path.exists(state_file):

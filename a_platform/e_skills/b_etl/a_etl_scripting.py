@@ -1,14 +1,21 @@
 import logging
 import re
 from typing import Dict, Any
-from a_platform.b_contracts import BaseSkill
+from a_platform.b_contracts import BaseSkill, ParameterDefinition
 from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
 class EtlScriptingSkill(BaseSkill):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **data: Any):
+        super().__init__(
+            skill_id="etl_scripting",
+            name="ETL Scripting Skill",
+            input_schema=[
+                ParameterDefinition(name="data_processing_tool", data_type="string", required=True),
+            ],
+            **data
+        )
         self.llm = LLMGateway()
 
     async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:

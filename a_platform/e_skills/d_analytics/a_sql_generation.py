@@ -1,14 +1,22 @@
 import logging
 import re
 from typing import Dict, Any
-from a_platform.b_contracts import BaseSkill
+from a_platform.b_contracts import BaseSkill, ParameterDefinition
 from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
 class SqlGenerationSkill(BaseSkill):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **data: Any):
+        super().__init__(
+            skill_id="sql_generation",
+            name="SQL Generation Skill",
+            input_schema=[
+                ParameterDefinition(name="database_technology", data_type="string", required=True),
+                ParameterDefinition(name="schema_definition", data_type="string", required=True),
+            ],
+            **data
+        )
         self.llm = LLMGateway()
 
     async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -42,4 +50,6 @@ class SqlGenerationSkill(BaseSkill):
         code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
         code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
 
-        return {"schema.sql": code_text}
+        result = {"schema.sql": code_text}
+        self.validate_output(result)
+        return result
