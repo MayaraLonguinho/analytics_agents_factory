@@ -13,7 +13,7 @@ Formula (all conditions must hold):
   Any other state          →  PROJECT READY = NO
 """
 import logging
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import CertificationResult, ExecutionResult, ValidationResult, QualityResult
 
 logger = logging.getLogger(__name__)

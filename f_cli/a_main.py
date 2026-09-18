@@ -5,7 +5,7 @@ import logging
 import uuid
 
 from a_platform.b_contracts.z_interfaces.a_ide_adapter import IDEAdapter
-from a_platform.b_contracts.f_state_manager import StateManager
+from a_platform.b_contracts.j_state_manager import StateManager
 from a_platform.c_brain import Brain
 from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
 from g_configuration.a_settings import settings

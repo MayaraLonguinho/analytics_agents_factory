@@ -17,10 +17,10 @@ Abra a raiz de projeto no programa *Obsidian* ou aponte os logs gerados durante 
 Mostre a orquestração gerando código estruturado na pasta segura `e_generated_projects/`. Comente a imunidade de invasões do *Filesystem MCP* a qualquer gravação fora da hierarquia permitida. Mostre os `Agents` delegando LLM calls no *Gateway*.
 
 4. **Runtime & Validação (Execução e Testes)**
-Conforme o *CLI status* atualiza, acompanhe o `j_runtime` disparar o pacote instanciado contra o `Docker MCP`.
+Conforme o *CLI status* atualiza, acompanhe o `k_runtime` disparar o pacote instanciado contra o `Docker MCP`.
 
 5. **Certification & PROJECT READY**
-Mostre os _logs_ onde o `ValidationGate` passa, avançando à `QualityEngine`. Explicite como o `tests_ok` e os `scores` de `m_certification` extraíram os *Assets* provando testes no script alvo. Ao final, a saída dourada:
+Mostre os _logs_ onde o `ValidationGate` passa, avançando à `QualityEngine`. Explicite como o `tests_ok` e os `scores` de `n_certification` extraíram os *Assets* provando testes no script alvo. Ao final, a saída dourada:
 
 ```
 ===============================================

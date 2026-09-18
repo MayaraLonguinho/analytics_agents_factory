@@ -2,9 +2,11 @@ import logging
 import os
 from typing import Any, Optional
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext
-from a_platform.b_contracts.f_state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.b_contracts import (
+    ExecutionContext,
+    StateManager,
+    ProjectPhase,
+    PhaseStatus,
     ProjectContext,
     ExecutionResult,
     ValidationResult,
@@ -20,14 +22,14 @@ from a_platform.c_brain.d_domains.a_domain_registry import DomainRegistry
 from a_platform.g_agents.d_planner.k_planner_agent import PlannerAgent
 from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory import ProjectFactory
-from a_platform.h_materializer import ArtifactMaterializer, MaterializationResult
+from a_platform.i_materializer import ArtifactMaterializer, MaterializationResult
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
-from a_platform.j_runtime.a_execution.a_runtime import ProjectRuntime
-from a_platform.k_validation.a_validation_gate import ValidationGate
-from a_platform.l_quality.a_quality_engine import QualityEngine
-from a_platform.m_certification.a_certification_engine import CertificationEngine
-from a_platform.n_orchestration.c_repair_loop import RepairLoop
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
+from a_platform.k_runtime.a_execution.a_runtime import ProjectRuntime
+from a_platform.l_validation.a_validation_gate import ValidationGate
+from a_platform.m_quality.a_quality_engine import QualityEngine
+from a_platform.n_certification.a_certification_engine import CertificationEngine
+from .c_repair_loop import RepairLoop
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 import os
 from typing import Any, AsyncGenerator, Dict, List
 import openai
-from a_platform.i_llm_gateway.a_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+from a_platform.j_llm_gateway.a_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 
 class OpenAIProvider(BaseLLMProvider):
     def __init__(self, config: Dict[str, Any]):

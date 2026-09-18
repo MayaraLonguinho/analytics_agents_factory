@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel, Field
 from typing import List, Any
-from .b_task import ProjectTask
+from .e_task import ProjectTask
 
 class ProjectPlan(BaseModel):
     project_id: str

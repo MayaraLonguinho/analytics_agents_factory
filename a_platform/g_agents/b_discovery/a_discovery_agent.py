@@ -4,8 +4,8 @@ import re
 from enum import Enum, auto
 from typing import Any
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext, Decision
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
+from a_platform.b_contracts.i_execution_context import ExecutionContext, Decision
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

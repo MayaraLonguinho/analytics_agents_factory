@@ -127,13 +127,13 @@ analytics_agents_factory/
 │   ├── f_mcps/                 # Protocolos e Integração com Filesystem/Docker/DB
 │   ├── g_agents/               # Discovery, Architecture, Planner, e outros agents
 │   ├── h_factory/              # Project Factory
-│   ├── h_materializer/         # Manipulador Físico de Arquivos
-│   ├── i_llm_gateway/          # Conectores com LLMs (OpenAI, Anthropic, Gemini)
-│   ├── j_runtime/              # Pipeline Executivo Seguro e Controlado (shlex, shell=False)
-│   ├── k_validation/           # Validação Gate Lógica e Física de Projetos
-│   ├── l_quality/              # Code e Dependency e Security Checkers
-│   ├── m_certification/        # Motor Único de Autorização de Readiness de Projetos
-│   └── n_orchestration/        # Master Orchestrator (O Pipeline do AAF) e Repair Loop
+│   ├── i_materializer/         # Manipulador Físico de Arquivos
+│   ├── j_llm_gateway/          # Conectores com LLMs (OpenAI, Anthropic, Gemini)
+│   ├── k_runtime/              # Pipeline Executivo Seguro e Controlado (shlex, shell=False)
+│   ├── l_validation/           # Validação Gate Lógica e Física de Projetos
+│   ├── m_quality/              # Code e Dependency e Security Checkers
+│   ├── n_certification/        # Motor Único de Autorização de Readiness de Projetos
+│   └── o_orchestration/        # Master Orchestrator (O Pipeline do AAF) e Repair Loop
 ├── b_input/                    # Inputs (Configurações base para injetar)
 ├── c_tests/                    # Testes de Código (Mocks aceitos unicamente aqui)
 ├── d_documentation/            # Documentação rica dividida por domínios e componentes
@@ -149,9 +149,9 @@ analytics_agents_factory/
 
 ## 9. Configuração e Segurança de Execução
 A configuração é realizada por meio do `g_configuration/`. 
-Políticas restritas existem sob `j_runtime/b_command_policy/`. Subprocessos ocorrem invariavelmente via argumentos explícitos.
+Políticas restritas existem sob `a_platform/k_runtime/b_command_policy/`. Subprocessos ocorrem invariavelmente via argumentos explícitos.
 Shell execution está bloqueada (`shell=False`).
-As APIs do *Anthropic* e *Gemini* lançam *NotImplementedError* uma vez que o AAF depende majoritariamente de conexões padronizadas via API do *OpenAI* ou SDK *OpenAI* em `i_llm_gateway`. 
+As APIs do *Anthropic* e *Gemini* lançam *NotImplementedError* uma vez que o AAF depende majoritariamente de conexões padronizadas via API do *OpenAI* ou SDK *OpenAI* em `j_llm_gateway`. 
 
 ## 10. CLI
 O ponto de entrada CLI suportado usa o arquivo `f_cli/a_main.py`.

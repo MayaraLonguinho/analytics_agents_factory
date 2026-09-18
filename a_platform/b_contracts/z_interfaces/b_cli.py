@@ -4,9 +4,8 @@ import os
 import uuid
 import json
 
-from a_platform.b_contracts.f_state_manager import StateManager
-from a_platform.b_contracts.e_execution_context import ExecutionContext
-from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
+from a_platform.b_contracts import StateManager, ExecutionContext
+from a_platform.o_orchestration.a_orchestrator import MasterOrchestrator
 
 def cmd_start(args):
     print("=" * 50)

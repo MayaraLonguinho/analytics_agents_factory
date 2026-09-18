@@ -1,12 +1,12 @@
 # Runtime
 
-A camada `j_runtime` foi consolidada para gerenciar rigorosamente o ciclo real de vida (execução em disco) do projeto *materializado*. Diferente das iterações legadas do despachante anterior (abandonado na raiz de `d_agents/m_execution`), este runtime encapsulado é executável.
+A camada `k_runtime` foi consolidada para gerenciar rigorosamente o ciclo real de vida (execução em disco) do projeto *materializado*. Diferente das iterações legadas do despachante anterior (abandonado na raiz de `d_agents/m_execution`), este runtime encapsulado é executável.
 
 ## Execution
 - **a_execution/c_runtime.py**: O cérebro local que intercepta as tarefas geradas pela fábrica na fase de materialização. Ele se apropria dos caminhos compilados via MCP e tenta disparar testes ou *setup steps* contidos no `run_commands` ditados pelo Planner.
 
 ## State
-- **b_state**: A ponte persistente (localizada em disco em arquivos `.json` via `StateManager` em `d_session/c_state.py` que reflete na subpasta `/state`) onde transições críticas são acompanhadas, controlando pausas manuais e retomas (Resume Operations).
+- **e_state**: A ponte persistente (localizada em disco em arquivos `.json` via `StateManager` que reflete na subpasta `/state`) onde transições críticas são acompanhadas, controlando pausas manuais e retomas (Resume Operations).
 
 ## Artifacts e Health
 - **c_artifacts**: Diretivas de tracking empírico do que foi gravado fisicamente.

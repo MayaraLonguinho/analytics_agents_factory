@@ -3,7 +3,7 @@ from typing import List
 
 from a_platform.g_agents.a_base.a_base_agent import BaseAgent
 from a_platform.b_contracts import ProjectTask as ProjectTask
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 
 logger = logging.getLogger(__name__)

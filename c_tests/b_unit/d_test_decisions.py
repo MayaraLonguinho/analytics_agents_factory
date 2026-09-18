@@ -3,7 +3,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-dummy'
 os.environ['ANTHROPIC_API_KEY'] = 'sk-dummy'
 os.environ['GEMINI_API_KEY'] = 'sk-dummy'
 
-from a_platform.b_contracts.e_execution_context import Decision, ExecutionContext
+from a_platform.b_contracts.i_execution_context import Decision, ExecutionContext
 
 def test_add_decision():
     ctx = ExecutionContext()

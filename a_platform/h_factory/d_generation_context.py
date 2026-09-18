@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
-from a_platform.b_contracts.a_project import ProjectContext
-from a_platform.b_contracts.c_artifact import Artifact
+from a_platform.b_contracts import ProjectContext, Artifact
 
 @dataclass
 class GenerationContext:

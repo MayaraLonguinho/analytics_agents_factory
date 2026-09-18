@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Dict, Any
 from a_platform.b_contracts import BaseSkill
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 

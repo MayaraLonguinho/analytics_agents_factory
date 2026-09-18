@@ -6,11 +6,11 @@ import inspect
 import uuid
 from typing import Dict, Any, List
 
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
 from a_platform.e_skills.h_registry.a_skill_registry import SkillRegistry
 from a_platform.b_contracts import ProjectTask as ProjectTask
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 
 logger = logging.getLogger(__name__)

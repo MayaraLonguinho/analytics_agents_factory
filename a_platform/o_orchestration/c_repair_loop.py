@@ -13,8 +13,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext
-from a_platform.b_contracts import ExecutionResult, CommandExecutionResult
+from a_platform.b_contracts import ExecutionContext, ExecutionResult, CommandExecutionResult
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +150,7 @@ class RepairLoop:
                 return False
 
             # Step 2: Re-materialize
-            from a_platform.h_materializer.a_materializer import ArtifactMaterializer
+            from a_platform.i_materializer.a_materializer import ArtifactMaterializer
             from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
             materializer = ArtifactMaterializer(MCPExecutor())
             mat_res = materializer.materialize(request, fixed_artifacts)
@@ -166,7 +165,7 @@ class RepairLoop:
                 request.project_context.materialization_status = "SUCCESS"
 
             # Step 3: Re-execute via Runtime
-            from a_platform.j_runtime.a_execution.a_runtime import ProjectRuntime
+            from a_platform.k_runtime.a_execution.a_runtime import ProjectRuntime
             project_path = getattr(request.project_context, "project_path", "")
             new_runtime_result = ProjectRuntime().execute(request, project_path)
 
@@ -177,7 +176,7 @@ class RepairLoop:
                 return False
 
             # Step 4: Re-validate
-            from a_platform.k_validation.a_validation_gate import ValidationGate
+            from a_platform.l_validation.a_validation_gate import ValidationGate
             new_val_result = ValidationGate().evaluate(request, new_runtime_result)
 
             if new_val_result.status != "PASSED":

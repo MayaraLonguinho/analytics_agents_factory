@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
-from a_platform.b_contracts.b_task import ProjectTask
-from a_platform.b_contracts.c_artifact import Artifact
+from .e_task import ProjectTask
+from .g_artifact import Artifact
 
 class ProjectContext(BaseModel):
     model_config = {"extra": "forbid"}

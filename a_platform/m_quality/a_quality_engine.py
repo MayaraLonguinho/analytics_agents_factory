@@ -1,6 +1,6 @@
 import logging
 from typing import List
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import QualityResult, ExecutionResult, ValidationResult
 from .b_code_quality import CodeQuality
 from .c_security_quality import SecurityQuality

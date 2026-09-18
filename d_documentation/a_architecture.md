@@ -12,12 +12,13 @@ A arquitetura é dividida em módulos organizados alfabeticamente para forçar p
 - **e_skills**: Capacidades que os agentes executam, organizadas por categorias, sem implementações "mockadas". Interagem obrigatoriamente através da `LLMGateway`.
 - **f_mcp**: Extensões de ação no mundo real, operando sob *sandbox* estrito (Filesystem, Docker seguro, Database com filtros).
 - **g_llm_gateway**: Interface única para provedores de IA (OpenAI, Gemini, Anthropic), isolando a lógica de SDK e roteamento.
-- **h_factory**: Mecanismos de geração de projetos (`ProjectFactory`) e o materializador de disco (`ArtifactMaterializer`).
-- **i_domains**: Repositórios canônicos para domínios de geração de projetos (como `analytics`, `data_engineering`).
-- **j_runtime**: Ambiente seguro para execução de comandos do sistema de destino e telemetria de saúde de execução.
-- **k_validation**: Gates de validação funcional e verificação rigorosa de saída e logs.
-- **l_quality** e **m_certification**: Avaliação de componentes estáticos (Testes, Code Quality, Documentação) e emissão de atestado de que o projeto atendeu aos requisitos.
-- **n_orchestration**: Topologia de orquestração do pipeline completo, acionando o Repair Loop no caso de falhas nas verificações.
+- **h_factory**: Mecanismos de geração de projetos (`ProjectFactory`).
+- **i_materializer**: Manipulador Físico de Arquivos e persistência em disco (`ArtifactMaterializer`).
+- **j_llm_gateway**: Interface única para provedores de IA (OpenAI, Gemini, Anthropic), isolando a lógica de SDK e roteamento.
+- **k_runtime**: Ambiente seguro para execução de comandos do sistema de destino e telemetria de saúde de execução.
+- **l_validation**: Gates de validação funcional e verificação rigorosa de saída e logs.
+- **m_quality** e **n_certification**: Avaliação de componentes estáticos (Testes, Code Quality, Documentação) e emissão de atestado de que o projeto atendeu aos requisitos.
+- **o_orchestration**: Topologia de orquestração do pipeline completo, acionando o Repair Loop no caso de falhas nas verificações.
 
 ## Fluxo Principal de Execução
 

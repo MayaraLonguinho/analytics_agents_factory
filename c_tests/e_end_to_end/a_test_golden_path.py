@@ -6,14 +6,14 @@ os.environ['GEMINI_API_KEY'] = 'sk-dummy'
 import os
 import shutil
 from unittest.mock import patch
-from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.o_orchestration.a_orchestrator import MasterOrchestrator
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import ProjectPlan, ProjectTask
-from a_platform.i_llm_gateway.a_interfaces.a_base_provider import LLMResponse
+from a_platform.j_llm_gateway.a_interfaces.a_base_provider import LLMResponse
 
 @patch("a_platform.f_mcps.d_registry.b_executor.MCPExecutor.execute")
-@patch("a_platform.i_llm_gateway.d_gateway.LLMGateway.structured_output")
-@patch("a_platform.i_llm_gateway.d_gateway.LLMGateway.generate")
+@patch("a_platform.j_llm_gateway.d_gateway.LLMGateway.structured_output")
+@patch("a_platform.j_llm_gateway.d_gateway.LLMGateway.generate")
 @patch("a_platform.g_agents.d_planner.k_planner_agent.PlannerAgent.generate_plan")
 def test_golden_path(mock_planner, mock_generate, mock_structured, mock_mcp):
     mock_generate.return_value = LLMResponse(content='{"domain": "mock_domain", "patterns": []}', model="mock", provider="mock")
@@ -61,7 +61,7 @@ def test_golden_path(mock_planner, mock_generate, mock_structured, mock_mcp):
     orchestrator.last_execution_result = ExecutionResult(task_id="t1", success=True)
     
     # Patches para simular sucesso no Execution step
-    with patch("a_platform.j_runtime.a_execution.c_runtime.ProjectRuntime.execute", return_value=ExecutionResult(task_id="t1", success=True)):
+    with patch("a_platform.k_runtime.a_execution.c_runtime.ProjectRuntime.execute", return_value=ExecutionResult(task_id="t1", success=True)):
         result = orchestrator.execute_pipeline(ctx)
     
     # Limpa

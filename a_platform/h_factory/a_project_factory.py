@@ -1,6 +1,6 @@
 import logging
 from typing import List
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from .b_capability_resolver import CapabilityResolver

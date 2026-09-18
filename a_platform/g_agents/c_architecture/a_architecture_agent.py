@@ -1,8 +1,8 @@
 import json
 import asyncio
 from typing import Dict, Any, List
-from a_platform.b_contracts.e_execution_context import ExecutionContext
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
+from a_platform.b_contracts.i_execution_context import ExecutionContext
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
 
 class ArchitectureAgent:
     """Agent responsible for determining the technological stack based on context."""

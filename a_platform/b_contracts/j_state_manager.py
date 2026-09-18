@@ -5,8 +5,9 @@ from enum import Enum, auto
 from dataclasses import dataclass, field, asdict
 from typing import Dict, Any, Optional
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext, Decision
-from a_platform.b_contracts import ProjectPlan, ProjectTask
+from .i_execution_context import ExecutionContext, Decision
+from .f_plan import ProjectPlan
+from .e_task import ProjectTask
 
 logger = logging.getLogger(__name__)
 

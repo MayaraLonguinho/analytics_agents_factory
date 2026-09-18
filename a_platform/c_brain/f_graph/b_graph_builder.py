@@ -2,7 +2,7 @@ import os
 import logging
 from typing import Dict, Any
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.c_brain.f_graph.a_graph_backend import ObsidianBackend
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ class GraphBuilder:
     def __init__(self, brain=None):
         self.brain = brain
         # Os artefatos operacionais ficam no runtime
-        base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "j_runtime", "c_artifacts", "graph")
+        base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "k_runtime", "c_artifacts", "graph")
         os.makedirs(base_dir, exist_ok=True)
         self.obsidian_backend = ObsidianBackend(base_dir)
         self.base_dir = base_dir

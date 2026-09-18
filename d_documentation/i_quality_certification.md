@@ -1,8 +1,8 @@
 # Quality & Certification
 
-A AAF emprega duas métricas terminais e não-negociáveis logo após o Runtime e a Validação Inicial, localizadas em `l_quality` e `m_certification`.
+A AAF emprega duas métricas terminais e não-negociáveis logo após o Runtime e a Validação Inicial, localizadas em `m_quality` e `n_certification`.
 
-## Quality Engine (`l_quality/`)
+## Quality Engine (`m_quality/`)
 Responsável por atribuir pontuação tangível baseado na extração material do projeto. Submete o repositório a escrutínios estáticos em `a_quality_engine.py`:
 - **Code**: Confere as existências sintáticas de scripts e densidade.
 - **Security**: Assegura que o Validation Gate devolveu relatório blindado e seguro para uso local ou produtivo.
@@ -11,7 +11,7 @@ Responsável por atribuir pontuação tangível baseado na extração material d
 
 A nota global exige um platô mínimo (>= 75%) acoplado obrigatoriamente a notas perfeitas (1.0) em estrutura, segurança e runtime para admitir um _PASS_.
 
-## Certification Engine (`m_certification/`)
+## Certification Engine (`n_certification/`)
 Atua como Juiz Supremo da plataforma em `a_certification_engine.py`. Analisa o *report* gerado por Quality e Validation. 
 
 - Nenhum artifício _dummy_ é aceito. Defaults pregressos (`tests_ok = True`) foram duramente repudiados na arquitetura atual.

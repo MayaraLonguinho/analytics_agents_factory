@@ -1,5 +1,5 @@
 import logging
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import ExecutionResult, ValidationResult
 from .b_structure_validation import StructureValidation
 from .c_execution_validation import ExecutionValidation

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
-from .d_configuration.a_settings import LLMGatewayConfig
+from .c_configuration.a_settings import LLMGatewayConfig
 from .a_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 from .b_providers import AnthropicProvider, GeminiProvider, OpenAIProvider, get_provider_registry
-from .b_providers.e_registry import ProviderRegistry
+from .b_providers.d_registry import ProviderRegistry
 
 
 class ModelRoute:
@@ -15,7 +15,7 @@ class ModelRoute:
 
 class ModelRouter:
     def __init__(self, config: Optional["LLMGatewayConfig"] = None):
-        from .d_configuration.a_settings import LLMGatewayConfig as _Cfg
+        from .c_configuration.a_settings import LLMGatewayConfig as _Cfg
         self._cfg = config or _Cfg()
 
     def route(self, provider: Optional[str] = None, model: Optional[str] = None) -> ModelRoute:
@@ -33,7 +33,7 @@ class LLMGateway:
     def __init__(self, config: Optional[LLMGatewayConfig] = None):
         self.config = config or LLMGatewayConfig()
         self.router = ModelRouter(config=self.config)
-        self.e_registry: ProviderRegistry = get_provider_registry()
+        self.provider_registry: ProviderRegistry = get_provider_registry()
         self._initialize_providers()
 
     def _initialize_providers(self) -> None:
@@ -51,14 +51,14 @@ class LLMGateway:
             if provider_cls is None:
                 continue
             provider = provider_cls(cfg)
-            self.e_registry.register_provider(name, provider, cfg)
-
+            self.provider_registry.register_provider(name, provider, cfg)
+            
     def route(self, provider: Optional[str] = None, model: Optional[str] = None):
         return self.router.route(provider=provider, model=model)
 
     async def generate(self, prompt: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
         route = self.route(provider=provider, model=model)
-        provider_instance = self.e_registry.get_provider(route.provider)
+        provider_instance = self.provider_registry.get_provider(route.provider)
         if provider_instance is None:
             raise ValueError(f"Provider not available: {route.provider}")
 
@@ -74,28 +74,28 @@ class LLMGateway:
 
     async def chat(self, messages: List[Dict[str, str]], provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
         route = self.route(provider=provider, model=model)
-        provider_instance = self.e_registry.get_provider(route.provider)
+        provider_instance = self.provider_registry.get_provider(route.provider)
         if provider_instance is None:
             raise ValueError(f"Provider not available: {route.provider}")
         return await provider_instance.chat(messages, route.model, **kwargs)
 
     async def structured_output(self, prompt: str, schema: Dict[str, Any], provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> LLMResponse:
         route = self.route(provider=provider, model=model)
-        provider_instance = self.e_registry.get_provider(route.provider)
+        provider_instance = self.provider_registry.get_provider(route.provider)
         if provider_instance is None:
             raise ValueError(f"Provider not available: {route.provider}")
         return await provider_instance.structured_output(prompt, route.model, schema, **kwargs)
 
     async def embeddings(self, text: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> List[float]:
         route = self.route(provider=provider, model=model)
-        provider_instance = self.e_registry.get_provider(route.provider)
+        provider_instance = self.provider_registry.get_provider(route.provider)
         if provider_instance is None:
             raise ValueError(f"Provider not available: {route.provider}")
         return await provider_instance.embeddings(text, route.model, **kwargs)
 
     async def stream(self, prompt: str, provider: Optional[str] = None, model: Optional[str] = None, **kwargs) -> AsyncGenerator[str, None]:
         route = self.route(provider=provider, model=model)
-        provider_instance = self.e_registry.get_provider(route.provider)
+        provider_instance = self.provider_registry.get_provider(route.provider)
         if provider_instance is None:
             raise ValueError(f"Provider not available: {route.provider}")
         request = LLMRequest(

@@ -11,7 +11,7 @@ As habilidades foram isoladas semanticamente para facilidade cognitiva e orquest
 5. `f_quality`: Habilidades voltadas ao escrutínio interno e baterias rigorosas como `TestingSkill`.
 
 ## Registry, Declarations e Contratos
-- `h_declarations/a_skills.yaml`: Todas as skills devem ser formalmente declaradas e expor suas expectativas de Input/Output Schema.
+- `h_registry/b_skills.yaml`: Todas as skills devem ser formalmente declaradas e expor suas expectativas de Input/Output Schema.
 - `i_contracts/a_skill_contract.py`: Garante que cada módulo de skill possua método `.execute()` compatível.
 - `g_registry/j_skill_registry.py`: Motor local que registra em memória a skill solicitada com seu Handler.
 

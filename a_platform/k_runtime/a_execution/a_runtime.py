@@ -2,10 +2,10 @@ import subprocess
 import time
 from pathlib import Path
 from typing import List, Optional
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import ExecutionResult, CommandExecutionResult
 
-from a_platform.j_runtime.b_command_policy.a_policy import CommandPolicy
+from a_platform.k_runtime.b_command_policy.a_policy import CommandPolicy
 
 COMMAND_TIMEOUT = 120.0
 

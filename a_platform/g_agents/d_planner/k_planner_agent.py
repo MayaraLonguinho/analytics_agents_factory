@@ -5,14 +5,14 @@ import asyncio
 from collections import defaultdict, deque
 from typing import Set
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import ProjectTask, ProjectPlan, ProjectContext
 from a_platform.c_brain.d_domains.a_domain_registry import DomainRegistry
-from a_platform.i_llm_gateway.d_gateway import LLMGateway
+from a_platform.j_llm_gateway.d_gateway import LLMGateway
 from a_platform.e_skills.h_registry.a_skill_registry import SkillRegistry
 from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
-from a_platform.j_runtime.b_command_policy.a_policy import CommandPolicy
+from a_platform.k_runtime.b_command_policy.a_policy import CommandPolicy
 
 logger = logging.getLogger(__name__)
 
