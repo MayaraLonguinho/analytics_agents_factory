@@ -1,17 +1,20 @@
+"""
+SecurityQuality gate.
+
+Evaluates whether bandit was executed and returned exit code 0.
+Identification is based on CommandExecutionResult.executable.
+"""
+from typing import List
+from a_platform.b_contracts import CommandExecutionResult
+
+SECURITY_TOOLS = {"bandit"}
+
+
 class SecurityQuality:
-    def evaluate(self, runtime_result_dict: dict) -> str:
-        if not runtime_result_dict:
-            return "FAILED"
-            
-        stdout = runtime_result_dict.get("stdout", "").lower()
-        stderr = runtime_result_dict.get("stderr", "").lower()
-        commands = runtime_result_dict.get("command", [])
-        
-        executed = any(cmd for cmd in commands if "bandit" in cmd or "safety" in cmd)
-        
-        if not executed:
+    def evaluate(self, cmd_results: List[CommandExecutionResult]) -> str:
+        relevant = [c for c in cmd_results if c.executable in SECURITY_TOOLS]
+        if not relevant:
             return "NOT_EXECUTED"
-            
-        if "issue" in stdout or "vulnerability" in stdout or "failed" in stderr:
-            return "FAILED"
-        return "PASSED"
+        if all(c.status == "SUCCESS" and c.return_code == 0 for c in relevant):
+            return "PASSED"
+        return "FAILED"

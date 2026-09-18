@@ -1,18 +1,27 @@
+"""
+CodeQuality gate.
+
+Evaluates whether a code quality tool (ruff / flake8) was executed
+and returned exit code 0. Identification is based on CommandExecutionResult.executable,
+NOT on text search in stdout/stderr.
+"""
+from typing import List
+from a_platform.b_contracts import CommandExecutionResult
+
+# Recognised code-quality executables in the allowed command set
+CODE_QUALITY_TOOLS = {"ruff", "flake8"}
+
+
 class CodeQuality:
-    def evaluate(self, runtime_result_dict: dict) -> str:
-        if not runtime_result_dict:
-            return "FAILED"
-            
-        stdout = runtime_result_dict.get("stdout", "").lower()
-        stderr = runtime_result_dict.get("stderr", "").lower()
-        commands = runtime_result_dict.get("command", [])
-        
-        # Check if code quality tools were actually executed
-        executed = any(cmd for cmd in commands if "flake8" in cmd or "pylint" in cmd or "black" in cmd or "isort" in cmd)
-        
-        if not executed:
+    def evaluate(self, cmd_results: List[CommandExecutionResult]) -> str:
+        """
+        Returns: "PASSED" | "FAILED" | "NOT_EXECUTED"
+        NOT_EXECUTED is treated as FAILED by QualityEngine.
+        """
+        relevant = [c for c in cmd_results if c.executable in CODE_QUALITY_TOOLS]
+        if not relevant:
             return "NOT_EXECUTED"
-            
-        if "failed" in stdout or "failed" in stderr or "error" in stdout or "error" in stderr:
-            return "FAILED"
-        return "PASSED"
+        # Any non-zero return code or DENIED/TIMEOUT = FAILED
+        if all(c.status == "SUCCESS" and c.return_code == 0 for c in relevant):
+            return "PASSED"
+        return "FAILED"

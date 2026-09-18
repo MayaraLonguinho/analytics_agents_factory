@@ -7,6 +7,7 @@ from .d_project_validation import ProjectValidation
 
 logger = logging.getLogger(__name__)
 
+
 class ValidationGate:
     def __init__(self):
         self.struct_val = StructureValidation()
@@ -14,16 +15,28 @@ class ValidationGate:
         self.proj_val = ProjectValidation()
 
     def evaluate(self, request: ExecutionContext, runtime_result: ExecutionResult) -> ValidationResult:
-        if not runtime_result:
+        if runtime_result is None:
             return ValidationResult(status="FAILED", evidence="Nenhum resultado de runtime fornecido.")
-            
-        if not self.struct_val.validate(request):
-            return ValidationResult(status="FAILED", evidence="Falha na validação de estrutura: artefatos ausentes no disco.")
-            
-        if not self.exec_val.validate(runtime_result):
-            return ValidationResult(status="FAILED", evidence="Falha na validação de execução: runtime não passou ou sem evidência.")
-            
+
         if not self.proj_val.validate(request):
-            return ValidationResult(status="FAILED", evidence="Falha na validação de metadados do projeto.")
-            
+            return ValidationResult(
+                status="FAILED",
+                evidence="Falha na validação de metadados do projeto (project_id, plan, project_path, materialization_status).",
+            )
+
+        if not self.struct_val.validate(request):
+            return ValidationResult(
+                status="FAILED",
+                evidence="Falha na validação de estrutura: artefatos ausentes ou inválidos no disco.",
+            )
+
+        if not self.exec_val.validate(runtime_result):
+            return ValidationResult(
+                status="FAILED",
+                evidence=(
+                    f"Falha na validação de execução: "
+                    f"status={runtime_result.status}, return_code={runtime_result.return_code}."
+                ),
+            )
+
         return ValidationResult(status="PASSED", evidence="Todas as validações concluídas com sucesso.")
