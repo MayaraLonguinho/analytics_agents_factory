@@ -6,7 +6,7 @@ Política restritiva de segurança e isolamento para execução de comandos no s
 2. **Runtime (Enforcement):** Aplicação compulsória no momento do disparo de subprocessos pelo [[Runtime]], garantindo `shell=False`, argumentos explicitados e bloqueio de binários não autorizados.
 
 ## Path
-`a_platform/k_runtime/b_command_policy/a_command_policy.py`
+`a_platform/k_runtime/b_command_policy/a_policy.py`
 
 ## Inputs
 [[Planner]], [[Runtime]]

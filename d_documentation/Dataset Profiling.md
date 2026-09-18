@@ -4,7 +4,7 @@
 Análise estática do arquivo físico de dados (via Pandas) para extração determinística de contagem de linhas, colunas, esquemas de dados, duplicatas e avisos estruturais.
 
 ## Path
-`a_platform/e_skills/a_dataset_profiling/a_profiling_skill.py`
+`a_platform/e_skills/a_dataset_profiling/c_profiling/a_profiler.py`
 
 ## Inputs
 [[Discovery]], [[Orchestrator]]

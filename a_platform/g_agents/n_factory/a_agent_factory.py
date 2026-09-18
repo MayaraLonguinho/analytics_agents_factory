@@ -32,7 +32,7 @@ class AgentFactory:
             
             agent_class = BaseAgent
             name_lower = agent_name.lower()
-            if "data_agent" in name_lower or "data_engineer" in name_lower:
+            if "dataagent" in name_lower or "data_agent" in name_lower or "data_engineer" in name_lower:
                 agent_class = DataAgent
             elif "database" in name_lower:
                 agent_class = DatabaseAgent
