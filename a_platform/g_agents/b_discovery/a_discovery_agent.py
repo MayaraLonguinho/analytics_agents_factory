@@ -5,7 +5,7 @@ from enum import Enum, auto
 from typing import Any
 
 from a_platform.b_contracts.e_execution_context import ExecutionContext, Decision
-from a_platform.i_llm_gateway.e_gateway import LLMGateway
+from a_platform.i_llm_gateway.d_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
 
@@ -67,24 +67,49 @@ class DiscoveryAgent:
             "}"
         )
         
-        prompt = f"Prompt Original: {context.prompt}\nHistórico da Conversa: {json.dumps(history, ensure_ascii=False)}\nPerguntas feitas: {q_count}/{self.max_questions}"
+        prompt = f"Prompt Original: {context.prompt}\nHistórico da Conversa: {json.dumps(history, ensure_ascii=False)}\nPerguntas feitas: {q_count}/{self.max_questions}\n{system_prompt}"
         
-        response = await self.gateway.generate(prompt, system_prompt=system_prompt)
+        schema = {
+            "type": "object",
+            "properties": {
+                "project_type": {"type": "string"},
+                "business_context": {"type": "string"},
+                "domain": {"type": "string"},
+                "assumed_defaults": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "string"},
+                            "decision": {"type": "string"},
+                            "reason": {"type": "string"}
+                        }
+                    }
+                },
+                "user_decisions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "string"},
+                            "decision": {"type": "string"},
+                            "reason": {"type": "string"}
+                        }
+                    }
+                },
+                "missing_info_question": {"type": ["string", "null"]}
+            },
+            "required": ["project_type", "business_context", "domain"]
+        }
         
-        if not response or not response.content:
-            logger.error("[DiscoveryAgent] Falha de LLM durante o Discovery.")
-            return DiscoveryStatus.FAILED
-            
-        text = response.content or ""
-        json_str = text
-        match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
-        if match:
-            json_str = match.group(1).strip()
-            
         try:
-            data = json.loads(json_str)
+            response = await self.gateway.structured_output(prompt, schema)
+            if not response or not response.content:
+                logger.error("[DiscoveryAgent] Resposta vazia ou nula recebida do LLM Gateway.")
+                return DiscoveryStatus.FAILED
+            data = json.loads(response.content)
         except Exception as e:
-            logger.error(f"[DiscoveryAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
+            logger.error(f"[DiscoveryAgent] Falha ao obter output estruturado do LLM: {e}")
             return DiscoveryStatus.FAILED
             
         if data.get("project_type"):

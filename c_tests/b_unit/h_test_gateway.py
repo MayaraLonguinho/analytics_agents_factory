@@ -3,7 +3,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-dummy'
 os.environ['ANTHROPIC_API_KEY'] = 'sk-dummy'
 os.environ['GEMINI_API_KEY'] = 'sk-dummy'
 
-from a_platform.i_llm_gateway.e_gateway import LLMGateway
+from a_platform.i_llm_gateway.d_gateway import LLMGateway
 import pytest
 from a_platform.a_core.c_exceptions.a_exceptions import ConfigurationError
 

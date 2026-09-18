@@ -5,11 +5,11 @@ from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts.f_state_manager import StateManager, ProjectPhase, PhaseStatus
 from a_platform.b_contracts import ExecutionResult, ValidationResult, QualityResult, CertificationResult
 from a_platform.g_agents.b_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
-from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
+from a_platform.e_skills.a_dataset_profiling.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain import Brain
 
 from a_platform.g_agents.c_architecture.a_architecture_agent import ArchitectureAgent
-from a_platform.c_brain.a_domain_registry import DomainRegistry
+from a_platform.c_brain.d_domains.a_domain_registry import DomainRegistry
 from a_platform.g_agents.d_planner.k_planner_agent import PlannerAgent
 from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory import ProjectFactory
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class MasterOrchestrator:
     def __init__(self):
-        from a_platform.i_llm_gateway.e_gateway import LLMGateway
+        from a_platform.i_llm_gateway.d_gateway import LLMGateway
         self.gateway = LLMGateway()
 
         self.state_manager = None

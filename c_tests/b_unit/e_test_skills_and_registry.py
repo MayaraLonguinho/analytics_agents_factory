@@ -3,8 +3,8 @@ os.environ['OPENAI_API_KEY'] = 'sk-dummy'
 os.environ['ANTHROPIC_API_KEY'] = 'sk-dummy'
 os.environ['GEMINI_API_KEY'] = 'sk-dummy'
 
-from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
-from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
+from a_platform.e_skills.h_registry.j_skill_registry import SkillRegistry
+from a_platform.e_skills.a_dataset_profiling.c_profiling.a_profiler import DatasetProfilingSkill
 
 def test_skill_registry():
     registry = SkillRegistry()
