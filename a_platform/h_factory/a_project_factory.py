@@ -77,7 +77,7 @@ class ProjectFactory:
                 
                 # Validation: expected artifacts produced?
                 expected_files = set(task.expected_artifacts)
-                produced_files = {a.filepath for a in artifacts}
+                produced_files = {a.path for a in artifacts}
                 
                 missing = expected_files - produced_files
                 if missing:
