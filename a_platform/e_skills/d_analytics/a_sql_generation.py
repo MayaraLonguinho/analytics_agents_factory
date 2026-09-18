@@ -11,42 +11,35 @@ class SqlGenerationSkill(BaseSkill):
         super().__init__()
         self.llm = LLMGateway()
 
-    def get_contract(self):
-        return CORE_SKILL_CONTRACTS["sql_generation"]
-
-    def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         self.validate_input(context)
-        
+
         tech = context["database_technology"]
         schema = context["schema_definition"]
         description = context.get("task_description", "")
         project_plan = context.get("project_plan", {})
-        
+
         logger.info(f"[SqlGenerationSkill] Gerando SQL para {tech} usando LLM")
-        
+
         system_prompt = (
             "Você é um engenheiro de dados especialista em SQL. "
-            "Sua tarefa é gerar scripts SQL limpos (DDL/DML) ou consultas baseadas nos requisitos e schema. "
-            "Responda SOMENTE com o código SQL. Não inclua texto ao redor. Não use markdown formatting (```sql) na resposta, APENAS O CÓDIGO."
+            "Sua tarefa é gerar scripts SQL limpos (DDL/DML) baseados nos requisitos e schema. "
+            "Responda SOMENTE com o código SQL. Não use markdown formatting (```sql) na resposta."
+        )
+        user_prompt = (
+            f"Banco: {tech}\nDescrição: {description}\n"
+            f"Schema: {schema}\nPlan: {project_plan}\n\nGere o script completo (schema.sql)."
         )
 
-        user_prompt = f"Banco: {tech}\nDescrição: {description}\nSchema: {schema}\nPlan: {project_plan}\n\nGere o script completo (schema.sql)."
+        llm_response = await self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
 
-        import asyncio
-        llm_response = asyncio.run(self.llm.generate(prompt=user_prompt, system_prompt=system_prompt))
-        
         if not llm_response.content:
-            error_msg = f"LLM Generation Failed"
-            logger.error(f"[SqlGenerationSkill] {error_msg}")
-            raise ValueError(error_msg)
-            
+            msg = "[SqlGenerationSkill] LLM retornou conteúdo vazio."
+            logger.error(msg)
+            raise ValueError(msg)
+
         code_text = llm_response.content
         code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
         code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
-        
-        result = {
-            "schema.sql": code_text
-        }
-        
-        return result
-        return result
+
+        return {"schema.sql": code_text}

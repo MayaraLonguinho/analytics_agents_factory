@@ -8,15 +8,21 @@ from .b_providers import AnthropicProvider, GeminiProvider, OpenAIProvider, get_
 from .b_providers.e_registry import ProviderRegistry
 
 
-
 class ModelRoute:
     def __init__(self, provider: str, model: str):
         self.provider = provider
         self.model = model
 
 class ModelRouter:
-    def route(self, provider: str = None, model: str = None) -> ModelRoute:
-        return ModelRoute(provider=provider or "openai", model=model or "gpt-4o")
+    def __init__(self, config: Optional["LLMGatewayConfig"] = None):
+        from .d_configuration.a_settings import LLMGatewayConfig as _Cfg
+        self._cfg = config or _Cfg()
+
+    def route(self, provider: Optional[str] = None, model: Optional[str] = None) -> ModelRoute:
+        return ModelRoute(
+            provider=provider or self._cfg.default_provider,
+            model=model or self._cfg.default_model,
+        )
 
 class LLMGateway:
     """Canonical gateway for all LLM access in the platform.
@@ -26,7 +32,7 @@ class LLMGateway:
 
     def __init__(self, config: Optional[LLMGatewayConfig] = None):
         self.config = config or LLMGatewayConfig()
-        self.router = ModelRouter()
+        self.router = ModelRouter(config=self.config)
         self.e_registry: ProviderRegistry = get_provider_registry()
         self._initialize_providers()
 

@@ -16,43 +16,39 @@ class LLMGeneratedSkill(BaseSkill):
         self.role_prompt = role_prompt
         self.llm = LLMGateway()
 
-    def get_contract(self) -> SkillContract:
-        return CORE_SKILL_CONTRACTS[self.skill_id]
-
     async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        contract = self.get_contract()
-        description = input_data.get("task_description", contract.description)
+        description = input_data.get("task_description", f"Gerar artefato para skill: {self.skill_id}")
         project_plan = input_data.get("project_plan", {})
-        
+
         system_prompt = (
             f"Você é um engenheiro sênior. O seu papel é: {self.role_prompt}\n"
             f"Responda SOMENTE com o código/texto final do artefato. "
             f"Não inclua texto ao redor. Não use formatação markdown como ``` no início ou no fim, "
             f"apenas retorne o conteúdo puro."
         )
-
-        user_prompt = f"Gere o conteúdo completo para a habilidade '{contract.name}'.\nDescrição: {description}\nContexto: {input_data}\nPlan: {project_plan}"
+        user_prompt = (
+            f"Gere o conteúdo completo para a habilidade '{self.skill_id}'.\n"
+            f"Descrição: {description}\nContexto: {input_data}\nPlan: {project_plan}"
+        )
 
         llm_response = await self.llm.generate(prompt=user_prompt, system_prompt=system_prompt)
-        
+
         if not llm_response.content:
-            error_msg = f"LLM Generation Failed para {self.skill_id}"
-            logger.error(f"[{self.__class__.__name__}] {error_msg}")
-            raise ValueError(error_msg)
-            
+            msg = f"[{self.__class__.__name__}] LLM retornou conteúdo vazio para {self.skill_id}."
+            logger.error(msg)
+            raise ValueError(msg)
+
         code_text = llm_response.content
         code_text = re.sub(r'^```[\w]*\n', '', code_text, flags=re.MULTILINE)
         code_text = re.sub(r'```$', '', code_text, flags=re.MULTILINE).strip()
-        
+
         artifact_name = f"{self.skill_id}_output.{self.extension}"
         if self.skill_id == "documentation":
             artifact_name = "README.md"
         elif self.skill_id == "docker":
             artifact_name = "docker-compose.yml"
-            
-        return {
-            artifact_name: code_text
-        }
+
+        return {artifact_name: code_text}
 
 class CleaningSkill(LLMGeneratedSkill):
     def __init__(self): super().__init__("cleaning", "py", "Engenheiro de Dados focado em limpeza de dataframes Pandas/Spark.")
