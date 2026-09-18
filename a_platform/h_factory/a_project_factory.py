@@ -28,27 +28,66 @@ class ProjectFactory:
         
         logger.info(f"[ProjectFactory] Resolved Capabilities: {gen_context.resolved_capabilities}")
         
+        from collections import defaultdict, deque
+        
+        # Build dependency graph
+        graph = defaultdict(list)
+        in_degree = defaultdict(int)
+        task_map = {t.task_id: t for t in plan}
+        
         for task in plan:
+            in_degree[task.task_id] = 0
+            
+        for task in plan:
+            for dep in task.dependencies:
+                graph[dep].append(task.task_id)
+                in_degree[task.task_id] += 1
+                
+        queue = deque([tid for tid in in_degree if in_degree[tid] == 0])
+        sorted_tasks = []
+        
+        while queue:
+            curr_id = queue.popleft()
+            sorted_tasks.append(task_map[curr_id])
+            for neighbor in graph[curr_id]:
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+                    
+        if len(sorted_tasks) != len(plan):
+            logger.error("[ProjectFactory] O plano possui dependências circulares. Interrompendo geração.")
+            raise RuntimeError("Dependências circulares detectadas no plano.")
+            
+        for task in sorted_tasks:
             agent_name = getattr(task, "assigned_agent", None)
             if not agent_name:
                 logger.error(f"[ProjectFactory] ProjectTask {task.task_id} não possui agente designado.")
-                continue
+                raise RuntimeError(f"Task {task.task_id} não possui agente designado.")
                 
             agent_instance = self.agent_factory.get_agent(agent_name)
             if not agent_instance:
-                logger.error(f"[ProjectFactory] Agente {agent_name} não encontrado no registro.")
-                continue
+                logger.error(f"[ProjectFactory] Agente {agent_name} não encontrado no registro para a task {task.task_id}.")
+                raise RuntimeError(f"Agente {agent_name} não encontrado no registro para a task {task.task_id}.")
                 
             logger.info(f"[ProjectFactory] Delegando task {task.task_id} para {agent_name}")
-            agent_instance = agent_class() # Dependencies should ideally be injected here via a factory method
             
             try:
                 # O Agente Base executa as skills/mcps e devolve artifacts reais
                 artifacts = agent_instance.execute_task(task, request)
+                
+                # Validation: expected artifacts produced?
+                expected_files = set(task.expected_artifacts)
+                produced_files = {a.filepath for a in artifacts}
+                
+                missing = expected_files - produced_files
+                if missing:
+                    logger.error(f"[ProjectFactory] Agente {agent_name} não gerou os artefatos esperados: {missing}")
+                    raise RuntimeError(f"Artefatos esperados ausentes: {missing}")
+                    
                 gen_context.artifacts.extend(artifacts)
             except Exception as e:
                 logger.error(f"[ProjectFactory] Agente {agent_name} falhou na task {task.task_id}: {e}")
-                # Falha propaga
+                # Falha propaga imediatamente (Fail-Fast)
                 raise RuntimeError(f"Geração falhou na task {task.task_id}") from e
 
         return ArtifactCollector.collect(plan, gen_context.artifacts)

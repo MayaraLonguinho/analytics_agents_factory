@@ -95,24 +95,44 @@ class PlannerAgent:
             f"Agentes Permitidos: {allowed_agents}\n"
             f"Skills Permitidas: {allowed_skills}\n"
             f"MCPs Permitidos: {allowed_mcps}\n"
+            f"{system_prompt}"
         )
         
-        response = await self.gateway.generate(prompt, system_prompt=system_prompt, model_preference="openai")
+        schema = {
+            "type": "object",
+            "properties": {
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "string"},
+                            "name": {"type": "string"},
+                            "description": {"type": "string"},
+                            "agent": {"type": "string"},
+                            "skills": {"type": "array", "items": {"type": "string"}},
+                            "mcps": {"type": "array", "items": {"type": "string"}},
+                            "dependencies": {"type": "array", "items": {"type": "string"}},
+                            "expected_artifacts": {"type": "array", "items": {"type": "string"}},
+                            "commands": {"type": "array", "items": {"type": "string"}},
+                            "validators": {"type": "array", "items": {"type": "string"}}
+                        },
+                        "required": ["id", "name", "agent", "expected_artifacts"]
+                    }
+                },
+                "run_commands": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["tasks"]
+        }
         
-        if not response or not getattr(response, "content", None):
-            logger.error(f"[PlannerAgent] LLM falhou ao gerar o plano")
-            return False
-            
-        text = str(response.content)
-        json_str = text
-        match = re.search(r'```(?:json)?(.*?)```', text, re.DOTALL)
-        if match:
-            json_str = match.group(1).strip()
-            
         try:
-            data = json.loads(json_str)
+            response = await self.gateway.structured_output(prompt, schema)
+            if not response or not response.content:
+                logger.error("[PlannerAgent] Resposta vazia ou nula recebida do LLM Gateway.")
+                return False
+            data = json.loads(response.content)
         except Exception as e:
-            logger.error(f"[PlannerAgent] Falha ao parsear JSON do LLM: {e}\nRetorno: {text}")
+            logger.error(f"[PlannerAgent] Falha ao obter output estruturado do LLM: {e}")
             return False
             
         plan = []
@@ -136,15 +156,34 @@ class PlannerAgent:
         request.metadata["run_commands"] = data.get("run_commands", [])
         
         from a_platform.e_skills.h_registry.a_skill_registry import SkillRegistry
-        from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
         from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
-        from a_platform.k_validation.a_validation_gate import ValidationGate
+        
+        skill_registry = SkillRegistry()
+        agent_factory = AgentFactory()
+        
+        valid_task_ids = set()
+        
+        for task in plan:
+            if not task.assigned_agent or task.assigned_agent not in allowed_agents:
+                logger.error(f"[PlannerAgent] Agente inválido ou não autorizado: {task.assigned_agent}")
+                return False
+                
+            for skill in task.required_skills:
+                if skill not in allowed_skills or skill_registry.get_skill(skill) is None:
+                    logger.error(f"[PlannerAgent] Skill inválida, ausente ou não autorizada: {skill}")
+                    return False
+                    
+            valid_task_ids.add(task.task_id)
+
+        for task in plan:
+            for dep in task.dependencies:
+                if dep not in valid_task_ids:
+                    logger.error(f"[PlannerAgent] Dependência inválida: {dep} na tarefa {task.task_id}")
+                    return False
         
         if not plan:
             logger.error("[PlannerAgent] Plano gerado está vazio. Falha na validação do plano.")
             return False
-            
-        # Optional manual validation could go here
             
         if not hasattr(request, "project_context") or request.project_context is None:
             from a_platform.b_contracts.a_project import ProjectContext

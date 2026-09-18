@@ -262,9 +262,14 @@ class MasterOrchestrator:
             return False
         return True
 
-    def _step_materialization(self, request: ExecutionContext) -> bool:
+    def _step_materialization(self, request: ExecutionContext) -> MaterializationResult:
         logger.info("Executando Materializer...")
-        return self.materializer.materialize(request, self.compiled_artifacts)
+        result = self.materializer.materialize(request, self.compiled_artifacts)
+        if result.status == "FAILED":
+            logger.error(f"[Orchestrator] Falha de materialização: {result.evidence}")
+            if result.errors:
+                logger.error(f"[Orchestrator] Arquivos com falha/ausentes: {result.errors}")
+        return result
 
     def _step_execution(self, request: ExecutionContext) -> bool:
         result = self.runtime_engine.execute(request, project_path=request.project_context.project_path)

@@ -4,7 +4,7 @@ from typing import Optional
 
 class PathPolicy:
     @staticmethod
-    def resolve_and_verify(base_path: str, relative_path: str) -> Optional[str]:
+    def resolve_and_verify(base_path: str, relative_path: str) -> str:
         base = Path(base_path).resolve()
         target = (base / relative_path).resolve()
         
@@ -13,4 +13,4 @@ class PathPolicy:
             target.relative_to(base)
             return str(target)
         except ValueError:
-            return None
+            raise PermissionError(f"Path traversal detectado: tentativa de gravar fora de {base_path}")

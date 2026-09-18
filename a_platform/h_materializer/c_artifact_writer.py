@@ -12,9 +12,10 @@ class ArtifactWriter:
         written = []
         errors = []
         for art in artifacts:
-            target_path = PathPolicy.resolve_and_verify(base_path, art.path)
-            if not target_path:
-                errors.append(f"Security violation or invalid path: {art.path}")
+            try:
+                target_path = PathPolicy.resolve_and_verify(base_path, art.path)
+            except PermissionError as e:
+                errors.append(f"Security violation: {e}")
                 continue
                 
             mcp_result = self.mcp.execute(
