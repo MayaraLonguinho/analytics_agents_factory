@@ -156,9 +156,14 @@ class RepairLoop:
             materializer = ArtifactMaterializer(MCPExecutor())
             mat_res = materializer.materialize(request, fixed_artifacts)
 
-            if mat_res.status != "SUCCESS":
+            if mat_res.status not in ("PASSED", "SUCCESS"):
                 logger.error(f"[RepairLoop] Materialização do reparo falhou: {mat_res.evidence}")
+                if hasattr(request, "project_context") and request.project_context is not None:
+                    request.project_context.materialization_status = "FAILED"
                 return False
+
+            if hasattr(request, "project_context") and request.project_context is not None:
+                request.project_context.materialization_status = "SUCCESS"
 
             # Step 3: Re-execute via Runtime
             from a_platform.j_runtime.a_execution.a_runtime import ProjectRuntime

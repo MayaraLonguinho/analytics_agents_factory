@@ -30,6 +30,6 @@ class ArtifactWriter:
             if mcp_result.get("status") == "ok":
                 written.append(art.path)
             else:
-                errors.append(f"Falha ao escrever {art.path}: {mcp_result.get("message")}")
+                errors.append(f"Falha ao escrever {art.path}: {mcp_result.get('message')}")
                 
         return {"written": written, "errors": errors}

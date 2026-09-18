@@ -49,16 +49,16 @@ def handle_result(args):
     # Por hora extraímos do state.
     try:
         _, request = StateManager.load_state(args.project_id)
-        logger.info(f"Project Ready: {request.metadata.get("PROJECT_READY", "UNKNOWN")}")
-        logger.info(f"Generated Path: {getattr(request.project_context, "project_path", "N/A")}")
+        logger.info(f"Project Ready: {request.metadata.get('PROJECT_READY', 'UNKNOWN')}")
+        logger.info(f"Generated Path: {getattr(request.project_context, 'project_path', 'N/A')}")
     except FileNotFoundError:
         logger.error(f"Nenhum resultado encontrado para o projeto {args.project_id}")
 
 def handle_brain(args):
     brain = Brain()
     logger.info("--- AAF Brain Opeacional ---")
-    logger.info(f"Rules Roles: {len(brain.get_rules("role"))}")
-    logger.info(f"Team Standards: {len(brain.get_rules("team_standard"))}")
+    logger.info(f"Rules Roles: {len(brain.get_rules('role'))}")
+    logger.info(f"Team Standards: {len(brain.get_rules('team_standard'))}")
     # Simula um dump rapido
     logger.info("O Brain está ativo e os domínios estão registrados.")
 
