@@ -3,11 +3,20 @@ from __future__ import annotations
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from .d_configuration.a_settings import LLMGatewayConfig
-from .f_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
+from .a_interfaces.a_base_provider import BaseLLMProvider, LLMRequest, LLMResponse
 from .b_providers import AnthropicProvider, GeminiProvider, OpenAIProvider, get_provider_registry
 from .b_providers.e_registry import ProviderRegistry
-from .g_routing.a_router import ModelRouter
 
+
+
+class ModelRoute:
+    def __init__(self, provider: str, model: str):
+        self.provider = provider
+        self.model = model
+
+class ModelRouter:
+    def route(self, provider: str = None, model: str = None) -> ModelRoute:
+        return ModelRoute(provider=provider or "openai", model=model or "gpt-4o")
 
 class LLMGateway:
     """Canonical gateway for all LLM access in the platform.
