@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, Any
 
-from a_platform.b_contracts import CORE_SKILL_CONTRACTS
 from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.e_skills.d_analytics.a_sql_generation import SqlGenerationSkill
 from a_platform.e_skills.b_data_engineering.a_etl_scripting import EtlScriptingSkill
@@ -20,7 +19,6 @@ class SkillRegistry:
     Centraliza a execução das Skills que os agentes podem solicitar, agora validando contratos.
     """
     def __init__(self):
-        self.contracts = CORE_SKILL_CONTRACTS
         
         # Registra instâncias reais de skills
         self.skills = {

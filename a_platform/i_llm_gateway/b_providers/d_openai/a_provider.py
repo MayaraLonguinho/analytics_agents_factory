@@ -7,7 +7,7 @@ class OpenAIProvider(BaseLLMProvider):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.name = "openai"
-        api_key = self.config.get("api_key") or os.getenv("OPENAI_API_KEY")
+        api_key = self.config.get("api_key") or os.getenv("OPENAI_API_KEY") or getattr(__import__("g_configuration.a_settings", fromlist=["settings"]).settings, "openai_api_key", None)
         if not api_key:
             raise ValueError("OpenAI API key is missing. No dummy keys allowed.")
         self._client = openai.AsyncOpenAI(api_key=api_key)

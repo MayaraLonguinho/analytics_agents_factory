@@ -1,6 +1,6 @@
 import logging
 from typing import List
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 from a_platform.g_agents.n_registry.a_registry import AgentRegistry
 from .b_capability_resolver import CapabilityResolver
@@ -31,7 +31,7 @@ class ProjectFactory:
         for task in plan:
             agent_name = getattr(task, "assigned_agent", None)
             if not agent_name:
-                logger.error(f"[ProjectFactory] Task {task.task_id} não possui agente designado.")
+                logger.error(f"[ProjectFactory] ProjectTask {task.task_id} não possui agente designado.")
                 continue
                 
             agent_class = self.agent_registry.get_agent(agent_name)

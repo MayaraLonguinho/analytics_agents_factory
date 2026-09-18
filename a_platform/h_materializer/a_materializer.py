@@ -2,7 +2,7 @@ import logging
 import os
 from typing import List, Set
 
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
 from .c_artifact_writer import ArtifactWriter

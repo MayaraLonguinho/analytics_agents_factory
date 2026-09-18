@@ -2,7 +2,7 @@ import subprocess
 import time
 from pathlib import Path
 from typing import Optional
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import ExecutionResult
 
 class ProjectRuntime:

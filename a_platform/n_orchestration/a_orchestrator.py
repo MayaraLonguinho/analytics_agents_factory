@@ -1,25 +1,25 @@
 import logging
 from typing import Any, Optional
 
-from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.a_core.d_session.c_state import StateManager, ProjectPhase, PhaseStatus
-from a_platform.b_contracts import ReadinessResult, ExecutionResult, ValidationResult, QualityResult, CertificationResult
+from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.f_state_manager import StateManager, ProjectPhase, PhaseStatus
+from a_platform.b_contracts import ExecutionResult, ValidationResult, QualityResult, CertificationResult
 from a_platform.g_agents.a_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.e_skills.a_dataset.c_profiling.a_profiler import DatasetProfilingSkill
-from a_platform.c_brain.h_brain import Brain
+from a_platform.c_brain import Brain
 
 from a_platform.g_agents.b_architecture.a_architecture_agent import ArchitectureAgent
-from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.c_brain.a_domain_registry import DomainRegistry
 from a_platform.g_agents.c_planner.k_planner_agent import PlannerAgent
 from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory import ProjectFactory
 from a_platform.h_materializer.a_materializer import ArtifactMaterializer
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
-from a_platform.j_runtime.a_execution.c_runtime import ProjectRuntime
+from a_platform.j_runtime.a_execution.a_runtime import ProjectRuntime
 from a_platform.k_validation.a_validation_gate import ValidationGate
 from a_platform.l_quality.a_quality_engine import QualityEngine
 from a_platform.m_certification.a_certification_engine import CertificationEngine
-from a_platform.n_learning.e_learning_engine import LearningEngine
+from a_platform.c_brain.b_learning_engine import LearningEngine
 from a_platform.n_orchestration.c_repair_loop import RepairLoop
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class MasterOrchestrator:
         self.domain_registry = DomainRegistry()
         self.planner_agent = PlannerAgent(self.domain_registry)
         self.agent_factory = AgentFactory()
-        self.project_factory = ProjectFactory(self.agent_factory, self.gateway)
+        self.project_factory = ProjectFactory(self.agent_factory)
         self.materializer = ArtifactMaterializer(self.mcp)
         self.runtime_engine = ProjectRuntime()
         self.validation_gate = ValidationGate()
@@ -241,7 +241,7 @@ class MasterOrchestrator:
 
     def _step_project_factory(self, request: ExecutionContext) -> bool:
         logger.info("Executando Project Factory...")
-        self.compiled_artifacts = self.project_factory.assemble_project(request)
+        self.compiled_artifacts = self.project_factory.generate(request)
         if not self.compiled_artifacts:
             return False
         return True

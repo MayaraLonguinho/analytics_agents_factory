@@ -7,7 +7,7 @@ import os
 import shutil
 from unittest.mock import patch
 from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import ProjectPlan, ProjectTask
 from a_platform.i_llm_gateway.f_interfaces.a_base_provider import LLMResponse
 

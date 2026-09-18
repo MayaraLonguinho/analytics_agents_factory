@@ -29,7 +29,7 @@ class KnowledgeRegistry(GenericRegistry): pass
 class RuleRegistry(GenericRegistry): pass
 class PatternRegistry(GenericRegistry): pass
 
-from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.c_brain.a_domain_registry import DomainRegistry
 from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
 from a_platform.e_skills.g_registry.a_skill_registry import SkillRegistry
 from a_platform.g_agents.n_registry.a_registry import AgentRegistry

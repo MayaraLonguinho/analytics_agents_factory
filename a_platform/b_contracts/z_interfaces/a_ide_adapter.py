@@ -2,8 +2,8 @@ import logging
 from typing import Dict, Any, Optional
 
 from a_platform.n_orchestration.b_orchestrator import MasterOrchestrator
-from a_platform.a_core.d_session.c_state import StateManager
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.f_state_manager import StateManager
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class IDEAdapter:
                 
             req.discovery_data["history"].append({"role": "user", "content": answer})
             
-            from a_platform.a_core.d_session.c_state import ProjectPhase, PhaseStatus
+            from a_platform.b_contracts.f_state_manager import ProjectPhase, PhaseStatus
             sm.current_phase = ProjectPhase.DISCOVERY
             sm.phases[ProjectPhase.DISCOVERY].status = PhaseStatus.IN_PROGRESS
             sm.phases[ProjectPhase.NEEDS_INPUT].status = PhaseStatus.COMPLETED

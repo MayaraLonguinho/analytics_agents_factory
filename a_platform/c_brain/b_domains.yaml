@@ -1,0 +1,9 @@
+domains:
+  analytics:
+    description: "Geração de projetos focados em análise de dados (EDA, Datasets, Pandas)"
+    allowed_skills: ["dataset_profiler", "pandas_analysis"]
+    allowed_mcps: ["filesystem_mcp", "database_mcp"]
+  data_engineering:
+    description: "Geração de projetos focados em pipelines, ETL, orquestração e banco de dados"
+    allowed_skills: ["sql_generation", "etl_pipeline"]
+    allowed_mcps: ["filesystem_mcp", "database_mcp"]

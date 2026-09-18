@@ -9,3 +9,4 @@ from .g_certification import CertificationResult
 from .a_agent_contract import AgentContract, AgentCapability
 from .b_skill_contract import SkillContract, SkillExecutionType, ParameterDefinition, BaseSkill
 from .c_mcp_contract import MCPContract
+from .h_plan import ProjectPlan

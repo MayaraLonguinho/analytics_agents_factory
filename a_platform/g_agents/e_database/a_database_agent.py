@@ -2,18 +2,18 @@ import logging
 from typing import List
 
 from a_platform.g_agents.a_base.a_base_agent import BaseAgent
-from a_platform.b_contracts import ProjectTask as Task
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts import ProjectTask as ProjectTask
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
 
 logger = logging.getLogger(__name__)
 
-def inject_dependencies(task: Task, request: ExecutionContext) -> str:
+def inject_dependencies(task: ProjectTask, request: ExecutionContext) -> str:
     # Simula injecao de dependencias do contexto
     return ""
 
 class DatabaseAgent(BaseAgent):
-    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
+    def execute_task(self, task: ProjectTask, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Executando task DatabaseAgent: {task.name}")
         
         # As skills devem vir estritamente da task resolvida pelo Planner

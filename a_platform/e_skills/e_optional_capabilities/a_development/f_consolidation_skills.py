@@ -2,7 +2,7 @@ import logging
 import re
 import asyncio
 from typing import Dict, Any
-from a_platform.b_contracts import BaseSkill, SkillContract, CORE_SKILL_CONTRACTS
+from a_platform.b_contracts import BaseSkill, SkillContract
 from a_platform.i_llm_gateway.e_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)

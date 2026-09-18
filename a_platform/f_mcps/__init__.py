@@ -6,6 +6,6 @@ implementations directly.
 """
 
 from a_platform.f_mcps.d_registry.a_registry import MCPDefinition, MCPRegistry
-from .e_executor.a_executor import MCPExecutor
+from .d_registry.b_executor import MCPExecutor
 
 __all__ = ["MCPDefinition", "MCPRegistry", "MCPExecutor"]

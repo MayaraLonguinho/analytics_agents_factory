@@ -5,8 +5,8 @@ from enum import Enum, auto
 from dataclasses import dataclass, field, asdict
 from typing import Dict, Any
 
-from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.b_contracts import ProjectPlan, Task
+from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts import ProjectPlan, ProjectTask
 
 logger = logging.getLogger(__name__)
 
@@ -163,7 +163,7 @@ class StateManager:
         req_data = data["request"]
         plan = None
         if req_data.get("project_plan"):
-            tasks = [Task(**t) for t in req_data["project_plan"]["tasks"]]
+            tasks = [ProjectTask(**t) for t in req_data["project_plan"]["tasks"]]
             plan = ProjectPlan(
                 project_id=project_id,
                 domain=req_data.get("domain", ""),

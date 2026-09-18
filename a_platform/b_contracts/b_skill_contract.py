@@ -13,7 +13,7 @@ class ParameterDefinition(BaseModel):
     constraints: Dict[str, Any] = Field(default_factory=dict)
 
 class SkillContract(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = {"extra": "allow"}
     skill_id: str = "default_skill"
     name: str = "Default Skill"
     description: str = "Default description"

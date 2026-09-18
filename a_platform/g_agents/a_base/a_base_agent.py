@@ -5,11 +5,10 @@ from typing import Dict, Any, List
 
 from a_platform.i_llm_gateway.e_gateway import LLMGateway
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
-from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
-from a_platform.b_contracts import ProjectTask as Task
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.e_skills.g_registry.a_skill_registry import SkillRegistry
+from a_platform.b_contracts import ProjectTask as ProjectTask
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
-from a_platform.b_contracts import CORE_SKILL_CONTRACTS
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class BaseAgent:
         self.mcp = mcp
         self.skills = skills
 
-    def execute_task(self, task: Task, request: ExecutionContext) -> List[Artifact]:
+    def execute_task(self, task: ProjectTask, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Iniciando task: {task.name}")
         artifacts = []
         
@@ -115,5 +114,5 @@ class BaseAgent:
             else:
                 logger.error(f"[{self.name}] Erro no LLM para {art}")
 
-        logger.info(f"[{self.name}] Task {task.name} concluída. {len(artifacts)} artefatos gerados.")
+        logger.info(f"[{self.name}] ProjectTask {task.name} concluída. {len(artifacts)} artefatos gerados.")
         return artifacts

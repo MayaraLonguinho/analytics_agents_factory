@@ -2,7 +2,7 @@ import os
 import logging
 from typing import Dict, Any
 
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.c_brain.f_graph.a_graph_backend import ObsidianBackend
 
 logger = logging.getLogger(__name__)

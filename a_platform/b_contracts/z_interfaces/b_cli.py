@@ -4,8 +4,8 @@ import os
 import uuid
 import json
 
-from a_platform.a_core.d_session.c_state import StateManager
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.f_state_manager import StateManager
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 
 def cmd_start(args):
@@ -128,7 +128,7 @@ def cmd_brain(args):
     print("🧠 AAF - Brain Verification")
     print("=" * 50)
     
-    from a_platform.c_brain.h_brain import Brain
+    from a_platform.c_brain import Brain
     brain = Brain()
     
     print("\n[Brain] Knowledge:")

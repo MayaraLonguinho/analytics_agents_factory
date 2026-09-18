@@ -2,9 +2,9 @@ import logging
 import json
 import re
 import asyncio
-from a_platform.a_core.d_session.b_context import ExecutionContext
-from a_platform.b_contracts import Task
-from a_platform.i_domains.a_domain_registry import DomainRegistry
+from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts import ProjectTask
+from a_platform.c_brain.a_domain_registry import DomainRegistry
 from a_platform.i_llm_gateway.e_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ class PlannerAgent:
         
         print(f"DEBUG DATA: {data}")
         for t_data in data.get("tasks", []):
-            task = Task(
+            task = ProjectTask(
                 task_id=t_data.get("task_id", t_data.get("id")),
                 name=t_data.get("name"),
                 description=t_data.get("description", ""),
@@ -135,7 +135,7 @@ class PlannerAgent:
             
         request.metadata["run_commands"] = data.get("run_commands", [])
         
-        from a_platform.e_skills.g_registry.j_skill_registry import SkillRegistry
+        from a_platform.e_skills.g_registry.a_skill_registry import SkillRegistry
         from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
         from a_platform.g_agents.m_agent_factory.a_agent_factory import AgentFactory
         from a_platform.k_validation.a_validation_gate import ValidationGate

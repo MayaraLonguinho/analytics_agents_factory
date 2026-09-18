@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import CertificationResult
 
 logger = logging.getLogger(__name__)

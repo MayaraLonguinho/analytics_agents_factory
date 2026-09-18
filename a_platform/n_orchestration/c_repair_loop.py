@@ -1,5 +1,5 @@
 import logging
-from a_platform.a_core.d_session.b_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts import ExecutionResult
 
 logger = logging.getLogger(__name__)

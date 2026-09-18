@@ -1,7 +1,7 @@
 import logging
 import re
 from typing import Dict, Any
-from a_platform.b_contracts import BaseSkill, CORE_SKILL_CONTRACTS
+from a_platform.b_contracts import BaseSkill
 from a_platform.i_llm_gateway.e_gateway import LLMGateway
 
 logger = logging.getLogger(__name__)
