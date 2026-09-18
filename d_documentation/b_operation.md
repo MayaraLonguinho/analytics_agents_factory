@@ -1,38 +1,60 @@
 # Operação da Plataforma
 
-A Analytics Agents Factory (AAF) opera primariamente orientada a eventos iniciados via CLI. O fluxo garante o gerenciamento de estados no ciclo de vida de um projeto gerado.
+A Analytics Agents Factory (AAF) opera primariamente orientada a eventos iniciados via CLI ou via adaptador de sessão (`IDEAdapter`). O fluxo garante o gerenciamento de estados no ciclo de vida de um projeto gerado.
 
-## Como iniciar o AAF
-A AAF expõe sua CLI em `a_platform/b_interfaces/b_cli/c_commands.py`.
+## Separação de Papéis: IDE Chat vs Agents Nativos do AAF
+- **IDE Chat:** Camada de interface e transporte de mensagens entre o usuário e a plataforma. O comando `aaf start` dispara o pipeline nativo e **não** constitui permissão para o agente da IDE gerar arquivos de projeto manualmente ou alterar o código da fábrica.
+- **Agents Nativos:** Todos os passos da geração (Discovery, Arquitetura, Planejamento, Fabricação, Materialização, Execução, Validação, Qualidade, Certificação) são conduzidos exclusivamente pelos agentes internos sob o `MasterOrchestrator`.
 
-Iniciando um novo projeto através de um prompt de requisição:
+## Como Iniciar o AAF
+O ponto de entrada CLI suportado é `f_cli/a_main.py` (ou comando `aaf`):
+
+Iniciando um novo projeto com prompt e dataset:
 ```bash
-python -m a_platform.b_interfaces.b_cli.c_commands start --prompt "Crie um pipeline ETL para ler os dados de vendas, deduplicar as linhas e salvar no SQLite" --dataset "./d_input/vendas.csv"
+python f_cli/a_main.py start --project-id "vendas_analytics" --prompt "Crie um pipeline ETL para ler os dados de vendas, deduplicar as linhas e salvar no SQLite" --dataset "./b_input/c_dados_vendas.csv"
 ```
 
-## Como utilizar a CLI
-A CLI oferece outros submódulos essenciais:
-- `status`: Checar o status da máquina de estado de um projeto rodando ou paralisado (aguardando input).
+### Ciclo de Pause e Resume (Discovery)
+Quando o `DiscoveryAgent` identifica que faltam requisitos essenciais que não podem ser inferidos das convenções do AAF, a sessão é pausada no estado `NEEDS_INPUT`, persistindo a pergunta em disco via `StateManager` (`a_platform/b_contracts/j_state_manager.py`).
+
+Para responder e retomar na **mesma sessão**:
+```bash
+python f_cli/a_main.py start --project-id "vendas_analytics" --answer "Utilize formato SQLite com tabela de vendas normalizada"
+```
+
+## Como Utilizar a CLI
+A CLI oferece comandos para acompanhamento do ciclo de vida:
+- `status`: Checar o status da máquina de estado de um projeto rodando ou pausado.
   ```bash
-  python -m a_platform.b_interfaces.b_cli.c_commands status --id "proj-xyz"
+  python f_cli/a_main.py status vendas_analytics
   ```
-- `result`: Recuperar os dados e relatório do projeto gerado.
-- `brain`: Acessar metadados, regras e estado do Brain para telemetria.
-- `mcp`: Acionar *tools* de forma desacoplada para depuração manual de permissões (ex: execução de Docker ou Queries).
+- `result`: Recuperar os dados de materialização e relatório de certificação emitido.
+  ```bash
+  python f_cli/a_main.py result vendas_analytics
+  ```
+- `brain`: Acessar metadados, regras e decisões consolidadas no Brain.
+  ```bash
+  python f_cli/a_main.py brain
+  ```
+- `mcp`: Listar as ferramentas e protocolos MCP registrados.
+  ```bash
+  python f_cli/a_main.py mcp
+  ```
 
 ## Fluxo Operacional e Estados (State Manager)
-O arquivo `c_state.py` governa transições estritas:
-1. `INIT` → Criação do `AAFSession` e identificador.
-2. `IN_PROGRESS` → Executando fases de orquestração.
-3. `NEEDS_INPUT` → Pipeline pausa solicitando esclarecimento (normalmente na fase de Discovery).
-4. `FAILED` → O ciclo de execução falhou fatalmente além das tentativas de `Repair`.
-5. `READY` → O projeto atingiu a maturidade em todas as checagens e Gates.
+O `StateManager` (`a_platform/b_contracts/j_state_manager.py`) governa as transições persistidas em `j_runtime/state/<project_id>.json`:
+1. `INIT` → Criação da sessão e identificador.
+2. `IN_PROGRESS` → Executando fases de orquestração serial.
+3. `NEEDS_INPUT` (`PAUSED`) → Pipeline pausa solicitando esclarecimento na fase de Discovery.
+4. `FAILED` → O ciclo de execução falhou fatalmente além das tentativas do `RepairLoop`.
+5. `READY` → O projeto obteve aprovação unânime em todos os gates (`PROJECT READY = YES`).
 
-Cada fase de execução transaciona nos seguintes passos do `a_orchestrator`:
-Discovery → Profiling → Brain → Architecture → Planner → Factory → Materialization → Execution → Validation → Quality → Certification.
+Cada fase de execução transiciona nos passos estritos do `MasterOrchestrator`:
+Discovery → Dataset Profiling → Brain → Architecture → Planner → Project Factory → Materializer → Runtime → Validation → Repair Loop (em falha) → Quality → Certification → PROJECT READY.
 
 ## Comportamento Esperado & Erros
-- A plataforma não silencia erros. Se um MCP falha em criar o arquivo (ex: path crossing the sandbox), um `ExecutionError` ou notificação equivalente preenche os *diagnostics*.
-- Se as chaves de API estiverem ausentes, o Gateway atirará falha ao invés de prosseguir silenciosamente.
-- Se a Certificação falhar ao verificar testes de unidade (`tests_ok = False`), a fábrica reporta FALHA no Certification Report.
-- A orquestração repetirá a execução (Repair Loop) até o `max_repair_attempts` para corrigir anomalias de sintaxe e testes antes de admitir a falha ao usuário.
+- A plataforma não silencia erros. Se um MCP falha em criar o arquivo (ex: tentativa de escrita fora de `e_generated_projects/`), o acesso é bloqueado e a exceção preenche os diagnósticos.
+- Se as chaves de API estiverem ausentes, o Gateway lança falha imediata.
+- Se a Certificação falhar ao verificar testes de unidade (`tests_ok = False`), a fábrica emite reprovação (`PROJECT READY = NO`).
+- O `RepairLoop` reexecuta tarefas com falha até 3 vezes (`max_repair_attempts`) antes de classificar o projeto como `FAILED`.
+- **Status de Homologação:** O teste E2E prévio alcançou o `PlannerAgent` e falhou na validação de agentes/comandos. As estabilizações subsequentes foram comprovadas por inspeção e análise estática, mas a execução do pipeline E2E completo permanece pendente de reexecução.

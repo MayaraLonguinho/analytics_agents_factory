@@ -5,20 +5,19 @@ A Analytics Agents Factory (AAF) foi projetada como um **Modular Monolith**. Est
 ## Camadas da Plataforma
 A arquitetura é dividida em módulos organizados alfabeticamente para forçar previsibilidade e ordem de dependência:
 
-- **a_core**: Contratos fundamentais, exceções tipadas, configuração e estrutura de sessão (SessionContext e StateManager). É a camada mais básica, sem dependências de outras áreas.
-- **b_interfaces**: Adaptadores de entrada. Centraliza a CLI (`c_commands.py`) e a integração com a IDE (Session Adapter).
-- **c_brain**: O coração de conhecimento, repositório de regras de domínio, decisões arquiteturais e memória estrita em Markdown e metadados. Representa o SSOT (Single Source of Truth) para o modelo operacional.
-- **d_agents**: Implementações dos agentes principais (Discovery, Architecture, Planner, Agent Factory) e especializados (Data, Database, Frontend, etc.).
-- **e_skills**: Capacidades que os agentes executam, organizadas por categorias, sem implementações "mockadas". Interagem obrigatoriamente através da `LLMGateway`.
-- **f_mcp**: Extensões de ação no mundo real, operando sob *sandbox* estrito (Filesystem, Docker seguro, Database com filtros).
-- **g_llm_gateway**: Interface única para provedores de IA (OpenAI, Gemini, Anthropic), isolando a lógica de SDK e roteamento.
-- **h_factory**: Mecanismos de geração de projetos (`ProjectFactory`).
+- **b_contracts**: Contratos fundamentais Pydantic, exceções tipadas, interfaces e StateManager (`j_state_manager.py`).
+- **c_brain**: O coração de conhecimento, repositório de regras de domínio (`b_rules`), decisões arquiteturais (`e_decisions`) e padrões (`c_patterns`). Representa o SSOT.
+- **e_skills**: Capacidades granulares que os agentes executam, organizadas por categorias e registradas em `b_skills.yaml`.
+- **f_mcps**: Protocolos de ação segura sob sandbox estrito (Filesystem, Docker, Database).
+- **g_agents**: Implementações dos agentes nativos (Discovery, Architecture, Planner, Agent Factory) e especializados (Data, Database, Analytics, Testing, etc.).
+- **h_factory**: Mecanismos de orquestração da fábrica lógica de projetos (`ProjectFactory`).
 - **i_materializer**: Manipulador Físico de Arquivos e persistência em disco (`ArtifactMaterializer`).
-- **j_llm_gateway**: Interface única para provedores de IA (OpenAI, Gemini, Anthropic), isolando a lógica de SDK e roteamento.
-- **k_runtime**: Ambiente seguro para execução de comandos do sistema de destino e telemetria de saúde de execução.
-- **l_validation**: Gates de validação funcional e verificação rigorosa de saída e logs.
-- **m_quality** e **n_certification**: Avaliação de componentes estáticos (Testes, Code Quality, Documentação) e emissão de atestado de que o projeto atendeu aos requisitos.
-- **o_orchestration**: Topologia de orquestração do pipeline completo, acionando o Repair Loop no caso de falhas nas verificações.
+- **j_llm_gateway**: Interface única para provedores de IA (OpenAI operacional via `gpt-4o-mini`, isolando SDK e roteamento).
+- **k_runtime**: Ambiente seguro para execução de comandos do sistema de destino (`shell=False`, `CommandPolicy`).
+- **l_validation**: Gates de validação funcional e verificação rigorosa de saída e evidências (`ValidationGate`).
+- **m_quality**: Avaliação de componentes estáticos e evidências reais de qualidade e testes (`QualityEngine`).
+- **n_certification**: Motor único de autorização de readiness de projetos (`CertificationEngine`).
+- **o_orchestration**: Topologia de orquestração do pipeline completo (`MasterOrchestrator`) e ciclo de reparo (`RepairLoop`).
 
 ## Fluxo Principal de Execução
 
@@ -38,6 +37,6 @@ IDE Chat → IDE Adapter → Discovery → Dataset Profiling → Brain → Archi
 
 ## Princípios de Dependência
 - Módulos inferiores não dependem dos superiores.
-- Nenhuma inteligência LLM contorna o Gateway (`g_llm_gateway`).
+- Nenhuma inteligência LLM contorna o Gateway (`j_llm_gateway`).
 - Nenhum agente contorna o plano traçado pelo `Planner`.
 - O código gerado é materializado apenas pelo materializador designado usando a subcamada de MCP em ambiente Sandbox.

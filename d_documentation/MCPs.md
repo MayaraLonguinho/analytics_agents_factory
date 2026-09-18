@@ -1,15 +1,20 @@
 # MCPs
 
 ## Responsibility
-Ferramentas estruturadas de I/O
+Protocolos de interação segura com o ambiente local sob sandbox rigoroso: Filesystem (`is_safe_path`), Database (`is_safe_query`) e Docker (whitelist de subcomandos).
+
+## Path
+`a_platform/f_mcps/`
 
 ## Inputs
 [[Agents]]
 
 ## Outputs
-Tool Execution Output
+MCP Tool Execution Result
 
 ## Integrations
+- [[Agents]]
+- [[Materializer]]
 
 ## Failure behavior
-Retorno de erro de MCP
+Bloqueia acessos não autorizados fora da pasta segura de projetos e levanta erro de permissão.

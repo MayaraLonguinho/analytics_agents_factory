@@ -1,16 +1,19 @@
 # Project Factory
 
 ## Responsibility
-Geração de artefatos lógicos
+Orquestração da fábrica de geração. Instancia agentes especializados via `AgentFactory` para executar as tarefas do plano e compilar o resultado em objetos lógicos tipados.
+
+## Path
+`a_platform/h_factory/a_project_factory.py`
 
 ## Inputs
-[[Orchestrator]]
+[[Planner]], [[Orchestrator]]
 
 ## Outputs
-Artifacts
+Coleção de objetos lógicos tipados (`List[Artifact]`)
 
 ## Integrations
 - [[Agents]]
 
 ## Failure behavior
-Falha na geração
+Interrupção da fabricação em caso de erro na execução das tarefas pelos agentes.

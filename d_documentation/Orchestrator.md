@@ -1,13 +1,16 @@
 # Orchestrator
 
 ## Responsibility
-Master Orchestrator
+Master Orchestrator do AAF. Gerencia a execução serial e determinística do pipeline analítico e transições de fase.
+
+## Path
+`a_platform/o_orchestration/a_orchestrator.py`
 
 ## Inputs
 [[AAF]]
 
 ## Outputs
-Pipeline Execution
+Pipeline Execution & Telemetria (`PROJECT READY`)
 
 ## Integrations
 - [[Discovery]]
@@ -22,6 +25,7 @@ Pipeline Execution
 - [[Repair Loop]]
 - [[Quality]]
 - [[Certification]]
+- [[Project Ready]]
 
 ## Failure behavior
-Interrompe e falha o estado
+Interrompe a esteira, aciona [[Repair Loop]] se na fase de validação/execução, ou marca o projeto como `FAILED` se esgotadas as tentativas.

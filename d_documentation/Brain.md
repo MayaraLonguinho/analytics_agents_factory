@@ -1,15 +1,19 @@
 # Brain
 
 ## Responsibility
-Repositório de conhecimento
+Single Source of Truth (SSOT) de regras de domínio, decisões arquiteturais consolidadas e padrões corporativos. O Learning Engine (`h_learning_engine.py`) permanece fora do Golden Path oficial.
+
+## Path
+`a_platform/c_brain/g_brain.py`
 
 ## Inputs
-[[Orchestrator]]
+[[Dataset Profiling]], [[Orchestrator]]
 
 ## Outputs
-Brain Context
+Brain Context enriquecido (regras de domínio, restrições, decisões de padrões)
 
 ## Integrations
+- [[Architecture]]
 
 ## Failure behavior
-Retorna sem contexto
+Falha a inicialização do contexto analítico ou opera com conjunto estrito de regras padrão.

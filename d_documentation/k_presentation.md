@@ -5,9 +5,9 @@ Siga os passos a seguir para provar a plena sanidade operacional e as barreiras 
 ## Execução Prática
 
 1. **Invocação Básica**
-Abra o console na raiz e chame a porta de entrada via CLI com um requisito simples para gerar carga.
+Abra o console na raiz e chame a porta de entrada via CLI com um requisito simples para gerar carga:
 ```bash
-python -m a_platform.b_interfaces.b_cli.c_commands start --prompt "Criar script de ingestão Python conectando a uma API JSON de moedas e salvando em SQLite" --dataset "./d_input/sample.csv"
+python f_cli/a_main.py start --project-id "demo_proj" --prompt "Criar script de ingestão Python conectando a uma API JSON de moedas e salvando em SQLite" --dataset "./b_input/c_dados_vendas.csv"
 ```
 
 2. **Demonstrar Brain & Graph**

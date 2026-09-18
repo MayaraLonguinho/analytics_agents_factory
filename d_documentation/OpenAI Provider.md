@@ -1,15 +1,19 @@
 # OpenAI Provider
 
 ## Responsibility
-Integração nativa de LLM
+Provedor operacional homologado no AAF, executando chamadas nativas autenticadas via SDK oficial contra o modelo canônico `gpt-4o-mini`.
+
+## Path
+`a_platform/j_llm_gateway/b_providers/a_openai/a_provider.py`
 
 ## Inputs
 [[LLM Gateway]]
 
 ## Outputs
-OpenAI ChatCompletion
+OpenAI ChatCompletion mapeado para LLMResponse
 
 ## Integrations
+- [[LLM Gateway]]
 
 ## Failure behavior
-Exception ou API Error
+Lança erro de autenticação, timeout ou indisponibilidade de API.

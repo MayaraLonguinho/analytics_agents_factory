@@ -24,87 +24,112 @@ O escopo do projeto compreende as seguintes funcionalidades centrais de infraest
 ## 5. Arquitetura Modular Monolith
 O sistema adere a uma arquitetura de Monolito Modular orientada a Domínio (DDD) implementada em Python. As partes não cruzam limites de pacote inadvertidamente, não há dependência cíclica, a configuração é tratada top-down e contratos/interfaces residem estritamente no pacote `b_contracts`. Nenhuma skill acessa provedores de LLM externos sem passar pelo LLM Gateway, nem agentes criam artefatos físicos no disco pulando a Factory ou Materializer.
 
-## 6. Fluxo Completo
+### Separação Estrita de Responsabilidades: IDE Chat vs Agents Nativos do AAF
+- **IDE Chat (Interface e Transporte):** O chat da IDE atua estritamente como canal de entrada/saída e camada de transporte com o usuário. O comando `aaf start` é a invocação do ponto de entrada do AAF; **não** constitui autorização para o agente da IDE gerar arquivos de projeto, criar scripts manuais de contorno ou alterar o código-fonte da plataforma durante solicitações de geração.
+- **Agents Internos do AAF:** Todo o raciocínio, levantamento de requisitos, arquitetura, planejamento, geração de código e verificação pertencem com exclusividade aos agentes nativos da plataforma (`DiscoveryAgent`, `ArchitectureAgent`, `PlannerAgent`, `ProjectFactory`, etc.) orquestrados pelo `MasterOrchestrator`.
+
+## 6. Fluxo Completo de Funcionamento
 
 ```mermaid
 flowchart TD
-    IDE[IDE Chat / CLI] --> ORC[Master Orchestrator]
-    ORC --> DIS[Discovery]
-    DIS --> PROF[Dataset Profiling]
-    PROF --> BRAIN[Brain]
-    BRAIN --> ARCH[Architecture]
-    ARCH --> PLAN[Planner]
-    PLAN --> FACT[Project Factory]
-    FACT --> AG[Agents]
-    AG --> SK[Skills]
-    AG --> MCP[MCPs]
-    AG --> LLM[LLM Gateway]
-    LLM --> OPENAI[OpenAI Provider]
-    AG --> ART[Artifacts]
-    ART --> MAT[Materializer]
-    MAT --> GEN[e_generated_projects]
-    GEN --> RUN[Runtime]
-    RUN --> VAL[Validation]
-    VAL -->|Fail| REP[Repair Loop]
+    IDE[IDE Chat / CLI] --> ENTRY[AAF Entry Point: f_cli / IDEAdapter]
+    ENTRY --> ORC[MasterOrchestrator: o_orchestration]
+    ORC --> DIS[DiscoveryAgent: g_agents/b_discovery]
+    DIS <-->|NEEDS_INPUT / --answer| STATE[(StateManager: PAUSED / RESUME)]
+    DIS --> PROF[DatasetProfilingSkill: e_skills/a_dataset_profiling]
+    PROF --> BRAIN[Brain SSOT: c_brain]
+    BRAIN --> ARCH[ArchitectureAgent: g_agents/c_architecture]
+    ARCH --> DEC[ArchitectureDecision]
+    DEC --> PLAN[PlannerAgent: g_agents/d_planner]
+    PLAN --> PVAL[Planner Preflight Validations:\nDomain, Agent, Skill, MCP, Stack, Commands, Evidence]
+    PVAL --> CP_PRE[CommandPolicy: Preflight Check]
+    CP_PRE --> PPLAN[ProjectPlan]
+    PPLAN --> FACT[ProjectFactory: h_factory]
+    FACT --> AGF[AgentFactory: g_agents/n_factory]
+    AGF --> AG[Agents Especializados]
+    AG --> SK[Skills: e_skills]
+    AG --> MCP[MCPs: f_mcps]
+    AG --> BRAIN
+    AG --> LLM[LLM Gateway: j_llm_gateway]
+    LLM --> OPENAI[OpenAI Provider: gpt-4o-mini]
+    AG --> ART[Artifacts Pydantic]
+    ART --> MAT[ArtifactMaterializer: i_materializer]
+    MAT --> GEN[e_generated_projects / project_id]
+    GEN --> RUN[Runtime: k_runtime]
+    RUN --> CP_ENF[CommandPolicy: Execution Enforcement]
+    CP_ENF --> CER[CommandExecutionResult / ExecutionResult]
+    CER --> VAL[Validation Gate: l_validation]
+    VAL -->|FAILED / retries <= 3| REP[Repair Loop: o_orchestration/c_repair_loop]
     REP --> AG
-    VAL -->|Pass| QUAL[Quality]
-    QUAL --> CERT[Certification]
-    CERT --> READY[PROJECT READY]
+    VAL -->|PASSED| QUAL[Quality Engine: m_quality]
+    QUAL --> CERT[Certification Engine: n_certification]
+    CERT --> READY{PROJECT READY = YES / NO}
 ```
 
 ## 7. Componentes Principais
 
-### Agents
-Agentes funcionam como _Reasoning Engines_ dentro de suas zonas de domínio:
-- **DiscoveryAgent**: Coleta dados e o escopo funcional inicial.
-- **ArchitectureAgent**: Decide quais capacidades, padrões e módulos a arquitetura necessitará com base no conhecimento do Brain.
-- **PlannerAgent**: Desenha um plano de execução, gerando tasks atômicas a serem processadas pelo Project Factory.
-- **Feature/Execution Agents**: Agentes especializados invocados para transformar tasks atômicas e Skills em Artifacts compilados para construção de código.
+### Discovery e Ciclo de Pause / Resume
+- O **DiscoveryAgent** coleta metadados e requisitos de negócio. 
+- Quando dados essenciais estão ausentes e não são inferíveis de defaults da fábrica, o agente emite `missing_info_question`, transicionando a sessão para o estado `NEEDS_INPUT` (`PAUSED`) via `StateManager` (`j_state_manager.py`).
+- O usuário responde diretamente à pergunta pendente na **mesma sessão** através de `aaf start --project-id <id> --answer "<resposta>"`. A sessão é retomada de forma idempotente sem perda de histórico nem reinício do Discovery.
+- Se um dataset for fornecido (`--dataset`), o Discovery proíbe perguntas redundantes sobre características físicas do arquivo (linhas, colunas, tipos), delegando essa análise estritamente à etapa subsequente de `DatasetProfilingSkill`.
 
-### Skills
-Capacidades granulares baseadas em métodos assíncronos. Exigem que o provedor LLM forneça respostas consistentes baseadas nos parâmetros exigidos, ou aplicam execução física nativa (ex: `DatasetProfilingSkill` através do Pandas). Exemplos: `EtlScriptingSkill`, `SqlGenerationSkill`, `ApiDesignSkill`.
+### Dataset Profiling
+Skill física nativa executada via Pandas (`DatasetProfilingSkill`) para extração determinística de metadados estruturais (`row_count`, `column_count`, `columns`, tipos brutos, duplicatas, warnings), injetando evidências concretas no contexto antes da tomada de decisão arquitetural.
 
-### MCPs
-Model Context Protocol Tools. O AAF disponibiliza MCPs reais, funcionais e isoladas:
-- **Filesystem**: Operações estruturadas de leitura/escrita e validação de sistema de arquivos local.
-- **Database**: Ferramenta de querying ou modelagem isolada de dados SQL (Opcional base).
-- **Docker**: Suporte a containerização de processos (Opcional base).
+### Brain (SSOT)
+Cérebro de conhecimento contextual. Centraliza regras de arquitetura (`b_rules`), domínios (`d_domains`), decisões registradas (`e_decisions`) e padrões de engenharia. O *Learning Engine* (`h_learning_engine.py`) encontra-se fora do Golden Path oficial de produção.
 
-### Brain
-Cérebro do conhecimento contextual. Garante aderência aos *Global Rules*, domínios permitidos, decisões arquiteturais consolidadas e injeta "regras de padrão da equipe" no _ExecutionContext_.
+### Architecture
+O **ArchitectureAgent** analisa o contexto enriquecido do Brain e do dataset, gerando a decisão arquitetural formal (`ArchitectureDecision`) com restrições tecnológicas de stack, persistência e modelagem analítica.
 
-### LLM Gateway
-Roteador único (ModelRouter) que recebe uma requisição e encapsula um provedor genérico LLM, impedindo que o AAF crie um lock-in severo. Implementado atualmente para a infraestrutura *OpenAI*. Providers como *Gemini* e *Anthropic* declaram-se não implementados `NotImplementedError` até uso físico homologado e exigem obrigatoriamente a apiKey (sem chaves mockadas).
+### Planning e Validações Pré-Execução
+O **PlannerAgent** atua como Single Source of Truth do plano de execução (`ProjectPlan`). Durante o planejamento, o agente realiza validações estritas de:
+- **Domínio técnico:** restrito a analytics e data engineering;
+- **Agent Registry / Factory:** apenas agentes formalmente autorizados no domínio;
+- **SkillRegistry:** validação de skills declaradas no catálogo `b_skills.yaml`;
+- **MCP Registry:** verificação de ferramentas de I/O autorizadas;
+- **Stack tecnológico e dependências:** compatibilidade com as premissas arquiteturais;
+- **CommandPolicy Preflight:** verificação estática prévia de cada comando de execução;
+- **Requisitos de evidência tipada:** comandos obrigatórios para geração de evidências concretas.
 
-### Project Factory
-Responsável por orquestrar Agents (Através do `AgentFactory`) para processar e processar a conversão das Tarefas Planejadas em objetos `Artifact` Pydantic completos em disco lógico (não físico).
+### CommandPolicy: Atuação em Duas Posições
+A **CommandPolicy** (`a_platform/k_runtime/b_command_policy/`) atua de forma preventiva e em tempo de execução:
+1. **Planning (Preflight):** Valida estaticamente os comandos propostos no plano antes da instanciação de tarefas, rejeitando binários proibidos ou sintaxes inseguras.
+2. **Runtime (Enforcement):** Aplica a política de isolamento no momento da execução dos subprocessos em `k_runtime`, exigindo argumentos estruturados (`shlex`, `shell=False`) e bloqueando chamadas não autorizadas (`DENIED`).
 
-### Materializer
-Converte a árvore lógica originada da _Project Factory_ e materializa os arquivos de forma estrita no path físico, manipulando os MCPs de filesystem e permissões para alocar projetos fisicamente.
+### Project Factory e Materializer
+- **ProjectFactory:** Orquestra os agentes via `AgentFactory` para converter as tarefas planejadas em objetos Pydantic `Artifact` lógicos.
+- **ArtifactMaterializer (`i_materializer`):** Grava fisicamente os arquivos de forma estrita no path seguro `e_generated_projects/<project_id>`, manipulando permissões e isolamento.
 
-### Runtime
-Componente que encapsula `subprocess` e garante segurança na execução restrita (`shell=False`, timouts explícitos, limites globais, políticas de comandos) e mapeia _cada comando individualmente_ para uma lista tipada `CommandExecutionResult`. Ele compila a execução num `ExecutionResult` final.
+### Runtime e Observabilidade
+Encapsula a execução de subprocessos (`shell=False`, timeouts explícitos, limites globais). Cada comando executado produz uma entidade tipada `CommandExecutionResult` contendo código de saída, stdout, stderr, duração e status. A ausência de erros de texto não constitui aprovação; a plataforma exige evidências tipadas de conclusão com sucesso.
 
-### Validation
-Motor de validações sistêmicas:
-- **ProjectValidation**: Verifica ID, consistência de propriedades de projeto.
-- **StructureValidation**: Testa presença estática de arquivos essenciais.
-- **ExecutionValidation**: Lê evidências dos comandos emitidos (`CommandExecutionResult.status == PASSED` e `return_code == 0`). Nega permissão se encontrar um `DENIED` emitido pela `CommandPolicy` ou `TIMEOUT`. 
+### Validation Gate e Repair Loop
+- **ValidationGate (`l_validation`):** Avalia validações estruturais e evidências de execução (`CommandExecutionResult.status == PASSED` e `return_code == 0`).
+- **RepairLoop (`o_orchestration/c_repair_loop.py`):** Em caso de falha de validação ou execução, reencaminha os diagnósticos de erro ao respectivo agente para nova elaboração, com limite de até 3 tentativas (`max_repair_attempts`). Se as tentativas se esgotarem sem sucesso, a orquestração falha definitivamente.
 
-### Repair Loop
-Quando o `Validation` ou a própria `Execution` falham, este loop devolve as *evidências base* de volta ao Agent respectivo para nova elaboração, até um limite máximo (default 3 tentativas). Apenas respostas re-materializadas e avaliadas com sucesso no Runtime + Validation Gates indicam que o *Repair Loop* funcionou (não existe mock ou fake success de log).
+### Quality Engine
+Avalia, por meio do argv executável (`CommandExecutionResult.executable`), se os verificadores de Code Quality, Testes e Segurança (`pytest`, `ruff`, etc.) foram de fato acionados. Se não executados, são classificados como `FAILED`. Exige nota mínima (>= 0.75) e pontuação máxima (1.0) nas dimensões críticas.
 
-### Quality
-Identifica, sem usar substrings textuais genéricas e apenas via argv executável (`CommandExecutionResult.executable`), se ferramentas de Code Quality e Security Quality (`ruff`, `flake8`, `bandit`, `pip check`) foram acionadas de fato. Caso contrário, `NOT_EXECUTED` mapeia rigorosamente para `FAILED`. 
+### Certification Engine e Regra de PROJECT READY
+A **CertificationEngine** (`n_certification`) atua como juiz supremo.
 
-### Certification
-Single Source of Truth para carimbar que um projeto atingiu qualidade técnica superior: `Certification Engine`. Centraliza as passagens: _Discovery_, _Planning_, _Materialization_, _Execution_, _Validation_ e _Quality_. Qualquer `FAIL` anula a obtenção do status.
+**Fórmula Canônica de Readiness:**
+`PROJECT READY = YES` é emitido **exclusiva e imutavelmente** se e somente se:
+- `Discovery` = COMPLETE
+- `Planning` = COMPLETE
+- `Materialization` = SUCCESS
+- `Execution` = SUCCESS (`CommandExecutionResult.status == PASSED` e `return_code == 0`)
+- `Validation` = PASS
+- `Quality` = PASS
+- `Certification` = PASS (`CertificationResult.passed == True`)
 
-### PROJECT READY
+Se qualquer uma das etapas falhar, o veredito final é inegociável: `PROJECT READY = NO` sob estado `FAILED`. Nenhum default passivo ou flag simulada é tolerado.
 
 ```mermaid
 flowchart LR
-    D[Discovery COMPLETE] --> R[Readiness]
+    D[Discovery COMPLETE] --> R[Readiness Gate]
     P[Planning COMPLETE] --> R
     M[Materialization SUCCESS] --> R
     E[Execution SUCCESS] --> R
@@ -118,33 +143,39 @@ flowchart LR
 
 ```text
 analytics_agents_factory/
-├── .agents/                    # Regras adicionais
-├── .obsidian/                  # Configurações do Obsidian Knowledge Graph
-├── a_platform/                 # Motor Central do AAF
-│   ├── b_contracts/            # Interfaces e Modelos de Pydantic Base (Domain Data)
-│   ├── c_brain/                # Core de Conhecimento e Políticas Globais
-│   ├── e_skills/               # Assinaturas e Logicas granulares (LLM e Físico)
-│   ├── f_mcps/                 # Protocolos e Integração com Filesystem/Docker/DB
-│   ├── g_agents/               # Discovery, Architecture, Planner, e outros agents
-│   ├── h_factory/              # Project Factory
-│   ├── i_materializer/         # Manipulador Físico de Arquivos
-│   ├── j_llm_gateway/          # Conectores com LLMs (OpenAI, Anthropic, Gemini)
-│   ├── k_runtime/              # Pipeline Executivo Seguro e Controlado (shlex, shell=False)
-│   ├── l_validation/           # Validação Gate Lógica e Física de Projetos
-│   ├── m_quality/              # Code e Dependency e Security Checkers
-│   ├── n_certification/        # Motor Único de Autorização de Readiness de Projetos
-│   └── o_orchestration/        # Master Orchestrator (O Pipeline do AAF) e Repair Loop
-├── b_input/                    # Inputs (Configurações base para injetar)
-├── c_tests/                    # Testes de Código (Mocks aceitos unicamente aqui)
-├── d_documentation/            # Documentação rica dividida por domínios e componentes
-├── e_generated_projects/       # Path exclusivo e centralizado dos Projetos Materializados
-├── f_cli/                      # Ponto de acesso do usuário de Terminal (CLI Commands)
-├── g_configuration/            # Settings
-├── h_scripts/                  # Utilitários Adicionais
-├── Dockerfile                  # Container do projeto AAF
-├── docker-compose.yml          # Containerização e orquestração do projeto
-├── README.md                   # Esta Documentação
-└── requirements.txt            # Dependências em Python
+├── .agents/
+│   └── a_rules/
+├── .obsidian/
+├── a_platform/
+│   ├── b_contracts/
+│   ├── c_brain/
+│   ├── e_skills/
+│   ├── f_mcps/
+│   ├── g_agents/
+│   ├── h_factory/
+│   ├── i_materializer/
+│   ├── j_llm_gateway/
+│   ├── k_runtime/
+│   ├── l_validation/
+│   ├── m_quality/
+│   ├── n_certification/
+│   └── o_orchestration/
+├── b_input/
+│   └── a_datasets/
+├── c_tests/
+├── d_documentation/
+├── e_generated_projects/
+│   └── .gitkeep
+├── f_cli/
+├── g_configuration/
+├── h_scripts/
+├── j_runtime/
+│   └── state/
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── README.md
+└── requirements.txt
 ```
 
 ## 9. Configuração e Segurança de Execução
@@ -158,12 +189,11 @@ O ponto de entrada CLI suportado usa o arquivo `f_cli/a_main.py`.
 
 **Comandos Disponíveis:**
 - `aaf start --project-id <id> --prompt <descricao> [--dataset <path>]`: Inicia o fluxo de pipeline do AAF.
+- `aaf start --project-id <id> --answer <resposta>`: Retoma uma sessão pausada em `NEEDS_INPUT`.
 - `aaf status <project_id>`: Consulta o estado de Readiness e Transição do Projeto especificado.
 - `aaf result <project_id>`: Retorna a prova de materialização e Certification result gerado para um Project_Id.
 - `aaf brain`: Expõe de forma global políticas registradas de *Brain* e configurações carregadas.
 - `aaf mcp`: Lista as capacidades/MCPS reais disponíveis para geração.
-
-*(A utilização manual de python modules via -m como `python -m a_platform.b_interfaces.b_cli.b_cli` está obsoleta).*
 
 ## 11. Entrada de Datasets
 Ao iniciar o workflow (`aaf start`), pode ser fornecido o parâmetro estrito `--dataset`. A skill física `DatasetProfilingSkill` fará uma verificação imediata via `Pandas` do esquema dos dados, e disponibilizará inferências e metadados lidos fisicamente no *Brain Context* antes da geração da Arquitetura do projeto. 
@@ -177,22 +207,23 @@ Cada comando despachado pelo sistema pelo Pipeline Executivo de Runtimes é docu
 ## 14. Golden Paths Suportados
 O Golden Path suporta _Data Engineering_ e _Analytics_. Tentar solicitar um projeto WebApp Front-end moderno (Next.js, Vue), Servidor Rust nativo, e domínios não alinhados farão o pipeline falhar com erro de "Domínio técnico inválido ou ausente". 
 
-## 15. Limitações Atuais
-- O Learning Engine (Cérebro autoadaptável) se encontra fora do Golden Path.
-- Suporte homologado apenas para OpenAI provider, provedores Gemini e Anthropic retornarão `NotImplementedError` caso sejam tentados em modo _dummy_. 
-- Apenas CLI é a interface estática interativa testada do sistema. O uso nativo sem CLI precisaria configurar o `MasterOrchestrator` de forma customizada.
+## 15. Limitações Atuais Declaradas
+- **Status da Execução E2E:** O teste ponta a ponta executado anteriormente alcançou o `PlannerAgent` e falhou na validação de agentes/comandos. As estabilizações subsequentes (Prompts 01, 02 e 03) foram rigorosamente verificadas por análise estática e compilação de bytecode, mas o pipeline E2E completo ainda **não** foi executado até o final. Não há alegação de conclusão E2E homologada.
+- **Provedores de LLM:** O suporte operacional ativo é exclusivo para o provedor OpenAI (`gpt-4o-mini`). Os conectores Anthropic e Gemini declaram-se intencionalmente como `NotImplementedError`.
+- **Learning Engine:** O módulo `h_learning_engine.py` no Brain encontra-se fora do Golden Path oficial e não é invocado na esteira regular de geração.
+- **Interface:** A CLI (`f_cli/a_main.py`) e o `IDEAdapter` são os pontos de entrada estruturados; a IDE atua apenas como transporte e não realiza raciocínio autônomo sobre os projetos.
 
 ## 16. Troubleshooting e Demonstração Recomendada
 Para verificar inconsistências:
 1. Revise se o `project_id` passado pelo CLI não está em uso.
-2. Certifique-se que o pacote principal de dependências (pip install -r requirements.txt) está completo, permitindo validações base do `Project Factory`.
+2. Certifique-se que o pacote principal de dependências (pip install -r requirements.txt) está completo.
 3. Verifique se o `OPENAI_API_KEY` encontra-se exportado na sua máquina (ex: `export OPENAI_API_KEY=...`).
 4. Execute `aaf mcp` para verificar a sanidade do Registry.
-5. Inicie um _Hello World_ simples:
+5. Inicie um projeto de demonstração via CLI:
    `python f_cli/a_main.py start --project-id etl_simple --prompt "Crie um script de ETL que leia um csv de clientes em data/ e escreva um csv de output em output/"`
 
 ## 17. Obsidian Graph
-As visualizações da arquitetura e inter-relações via grafos e Knowledge bases, formatadas em _Obsidian_, estão suportadas na raiz da pasta _d_documentation/_. Utilizar o plugin de Obsidian para acessar a topologia física da plataforma em modo Wiki.
+As visualizações da arquitetura e inter-relações via grafos e Knowledge bases, formatadas em _Obsidian_, estão suportadas na pasta `d_documentation/` e configuradas via `.obsidian/`. O plugin de visualização em grafo reflete as relações funcionais da esteira do AAF.
 
 ## 18. Definition of Ready
 - Os requisitos foram compreendidos pelo Discovery Engine.
@@ -202,4 +233,4 @@ As visualizações da arquitetura e inter-relações via grafos e Knowledge base
 ## 19. Definition of Done
 - Fluxo _Certification Engine_ atestado como _PASSED_.
 - Propriedade MasterOrchestrator em _PROJECT READY = YES_ impressa.
-- Arquivos localizados e garantidos que não há falsos-positivos em _Validation_ ou _Execution_ dentro do subdiretório `e_generated_projects/`.
+- Arquivos localizados e comprovados sem falsos-positivos em _Validation_ ou _Execution_ dentro de `e_generated_projects/<project_id>`.

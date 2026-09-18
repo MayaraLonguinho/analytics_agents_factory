@@ -1,16 +1,19 @@
 # AAF
 
 ## Responsibility
-Sistema principal Analytics Agents Factory
+Plataforma central Analytics Agents Factory. Ponto focal que expõe comandos operacionais e orquestra o ciclo de vida analítico.
+
+## Path
+`f_cli/a_main.py` | `a_platform/b_contracts/z_interfaces/a_ide_adapter.py`
 
 ## Inputs
-IDE Chat / CLI
+IDE Chat / CLI (`aaf start`)
 
 ## Outputs
-Generated Projects
+Projetos Analíticos Materializados e Certificados
 
 ## Integrations
 - [[Orchestrator]]
 
 ## Failure behavior
-Aborta pipeline
+Interrupção do pipeline e emissão de diagnóstico tipado (`FAILED`).

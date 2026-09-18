@@ -22,7 +22,7 @@
       }
     },
     {
-      "query": "path:a_platform/d_agents",
+      "query": "path:a_platform/g_agents",
       "color": {
         "a": 1,
         "rgb": 5406085
@@ -36,14 +36,14 @@
       }
     },
     {
-      "query": "path:b_documentation",
+      "query": "path:d_documentation",
       "color": {
         "a": 1,
         "rgb": 15049539
       }
     },
     {
-      "query": "path:a_platform/j_runtime/c_artifacts/graph",
+      "query": "path:a_platform/k_runtime/c_artifacts/graph",
       "color": {
         "a": 1,
         "rgb": 9923835

@@ -1,7 +1,10 @@
 # Agents
 
 ## Responsibility
-Execução de tarefas e reasoning
+Agentes especializados nativos do AAF (`DataAgent`, `DatabaseAgent`, `AnalyticsAgent`, `TestingAgent`, `DocumentationAgent`, etc.). Executam tarefas combinando raciocínio, Skills granulares, MCPs e chamadas ao LLM Gateway sob diretrizes do Brain.
+
+## Path
+`a_platform/g_agents/`
 
 ## Inputs
 [[Project Factory]], [[Repair Loop]]
@@ -12,8 +15,9 @@ Execução de tarefas e reasoning
 ## Integrations
 - [[Skills]]
 - [[MCPs]]
+- [[Brain]]
 - [[LLM Gateway]]
 - [[Artifact]]
 
 ## Failure behavior
-Erros reportados ao Orchestrator
+Lança exceção de execução capturada pelo Orchestrator e enviada ao [[Repair Loop]].
