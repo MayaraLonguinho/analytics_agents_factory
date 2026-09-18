@@ -1,9 +1,16 @@
 import logging
+import os
 from typing import Any, Optional
 
 from a_platform.b_contracts.e_execution_context import ExecutionContext
 from a_platform.b_contracts.f_state_manager import StateManager, ProjectPhase, PhaseStatus
-from a_platform.b_contracts import ExecutionResult, ValidationResult, QualityResult, CertificationResult
+from a_platform.b_contracts import (
+    ProjectContext,
+    ExecutionResult,
+    ValidationResult,
+    QualityResult,
+    CertificationResult,
+)
 from a_platform.g_agents.b_discovery.a_discovery_agent import DiscoveryAgent, DiscoveryStatus
 from a_platform.e_skills.a_dataset_profiling.c_profiling.a_profiler import DatasetProfilingSkill
 from a_platform.c_brain import Brain
@@ -13,29 +20,27 @@ from a_platform.c_brain.d_domains.a_domain_registry import DomainRegistry
 from a_platform.g_agents.d_planner.k_planner_agent import PlannerAgent
 from a_platform.g_agents.n_factory.a_agent_factory import AgentFactory
 from a_platform.h_factory import ProjectFactory
-from a_platform.h_materializer.a_materializer import ArtifactMaterializer
+from a_platform.h_materializer import ArtifactMaterializer, MaterializationResult
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
+from a_platform.i_llm_gateway.d_gateway import LLMGateway
 from a_platform.j_runtime.a_execution.a_runtime import ProjectRuntime
 from a_platform.k_validation.a_validation_gate import ValidationGate
 from a_platform.l_quality.a_quality_engine import QualityEngine
 from a_platform.m_certification.a_certification_engine import CertificationEngine
-from a_platform.c_brain.b_learning_engine import LearningEngine
 from a_platform.n_orchestration.c_repair_loop import RepairLoop
 
 logger = logging.getLogger(__name__)
 
+
 class MasterOrchestrator:
     def __init__(self):
-        from a_platform.i_llm_gateway.d_gateway import LLMGateway
         self.gateway = LLMGateway()
-
-        self.state_manager = None
+        self.state_manager: Optional[StateManager] = None
         self.mcp = MCPExecutor()
         self.discovery_agent = DiscoveryAgent(gateway=self.gateway)
         self.dataset_profiler = DatasetProfilingSkill()
 
         self.brain = Brain()
-        # Initialize gateway for ArchitectureAgent
         self.architecture_agent = ArchitectureAgent(self.gateway)
         
         self.domain_registry = DomainRegistry()
@@ -47,11 +52,13 @@ class MasterOrchestrator:
         self.validation_gate = ValidationGate()
         self.quality_engine = QualityEngine()
         self.certification_engine = CertificationEngine()
-        self.learning_engine = LearningEngine()
-        self.repair_loop = RepairLoop(self.agent_factory, self.learning_engine)
+        self.repair_loop = RepairLoop(self.agent_factory)
         
         self.compiled_artifacts = []
-        self.last_execution_result = None
+        self.last_execution_result: Optional[ExecutionResult] = None
+        self.last_validation_report: Optional[ValidationResult] = None
+        self.last_quality_report: Optional[QualityResult] = None
+        self.last_certification_report: Optional[CertificationResult] = None
         
     def execute_pipeline(self, request: ExecutionContext, existing_state: Optional[StateManager] = None) -> str:
         if existing_state:
@@ -61,11 +68,14 @@ class MasterOrchestrator:
             self.state_manager = StateManager(request.project_id)
             logger.info(f"Iniciando novo pipeline para {request.project_id}")
         
-        from a_platform.b_contracts.a_project import ProjectContext
-        import os
         if not hasattr(request, "project_context") or request.project_context is None:
             project_path = os.path.join(os.getcwd(), "e_generated_projects", request.project_id)
-            request.project_context = ProjectContext(project_id=request.project_id, project_name=request.project_id, project_path=project_path)
+            request.project_context = ProjectContext(
+                project_id=request.project_id,
+                project_name=request.project_id,
+                project_path=project_path
+            )
+            request.project_path = project_path
         
         try:
             # 1. Discovery
@@ -114,7 +124,7 @@ class MasterOrchestrator:
                         if not repair_success:
                             raise Exception("Falha crítica no Repair Loop.")
                             
-                    # Remove COMPLETION da execution e validation para rodar dnv
+                    # Remove COMPLETION da execution e validation para rodar novamente
                     self.state_manager.phases[ProjectPhase.EXECUTION].status = PhaseStatus.PENDING
                     self.state_manager.phases[ProjectPhase.VALIDATION].status = PhaseStatus.PENDING
             
@@ -128,20 +138,22 @@ class MasterOrchestrator:
             self._run_phase(ProjectPhase.CERTIFICATION, self._step_certification, request)
             
             # 11. Readiness Gate (Regra Absoluta)
+            real_exec = self.last_execution_result or ExecutionResult(status="FAILED", error="No execution ran")
+            real_val = self.last_validation_report or ValidationResult(status="FAILED", errors=["No validation ran"])
+            real_qual = self.last_quality_report or QualityResult(status="FAILED", errors=["No quality ran"])
+            real_cert = self.last_certification_report or CertificationResult(status="FAILED", errors=["No certification ran"])
             
-            real_exec = self.last_execution_result or ExecutionResult(status="FAILED", errors=["No execution ran"])
-            real_val = getattr(self, "last_validation_report", ValidationResult(status="FAILED"))
-            real_qual = getattr(self, "last_quality_report", QualityResult(status="FAILED"))
-            real_cert = getattr(self, "last_certification_report", CertificationResult(status="FAILED"))
-            
-            if self.validation_gate.evaluate(request, real_exec).status == "PASSED" and real_qual.status == "PASSED" and real_cert.status == "PASSED":
+            if real_val.status == "PASSED" and real_qual.status == "PASSED" and real_cert.status == "PASSED":
                 request.metadata["PROJECT_READY"] = "YES"
                 logger.info("===============================================")
                 logger.info(f"🏆 PROJECT READY = YES ({request.project_id})")
                 logger.info("===============================================")
                 self.state_manager.complete_project()
             else:
-                raise Exception("ReadinessGate rejeitou o projeto por fases incompletas ou com falhas de qualidade/certificação.")
+                raise Exception(
+                    f"ReadinessGate rejeitou o projeto por fases incompletas ou com falhas: "
+                    f"val={real_val.status}, qual={real_qual.status}, cert={real_cert.status}."
+                )
                 
             self.state_manager.save_state(request)
             return "SUCCESS"
@@ -215,6 +227,8 @@ class MasterOrchestrator:
 
         request.domain = normalized_domain
         request.discovery_data["domain"] = normalized_domain
+        if hasattr(request, "project_context") and request.project_context is not None:
+            request.project_context.domain = normalized_domain
             
         return True
 
@@ -260,19 +274,27 @@ class MasterOrchestrator:
         self.compiled_artifacts = self.project_factory.generate(request)
         if not self.compiled_artifacts:
             return False
+        if hasattr(request, "project_context") and request.project_context is not None:
+            request.project_context.generated_artifacts = self.compiled_artifacts
         return True
 
     def _step_materialization(self, request: ExecutionContext) -> MaterializationResult:
         logger.info("Executando Materializer...")
         result = self.materializer.materialize(request, self.compiled_artifacts)
-        if result.status == "FAILED":
+        if result.status == "PASSED":
+            if hasattr(request, "project_context") and request.project_context is not None:
+                request.project_context.materialization_status = "SUCCESS"
+        else:
+            if hasattr(request, "project_context") and request.project_context is not None:
+                request.project_context.materialization_status = "FAILED"
             logger.error(f"[Orchestrator] Falha de materialização: {result.evidence}")
             if result.errors:
                 logger.error(f"[Orchestrator] Arquivos com falha/ausentes: {result.errors}")
         return result
 
     def _step_execution(self, request: ExecutionContext) -> bool:
-        result = self.runtime_engine.execute(request, project_path=request.project_context.project_path)
+        project_path = request.project_context.project_path if request.project_context else request.project_path
+        result = self.runtime_engine.execute(request, project_path=project_path)
         self.last_execution_result = result
         if result.status != "PASSED":
             logger.error(f"Execution failed: {result.evidence}")
@@ -288,18 +310,24 @@ class MasterOrchestrator:
         
     def _step_repair(self, request: ExecutionContext) -> bool:
         logger.info("Executando Repair Loop...")
-        return self.repair_loop.run_repair(request, self.last_execution_result)
+        val_errors = self.last_validation_report.errors if self.last_validation_report else []
+        return self.repair_loop.run_repair(
+            request,
+            self.last_execution_result,
+            validation_errors=val_errors,
+            attempt=self.state_manager.repair_attempts
+        )
 
     def _step_quality(self, request: ExecutionContext) -> bool:
         logger.info("Executando Quality Engine...")
         
-        exec_dict = self.last_execution_result.model_dump() if self.last_execution_result else None
-        val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
+        exec_obj = self.last_execution_result if self.last_execution_result else None
+        val_obj = self.last_validation_report if self.last_validation_report else None
         
         report = self.quality_engine.evaluate(
             request, 
-            validation_result=val_dict, 
-            runtime_result=exec_dict
+            validation_result=val_obj, 
+            runtime_result=exec_obj
         )
         self.last_quality_report = report
         if report.status != "PASSED":
@@ -309,15 +337,15 @@ class MasterOrchestrator:
     def _step_certification(self, request: ExecutionContext) -> bool:
         logger.info("Executando Certification Engine...")
         
-        exec_dict = self.last_execution_result.model_dump() if self.last_execution_result else None
-        val_dict = self.last_validation_report.model_dump() if hasattr(self, "last_validation_report") else None
-        qual_dict = self.last_quality_report.model_dump() if hasattr(self, "last_quality_report") else None
+        exec_obj = self.last_execution_result if self.last_execution_result else None
+        val_obj = self.last_validation_report if self.last_validation_report else None
+        qual_obj = self.last_quality_report if self.last_quality_report else None
         
         report = self.certification_engine.evaluate(
             request,
-            execution_result=exec_dict,
-            validation_result=val_dict,
-            quality_result=qual_dict
+            execution_result=exec_obj,
+            validation_result=val_obj,
+            quality_result=qual_obj
         )
         self.last_certification_report = report
         if report.status != "PASSED":

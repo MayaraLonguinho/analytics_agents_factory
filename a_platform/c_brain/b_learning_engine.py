@@ -13,4 +13,4 @@ class LearningEngine:
         pass
 
     def execute(self, **kwargs) -> LearningRun:
-        return LearningRun(job_id="dummy")
+        raise NotImplementedError("LearningEngine is not implemented yet.")

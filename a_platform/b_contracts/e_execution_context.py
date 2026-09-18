@@ -42,6 +42,7 @@ class ExecutionContext:
     architecture_decision: Dict[str, Any] = field(default_factory=dict)
     discovery_data: Dict[str, Any] = field(default_factory=dict)
     artifacts: List[Any] = field(default_factory=list)
+    project_context: Optional[Any] = None
     project_path: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
     graph_representation: Dict[str, Any] = field(default_factory=dict)

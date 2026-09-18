@@ -14,3 +14,4 @@ class ProjectContext(BaseModel):
     plan: List[ProjectTask] = Field(default_factory=list)
     generated_artifacts: List[Artifact] = Field(default_factory=list)
     runtime_information: Dict[str, Any] = Field(default_factory=dict)
+    materialization_status: Optional[str] = None
