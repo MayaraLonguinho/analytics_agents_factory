@@ -3,9 +3,9 @@ import json
 import logging
 from enum import Enum, auto
 from dataclasses import dataclass, field, asdict
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
-from a_platform.b_contracts.e_execution_context import ExecutionContext
+from a_platform.b_contracts.e_execution_context import ExecutionContext, Decision
 from a_platform.b_contracts import ProjectPlan, ProjectTask
 
 logger = logging.getLogger(__name__)
@@ -99,6 +99,20 @@ class StateManager:
     def save_state(self, request: ExecutionContext):
         state_file = os.path.join(self.state_dir, f"{self.project_id}.json")
         
+        # Serialize decisions & assumptions
+        decisions_data = []
+        for d in getattr(request, "decisions", []):
+            if hasattr(d, "__dataclass_fields__"):
+                decisions_data.append(asdict(d))
+            elif hasattr(d, "model_dump"):
+                decisions_data.append(d.model_dump())
+            elif isinstance(d, dict):
+                decisions_data.append(d)
+            elif hasattr(d, "__dict__"):
+                decisions_data.append(d.__dict__)
+            else:
+                decisions_data.append(str(d))
+
         # Serialize request carefully (ProjectPlan is custom)
         req_dict = {
             "prompt": request.prompt,
@@ -113,6 +127,8 @@ class StateManager:
             "architecture_decision": request.architecture_decision,
             "graph_representation": request.graph_representation,
             "artifacts": request.artifacts,
+            "decisions": decisions_data,
+            "assumptions": getattr(request, "assumptions", []),
             "project_plan": None
         }
         
@@ -137,6 +153,24 @@ class StateManager:
         with open(state_file, 'w') as f:
             json.dump(data, f, indent=2)
         logger.info(f"[StateManager] Estado salvo em {state_file}")
+
+    @classmethod
+    def state_exists(cls, project_id: str) -> bool:
+        state_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "j_runtime", "state")
+        state_file = os.path.join(state_dir, f"{project_id}.json")
+        return os.path.isfile(state_file)
+
+    def get_pending_question(self, request: ExecutionContext) -> Optional[str]:
+        if self.current_phase == ProjectPhase.NEEDS_INPUT:
+            if request.discovery_data:
+                q = request.discovery_data.get("pending_question")
+                if q:
+                    return q
+                history = request.discovery_data.get("history", [])
+                for entry in reversed(history):
+                    if entry.get("role") == "agent":
+                        return entry.get("content")
+        return None
 
     @classmethod
     def load_state(cls, project_id: str) -> tuple['StateManager', ExecutionContext]:
@@ -171,6 +205,16 @@ class StateManager:
                 run_commands=req_data["project_plan"].get("run_commands", [])
             )
             
+        decisions = []
+        for d in req_data.get("decisions", []):
+            if isinstance(d, dict):
+                try:
+                    decisions.append(Decision(**d))
+                except Exception:
+                    decisions.append(d)
+            else:
+                decisions.append(d)
+
         request = ExecutionContext(
             prompt=req_data["prompt"],
             dataset_path=req_data.get("dataset_path"),
@@ -184,7 +228,9 @@ class StateManager:
             architecture_decision=req_data.get("architecture_decision", {}),
             graph_representation=req_data.get("graph_representation", {}),
             artifacts=req_data.get("artifacts", []),
-            project_plan=plan
+            project_plan=plan,
+            decisions=decisions,
+            assumptions=req_data.get("assumptions", [])
         )
         
         return sm, request

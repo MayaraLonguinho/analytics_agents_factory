@@ -5,7 +5,7 @@ import os
 class AAFSettings(BaseSettings):
     # LLM Settings
     llm_provider: str = Field(default="openai", description="Provedor de LLM primário (ex: openai)")
-    llm_model: str = Field(default="gpt-4", description="Modelo LLM a ser utilizado")
+    llm_model: str = Field(default="gpt-4o-mini", description="Modelo LLM a ser utilizado")
     openai_api_key: str = Field(default="", description="Chave de API OpenAI")
     
     # Paths

@@ -60,3 +60,14 @@ Respeite a restrição de sequência: `Context → Plan → Decisions → Skills
 - Agentes não devem conhecer diretamente as SDKs da OpenAI/Gemini/Anthropic.
 - **MCPs** devem obedecer aos seus contratos e limites definidos.
 - O **Runtime** deve executar e validar o projeto realmente gerado, não um mock.
+
+## 8. Separação Estrita de Papéis: IDE Agent vs AAF Native Agents
+- **O IDE Chat é estritamente interface e transporte:** Quando a operação envolver a AAF (`aaf start`, comandos de geração), o Agente da IDE atua unicamente transportando comandos, exibindo perguntas pendentes ao usuário e repassando suas respostas à CLI/Adapter.
+- **DiscoveryAgent realiza o Discovery:** O Agente da IDE NUNCA deve realizar Discovery externo por conta própria, nem iniciar fluxos paralelos de perguntas de requisitos.
+- **ArchitectureAgent realiza a Arquitetura:** Todas as decisões técnicas e de stack pertencem exclusivamente ao ArchitectureAgent da plataforma.
+- **PlannerAgent realiza o Planejamento:** A geração de tarefas, DAG e comandos de validação cabe exclusivamente ao PlannerAgent nativo.
+- **Não substituição:** O Agente da IDE jamais substitui ou emula os agentes nativos da fábrica.
+- **Não criação manual:** O Agente da IDE NUNCA deve gerar manualmente arquivos ou estruturas do projeto analítico para contornar o pipeline.
+- **Não criação de scripts de contorno:** É proibido criar scripts auxiliares ou de teste ad-hoc para contornar falhas do pipeline.
+- **Não modificação do AAF durante geração:** O Agente da IDE NUNCA deve alterar o código-fonte da plataforma AAF durante uma solicitação de geração de projeto para tentar reparar erros de execução do projeto gerado.
+- **Transparência de falha:** Qualquer falha na esteira da AAF deve ser reportada fielmente como falha (`PROJECT READY = NO`), sem tentativas de mascaramento ou fake success.

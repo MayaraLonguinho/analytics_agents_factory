@@ -22,18 +22,22 @@ class DiscoveryAgent:
     async def run_discovery(self, context: ExecutionContext, brain_instance: Any = None) -> DiscoveryStatus:
         logger.info("[DiscoveryAgent] Iniciando Discovery Interativo via LLM...")
         
-        # Ensure discovery_data structure exists in memory temporarily for tracking
-        if not hasattr(context, "_discovery_data"):
-            context._discovery_data = {"history": [], "question_count": 0}
+        # Garantir estrutura canônica de discovery_data serializável no ExecutionContext
+        if not hasattr(context, "discovery_data") or context.discovery_data is None:
+            context.discovery_data = {}
             
-        history = context._discovery_data.get("history", [])
-        q_count = context._discovery_data.get("question_count", 0)
+        if "history" not in context.discovery_data:
+            context.discovery_data["history"] = []
+        if "question_count" not in context.discovery_data:
+            context.discovery_data["question_count"] = 0
+            
+        history = context.discovery_data.get("history", [])
+        q_count = context.discovery_data.get("question_count", 0)
         
-        # Check limit
+        # Checagem de limite de orçamento de perguntas
         if q_count >= self.max_questions:
             logger.info("[DiscoveryAgent] Limite de perguntas atingido. Congelando com defaults do Brain.")
             if brain_instance:
-                # Mock a request for brain intelligent defaults
                 req = {"domain": context.domain or "data_engineering", "architecture": context.architecture_decision}
                 req = brain_instance.apply_intelligent_defaults(req)
                 context.architecture_decision = req.get("architecture", {})
@@ -44,17 +48,30 @@ class DiscoveryAgent:
                 decision="Assumed intelligent defaults due to max questions limit.",
                 reason="Max discovery questions reached."
             ))
+            context.discovery_data["pending_question"] = None
             context.freeze_context()
             return DiscoveryStatus.COMPLETE
 
+        dataset_clause = ""
+        if context.dataset_path:
+            dataset_clause = (
+                f"\nNOTA SOBRE O DATASET FORNECIDO ('{context.dataset_path}'):\n"
+                "- A etapa subsequente de Dataset Profiling inspecionará o arquivo fisicamente (linhas, colunas, schema, tipos e duplicatas).\n"
+                "- É ESTRITAMENTE PROIBIDO fazer perguntas sobre propriedades físicas do dataset (contagem de linhas/colunas, nomes brutos de campos, duplicatas, delimitadores óbvios).\n"
+            )
+
         system_prompt = (
-            "Você é o Discovery Agent. Sua tarefa é mapear os requisitos de um projeto de analytics ou data engineering.\n"
-            "REGRAS CRÍTICAS:\n"
-            "1. Você pode fazer APENAS UMA pergunta por vez ao usuário.\n"
-            "2. Você tem um orçamento MÁXIMO DE 5 PERGUNTAS ao longo da sessão. Pergunte SOMENTE se a resposta alterar a arquitetura, escopo, capability, source, destination, ou acceptance criteria.\n"
-            "3. Caso contrário, não pergunte: assuma um default razoável (assumed_defaults) ou levante uma decisão explícita pendente baseada em padrões.\n"
-            "4. Toda decisão relevante assumida DEVE gerar um ID D-NNN explícito no retorno (ex: D-001: Assumir Snowflake).\n"
-            "5. Toda questão pendente (mesmo que não possa perguntar agora) DEVE gerar um ID Q-NNN explícito.\n"
+            "Você é o Discovery Agent da Analytics Agents Factory (AAF).\n"
+            "Sua tarefa é mapear os requisitos arquiteturais e de negócio do projeto de analytics ou data engineering.\n"
+            f"{dataset_clause}"
+            "REGRAS CRÍTICAS DE PROTOCOLO:\n"
+            "1. Você pode fazer no MÁXIMO UMA pergunta por vez ao usuário.\n"
+            "2. Orçamento MÁXIMO DE 5 PERGUNTAS ao longo de toda a sessão.\n"
+            "3. Pergunte SOMENTE se a resposta alterar arquitetura, escopo, capability, fonte, destino ou critério de aceite, ou quando existir ambiguidade semântica que não possa ser resolvida deterministicamente.\n"
+            "4. NÃO faça perguntas desnecessárias sobre propriedades físicas que o profiler descobre no arquivo fornecido.\n"
+            "5. Se os requisitos essenciais já estiverem claros ou puderem ser atendidos pelos padrões técnicos da fábrica (ex: SQLite local, Python puro, sanitização padrão), assuma defaults inteligentes (assumed_defaults) e defina missing_info_question como null.\n"
+            "6. Toda decisão relevante assumida DEVE gerar um ID D-NNN explícito no retorno (ex: D-001: Assumir SQLite local).\n"
+            "7. Toda questão pendente resolvida ou solicitada DEVE gerar um ID Q-NNN explícito.\n"
             "Extraia obrigatoriamente: project_type, business_context, domain.\n"
             "Retorne APENAS um JSON válido no formato:\n"
             "{\n"
@@ -114,10 +131,13 @@ class DiscoveryAgent:
             
         if data.get("project_type"):
             context.project_type = data.get("project_type")
+            context.discovery_data["project_type"] = data.get("project_type")
         if data.get("business_context"):
             context.business_context = data.get("business_context")
+            context.discovery_data["business_context"] = data.get("business_context")
         if data.get("domain"):
             context.domain = data.get("domain")
+            context.discovery_data["domain"] = data.get("domain")
         
         # Registrar D-NNN
         for d in data.get("assumed_defaults", []):
@@ -139,14 +159,18 @@ class DiscoveryAgent:
                 reason=d.get("reason", "User explicitly decided")
             ))
         
-        if data.get("missing_info_question"):
-            context._discovery_data["missing_info_question"] = data.get("missing_info_question")
-            context._discovery_data["question_count"] += 1
-            logger.info(f"[DiscoveryAgent] Pergunta {q_count+1}/{self.max_questions}: {data.get('missing_info_question')}")
+        missing_q = data.get("missing_info_question")
+        if missing_q:
+            context.discovery_data["pending_question"] = missing_q
+            context.discovery_data["question_count"] = q_count + 1
+            context.discovery_data["history"].append({
+                "role": "agent",
+                "content": missing_q
+            })
+            logger.info(f"[DiscoveryAgent] Pergunta {context.discovery_data['question_count']}/{self.max_questions}: {missing_q}")
             return DiscoveryStatus.NEEDS_INPUT
             
-        if "missing_info_question" in context._discovery_data:
-            del context._discovery_data["missing_info_question"]
+        context.discovery_data["pending_question"] = None
             
         if brain_instance:
             req = {"domain": context.domain or "data_engineering", "architecture": context.architecture_decision}

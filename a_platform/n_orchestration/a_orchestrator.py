@@ -241,7 +241,7 @@ class MasterOrchestrator:
                 profile = result.get("dataset_profile", {})
                 request.dataset_profile = profile
                 
-                logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('schema')} colunas.")
+                logger.info(f"Profiling concluído. Encontradas {profile.get('row_count')} linhas e {profile.get('column_count')} colunas.")
             except Exception as e:
                 logger.error(f"Erro no Profiling: {str(e)}")
                 return False

@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any, Optional
 
-from a_platform.n_orchestration.b_orchestrator import MasterOrchestrator
+from a_platform.n_orchestration.a_orchestrator import MasterOrchestrator
 from a_platform.b_contracts.f_state_manager import StateManager
 from a_platform.b_contracts.e_execution_context import ExecutionContext
 
@@ -14,12 +14,25 @@ class IDEAdapter:
     def __init__(self):
         self.orchestrator = MasterOrchestrator()
 
-    def create_project(self, prompt: str, dataset_path: Optional[str] = None) -> Dict[str, Any]:
+    def create_project(self, prompt: str, dataset_path: Optional[str] = None, project_id: Optional[str] = None) -> Dict[str, Any]:
         """Inicia um novo projeto a partir de um prompt."""
-        logger.info("[IDEAdapter] Iniciando novo projeto...")
+        logger.info("[IDEAdapter] Iniciando projeto...")
         
-        import uuid
-        project_id = f"prj_{uuid.uuid4().hex[:8]}"
+        if not project_id:
+            import uuid
+            project_id = f"prj_{uuid.uuid4().hex[:8]}"
+            
+        # Se a sessão já existir e estiver aguardando resposta, retoma a pergunta pendente
+        if StateManager.state_exists(project_id):
+            sm, req = StateManager.load_state(project_id)
+            if sm.current_phase.name == "NEEDS_INPUT":
+                logger.info(f"[IDEAdapter] Sessão existente '{project_id}' aguardando input. Retomando contexto...")
+                last_q = sm.get_pending_question(req)
+                return {
+                    "project_id": project_id,
+                    "status": "NEEDS_INPUT",
+                    "question": last_q or "Por favor forneça mais contexto."
+                }
         
         req = ExecutionContext(
             prompt=prompt,
@@ -33,14 +46,7 @@ class IDEAdapter:
             sm = self.orchestrator.state_manager
             
             if status == "PAUSED" or sm.current_phase.name == "NEEDS_INPUT":
-                last_q = ""
-                if req.discovery_data and "history" in req.discovery_data:
-                    history = req.discovery_data["history"]
-                    if history:
-                        last_entry = history[-1]
-                        if last_entry.get("role") == "agent":
-                            last_q = last_entry.get("content", "")
-                
+                last_q = sm.get_pending_question(req)
                 return {
                     "project_id": project_id,
                     "status": "NEEDS_INPUT",
@@ -81,10 +87,13 @@ class IDEAdapter:
                     "question": f"O projeto não está aguardando input. Fase atual: {sm.current_phase.name}"
                 }
                 
+            if not req.discovery_data:
+                req.discovery_data = {}
             if "history" not in req.discovery_data:
                 req.discovery_data["history"] = []
                 
             req.discovery_data["history"].append({"role": "user", "content": answer})
+            req.discovery_data["pending_question"] = None
             
             from a_platform.b_contracts.f_state_manager import ProjectPhase, PhaseStatus
             sm.current_phase = ProjectPhase.DISCOVERY
@@ -96,13 +105,7 @@ class IDEAdapter:
             status = self.orchestrator.execute_pipeline(req, existing_state=sm)
             
             if status == "PAUSED" or sm.current_phase.name == "NEEDS_INPUT":
-                last_q = ""
-                history = req.discovery_data.get("history", [])
-                if history:
-                    last_entry = history[-1]
-                    if last_entry.get("role") == "agent":
-                        last_q = last_entry.get("content", "")
-                        
+                last_q = sm.get_pending_question(req)
                 return {
                     "project_id": project_id,
                     "status": "NEEDS_INPUT",

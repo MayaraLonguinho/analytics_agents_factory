@@ -53,10 +53,16 @@ class GraphBuilder:
                 pass
 
         # 3. Dataset/Source
-        ds_name = "CSV" # Default assumption from example if not explicitly typed, normally extracted from dataset_profile
-        if context.dataset_profile and context.dataset_profile.get("file_name"):
-            ds_name = context.dataset_profile.get("file_name").split(".")[-1].upper()
-            if not ds_name: ds_name = "Raw Data"
+        ds_name = "CSV"  # Default assumption if not explicitly typed
+        if context.dataset_profile:
+            fmt = context.dataset_profile.get("format")
+            fpath = context.dataset_profile.get("dataset_path") or context.dataset_profile.get("file_name")
+            if fmt:
+                ds_name = fmt.upper()
+            elif fpath:
+                ds_name = fpath.split(".")[-1].upper()
+            if not ds_name:
+                ds_name = "Raw Data"
             
         nodes.append({"id": ds_name, "type": "Dataset", "label": ds_name})
         edges.append({"source": proj_name, "target": ds_name, "relation": "USES_SOURCE"})
