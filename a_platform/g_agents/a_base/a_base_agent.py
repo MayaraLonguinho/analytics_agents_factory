@@ -9,6 +9,7 @@ from typing import Dict, Any, List
 from a_platform.j_llm_gateway.d_gateway import LLMGateway
 from a_platform.f_mcps.d_registry.b_executor import MCPExecutor
 from a_platform.e_skills.h_registry.a_skill_registry import SkillRegistry
+from a_platform.e_skills.skill_router import SkillRouter
 from a_platform.b_contracts import ProjectTask as ProjectTask
 from a_platform.b_contracts.i_execution_context import ExecutionContext
 from a_platform.b_contracts import Artifact
@@ -27,6 +28,7 @@ class BaseAgent:
         self.gateway = gateway
         self.mcp = mcp
         self.skills = skills
+        self.router = SkillRouter()
 
     def execute_task(self, task: ProjectTask, request: ExecutionContext) -> List[Artifact]:
         logger.info(f"[{self.name}] Iniciando task: {task.name}")
@@ -47,9 +49,34 @@ class BaseAgent:
             "schema_definition": "CREATE TABLE auto_generated (id INT);",
         }
 
-        # 2. Executar Skills OBRIGATÓRIAS via SkillRegistry (única fonte operacional).
-        #    Qualquer falha é fatal — interrompe a Task imediatamente.
-        for skill_name in task.required_skills:
+        # 2. Determinar skills a executar (via required_skills ou roteamento multi-skill por capabilities/preferred_skills)
+        skills_to_execute = list(task.required_skills)
+        caps = task.get_all_capabilities() if hasattr(task, "get_all_capabilities") else list(getattr(task, "capabilities", []))
+        if not caps and getattr(task, "capability", None):
+            caps = [task.capability]
+
+        prefs = task.get_all_preferred_skills() if hasattr(task, "get_all_preferred_skills") else list(getattr(task, "preferred_skills", []))
+        if not prefs and getattr(task, "preferred_skill", None):
+            prefs = [task.preferred_skill]
+
+        if not skills_to_execute and (caps or prefs):
+            try:
+                selection = self.router.route_selection(
+                    agent_name=self.name,
+                    capabilities=caps,
+                    preferred_skills=prefs,
+                    task_description=task.description,
+                    domain_name=base_context.get("domain")
+                )
+                skills_to_execute = selection.skill_ids
+                logger.info(f"[{self.name}] Roteamento multi-skill selecionou {len(skills_to_execute)} skills para task '{task.name}': {skills_to_execute}")
+            except Exception as e:
+                logger.error(f"[{self.name}] Falha ao rotear capabilities da task: {e}")
+                raise SkillExecutionError(str(e)) from e
+
+        # Executar Skills via SkillRegistry (única autoridade de resolução operacional).
+        # Qualquer falha é fatal — interrompe a Task imediatamente.
+        for skill_name in skills_to_execute:
             skill_instance = self.skills.get_skill(skill_name)
             if skill_instance is None:
                 msg = (

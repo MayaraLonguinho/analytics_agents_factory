@@ -38,10 +38,18 @@ AAF
                 └── Architecture
                      └── Planner
                           └── Project Factory
-                               └── Agents
-                                    └── Skills
-                                         └── MCPs
-                                              └── LLM Gateway
+                                └── Agents
+                                     └── Skills
+                                          ├── Skill Index
+                                          ├── Skill Router
+                                          ├── Skill Registry
+                                          ├── Dataset Skills
+                                          ├── Analytics Skills
+                                          ├── Data Engineering Skills
+                                          ├── Development Skills
+                                          └── Quality Skills
+                                     └── MCPs
+                                          └── LLM Gateway
                                                    └── Artifact
                                                         └── Materializer
                                                              └── Generated Projects

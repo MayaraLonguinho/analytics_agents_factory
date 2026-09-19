@@ -1,6 +1,6 @@
 domains:
   analytics:
-    description: "Geração de projetos focados em análise de dados (EDA, Datasets, Pandas, SQLite)"
+    description: "Geração de projetos focados em análise de dados (EDA, Datasets, Pandas, SQLite, Métricas, Visualização, Modelagem)"
     allowed_agents:
       - "AnalyticsAgent"
       - "DatabaseAgent"
@@ -8,6 +8,34 @@ domains:
       - "DocumentationAgent"
       - "DataAgent"
     allowed_skills:
+      # Canonical IDs
+      - "dataset-profiling"
+      - "data-ingestion"
+      - "data-cleaning"
+      - "data-transformation"
+      - "dataset-validation"
+      - "exploratory-data-analysis"
+      - "statistical-analysis"
+      - "metrics-analysis"
+      - "data-visualization"
+      - "feature-engineering"
+      - "feature-selection"
+      - "model-training"
+      - "model-evaluation"
+      - "prediction"
+      - "etl-pipeline"
+      - "sql-analytics"
+      - "sql-optimization"
+      - "dimensional-modeling"
+      - "analytics-engineering"
+      - "pipeline-observability"
+      - "technical-documentation"
+      - "readme-generation"
+      - "architecture-documentation"
+      - "data-quality"
+      - "code-quality"
+      - "dependency-quality"
+      # Legacy aliases for backward compatibility
       - "dataset_profiling"
       - "analytics"
       - "sql_generation"
@@ -20,7 +48,7 @@ domains:
       - "filesystem_mcp"
       - "database_mcp"
   data_engineering:
-    description: "Geração de projetos focados em pipelines, ETL, orquestração e banco de dados"
+    description: "Geração de projetos focados em pipelines, ETL, orquestração, modelagem dimensional e banco de dados"
     allowed_agents:
       - "DataAgent"
       - "DatabaseAgent"
@@ -28,6 +56,25 @@ domains:
       - "DocumentationAgent"
       - "AnalyticsAgent"
     allowed_skills:
+      # Canonical IDs
+      - "dataset-profiling"
+      - "data-ingestion"
+      - "data-cleaning"
+      - "data-transformation"
+      - "dataset-validation"
+      - "etl-pipeline"
+      - "sql-analytics"
+      - "sql-optimization"
+      - "dimensional-modeling"
+      - "analytics-engineering"
+      - "pipeline-observability"
+      - "technical-documentation"
+      - "readme-generation"
+      - "architecture-documentation"
+      - "data-quality"
+      - "code-quality"
+      - "dependency-quality"
+      # Legacy aliases for backward compatibility
       - "etl_scripting"
       - "sql_generation"
       - "dataset_profiling"

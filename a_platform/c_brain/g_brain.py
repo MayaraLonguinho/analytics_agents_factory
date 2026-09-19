@@ -34,6 +34,7 @@ class PatternRegistry(GenericRegistry): pass
 from a_platform.c_brain.d_domains.a_domain_registry import DomainRegistry
 from a_platform.f_mcps.d_registry.a_registry import MCPRegistry
 from a_platform.e_skills.h_registry.a_skill_registry import SkillRegistry
+from a_platform.e_skills.skill_index import SkillIndex
 from a_platform.g_agents.o_registry.a_registry import AgentRegistry
 
 class Brain:
@@ -45,6 +46,7 @@ class Brain:
         self.domain_registry = DomainRegistry()
         self.mcp_registry = MCPRegistry()
         self.skill_registry = SkillRegistry()
+        self.skill_index = SkillIndex.get_instance()
         self.agent_registry = AgentRegistry()
         
         self._initialize_core_knowledge()
@@ -163,5 +165,9 @@ class Brain:
     def get_rules(self, category: str) -> list:
         rules = self.rule_registry.search_by_tags([category])
         return [r.get("rule") for r in rules]
+
+    def get_skills_compact_metadata(self) -> List[Dict[str, Any]]:
+        """Retorna metadata compacta das skills indexadas (sem prompts ou código operacional)."""
+        return self.skill_index.list_metadata()
 
 __all__ = ["Brain"]

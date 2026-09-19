@@ -5,7 +5,10 @@
   "userIgnoreFilters": [
     "c_tests/",
     "e_generated_projects/",
+    "venv/",
+    ".venv/",
     "__pycache__/",
+    ".pytest_cache/",
     "d_input/",
     "analytics_agents_factory.egg-info/"
   ]

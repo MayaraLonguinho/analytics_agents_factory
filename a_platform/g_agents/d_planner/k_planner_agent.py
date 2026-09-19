@@ -125,6 +125,10 @@ class PlannerAgent:
                             "name": {"type": "string"},
                             "description": {"type": "string"},
                             "agent": {"type": "string"},
+                            "capability": {"type": "string"},
+                            "capabilities": {"type": "array", "items": {"type": "string"}},
+                            "preferred_skill": {"type": "string"},
+                            "preferred_skills": {"type": "array", "items": {"type": "string"}},
                             "skills": {"type": "array", "items": {"type": "string"}},
                             "mcps": {"type": "array", "items": {"type": "string"}},
                             "dependencies": {"type": "array", "items": {"type": "string"}},
@@ -153,11 +157,22 @@ class PlannerAgent:
         plan = []
         
         for t_data in data.get("tasks", []):
+            caps = t_data.get("capabilities", [])
+            if not caps and t_data.get("capability"):
+                caps = [t_data.get("capability")]
+            prefs = t_data.get("preferred_skills", [])
+            if not prefs and t_data.get("preferred_skill"):
+                prefs = [t_data.get("preferred_skill")]
+
             task = ProjectTask(
                 task_id=t_data.get("task_id", t_data.get("id")),
                 name=t_data.get("name"),
                 description=t_data.get("description", ""),
                 assigned_agent=t_data.get("assigned_agent", t_data.get("agent")),
+                capability=t_data.get("capability"),
+                capabilities=caps,
+                preferred_skill=t_data.get("preferred_skill"),
+                preferred_skills=prefs,
                 required_skills=t_data.get("required_skills", t_data.get("skills", [])),
                 required_mcps=t_data.get("required_mcps", t_data.get("mcps", [])),
                 dependencies=t_data.get("dependencies", []),
@@ -189,9 +204,31 @@ class PlannerAgent:
                 logger.error(f"[PlannerAgent] Existência inválida: Agente '{agent_id}' não pode ser resolvido operacionalmente pela AgentFactory.")
                 return False
                 
+            # --- Resolução de Capabilities para Multi-Skill via SkillRouter ---
+            if not task.required_skills and (task.get_all_capabilities() or task.get_all_preferred_skills()):
+                try:
+                    from a_platform.e_skills.skill_router import SkillRouter
+                    from a_platform.e_skills.skill_index import SkillIndex
+                    router = SkillRouter(skill_index=SkillIndex(), domain_registry=self.registry)
+                    selection = router.route_selection(
+                        agent_name=agent_id,
+                        capabilities=task.get_all_capabilities(),
+                        preferred_skills=task.get_all_preferred_skills(),
+                        task_description=task.description,
+                        domain_name=domain_name,
+                        allowed_skills=allowed_skills
+                    )
+                    task.required_skills = selection.skill_ids
+                    logger.info(f"[PlannerAgent] Roteamento multi-skill para task '{task.task_id}': {task.required_skills}")
+                except Exception as e:
+                    logger.error(f"[PlannerAgent] Falha ao rotear capabilities para task '{task.task_id}': {e}")
+                    return False
+
             # --- Validação das Skills ---
+            allowed_norm = {s.replace("_", "-") for s in allowed_skills}
             for skill in task.required_skills:
-                if skill not in allowed_skills:
+                skill_norm = skill.replace("_", "-")
+                if skill not in allowed_skills and skill_norm not in allowed_norm:
                     logger.error(f"[PlannerAgent] Permissão negada: Skill '{skill}' não autorizada pelo domínio '{domain_name}'. Permitidas: {allowed_skills}")
                     return False
                     

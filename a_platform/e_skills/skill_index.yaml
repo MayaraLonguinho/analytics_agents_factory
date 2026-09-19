@@ -1,0 +1,487 @@
+version: 1
+skills:
+  dataset-profiling:
+    category: dataset
+    description: Analisa estrutura, schema, tipos e duplicatas do dataset físico.
+    location: b_dataset/profiling
+    capabilities:
+      - profiling
+      - schema-analysis
+      - duplicate-detection
+      - missing-values
+    triggers:
+      - profile dataset
+      - dataset profiling
+      - analisar dataset
+      - inspecionar dados
+    allowed_agents:
+      - DiscoveryAgent
+      - DataAgent
+      - AnalyticsAgent
+    depends_on: []
+
+  data-ingestion:
+    category: dataset
+    description: Ingestão robusta e leitura de arquivos brutos ou bancos de dados.
+    location: b_dataset/ingestion
+    capabilities:
+      - data-ingestion
+      - csv-reading
+      - source-loading
+      - error-handling
+    triggers:
+      - ingest data
+      - carregar arquivo
+      - ler csv
+      - ingestion
+    allowed_agents:
+      - DataAgent
+    depends_on: []
+
+  data-cleaning:
+    category: dataset
+    description: Limpeza, remoção de caracteres espúrios, duplicatas e sanitização.
+    location: b_dataset/cleaning
+    capabilities:
+      - data-cleaning
+      - deduplication
+      - missing-values-handling
+      - text-sanitization
+    triggers:
+      - clean data
+      - limpar dados
+      - deduplicação
+      - sanitização
+    allowed_agents:
+      - DataAgent
+      - AnalyticsAgent
+    depends_on:
+      - data-ingestion
+
+  data-transformation:
+    category: dataset
+    description: Transformações estruturadas, regras de negócio e tipagem de dados.
+    location: b_dataset/transformation
+    capabilities:
+      - data-transformation
+      - type-casting
+      - business-rules
+      - schema-alignment
+    triggers:
+      - transform data
+      - transformar dados
+      - aplicar regras
+    allowed_agents:
+      - DataAgent
+      - AnalyticsAgent
+    depends_on:
+      - data-cleaning
+
+  dataset-validation:
+    category: dataset
+    description: Validação estrutural de schema e integridade do dataset de entrada.
+    location: b_dataset/validation
+    capabilities:
+      - dataset-validation
+      - schema-verification
+      - input-contract-checks
+    triggers:
+      - validate input
+      - validar dataset
+      - verificar schema
+    allowed_agents:
+      - DataAgent
+      - TestingAgent
+    depends_on:
+      - data-transformation
+
+  exploratory-data-analysis:
+    category: analytics
+    description: Executa análise exploratória descritiva de dados estruturados.
+    location: c_analytics/exploratory_data_analysis
+    capabilities:
+      - eda
+      - descriptive-statistics
+      - correlation-analysis
+      - distribution-analysis
+      - outlier-analysis
+    triggers:
+      - eda
+      - análise exploratória
+      - explorar dados
+      - overview de dados
+    allowed_agents:
+      - AnalyticsAgent
+      - DataAgent
+    depends_on: []
+
+  statistical-analysis:
+    category: analytics
+    description: Análise estatística descritiva e inferencial com distribuições e correlações.
+    location: c_analytics/statistical_analysis
+    capabilities:
+      - statistical-analysis
+      - descriptive-statistics
+      - correlation-matrix
+      - hypothesis-testing
+    triggers:
+      - statistical analysis
+      - análise estatística
+      - correlação
+      - distribuição
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on: []
+
+  metrics-analysis:
+    category: analytics
+    description: Cálculo e agregação de métricas de negócio, KPIs, faturamentos e volumes.
+    location: c_analytics/metrics_analysis
+    capabilities:
+      - metrics-analysis
+      - kpi-calculation
+      - aggregations
+      - business-metrics
+    triggers:
+      - metrics
+      - calcular kpis
+      - resumo de vendas
+      - agregação
+    allowed_agents:
+      - AnalyticsAgent
+      - DatabaseAgent
+    depends_on:
+      - sql-analytics
+
+  data-visualization:
+    category: analytics
+    description: Geração de gráficos, plots e visualizações analíticas de dados.
+    location: c_analytics/data_visualization
+    capabilities:
+      - data-visualization
+      - chart-generation
+      - visual-encoding
+      - plots-export
+    triggers:
+      - plot charts
+      - gerar gráficos
+      - visualização
+      - plots
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on:
+      - exploratory-data-analysis
+
+  feature-engineering:
+    category: analytics
+    description: Criação, encoding, escalonamento e transformação de features preditivas.
+    location: c_analytics/feature_engineering
+    capabilities:
+      - feature-engineering
+      - encoding
+      - scaling
+      - datetime-features
+    triggers:
+      - feature engineering
+      - criar features
+      - encoding
+      - normalização
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on: []
+
+  feature-selection:
+    category: analytics
+    description: Seleção de variáveis preditivas relevantes e redução de dimensionalidade.
+    location: c_analytics/feature_selection
+    capabilities:
+      - feature-selection
+      - feature-importance
+      - dimensionality-reduction
+    triggers:
+      - select features
+      - selecionar variáveis
+      - importância de features
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on:
+      - feature-engineering
+
+  model-training:
+    category: analytics
+    description: Treinamento e validação cruzada de modelos de Machine Learning.
+    location: c_analytics/model_training
+    capabilities:
+      - model-training
+      - cross-validation
+      - hyperparameter-tuning
+    triggers:
+      - train model
+      - treinar modelo
+      - machine learning
+      - fit model
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on:
+      - feature-engineering
+
+  model-evaluation:
+    category: analytics
+    description: Avaliação de performance de modelos com relatórios e matrizes de confusão.
+    location: c_analytics/model_evaluation
+    capabilities:
+      - model-evaluation
+      - metrics-computation
+      - classification-report
+    triggers:
+      - evaluate model
+      - avaliar modelo
+      - metricas de ml
+      - acuracia
+    allowed_agents:
+      - AnalyticsAgent
+      - TestingAgent
+    depends_on:
+      - model-training
+
+  prediction:
+    category: analytics
+    description: Inferência e previsões em lote utilizando modelos treinados.
+    location: c_analytics/prediction
+    capabilities:
+      - prediction
+      - model-inference
+      - batch-scoring
+    triggers:
+      - predict
+      - prever
+      - inferência
+      - escoragem
+    allowed_agents:
+      - AnalyticsAgent
+    depends_on:
+      - model-training
+
+  etl-pipeline:
+    category: data_engineering
+    description: Pipeline de ETL determinístico e executável em Python (Pandas/SQLite).
+    location: d_data_engineering/etl_pipeline
+    capabilities:
+      - etl-pipeline
+      - data-extraction
+      - data-loading
+      - pipeline-orchestration
+    triggers:
+      - etl
+      - pipeline
+      - construir pipeline
+      - ingestão e carga
+    allowed_agents:
+      - DataAgent
+    depends_on:
+      - data-transformation
+
+  sql-analytics:
+    category: data_engineering
+    description: Produz SQL analítico compatível com a stack (CTEs, joins, agregações).
+    location: d_data_engineering/sql_analytics
+    capabilities:
+      - sql
+      - joins
+      - aggregations
+      - cte
+      - window-functions
+    triggers:
+      - sql
+      - consulta
+      - query
+      - agregação
+    allowed_agents:
+      - AnalyticsAgent
+      - DatabaseAgent
+      - DataAgent
+    depends_on: []
+
+  sql-optimization:
+    category: data_engineering
+    description: Otimização de queries SQL, desenho de índices e planos de execução.
+    location: d_data_engineering/sql_optimization
+    capabilities:
+      - sql-optimization
+      - index-design
+      - query-performance
+      - execution-plans
+    triggers:
+      - optimize sql
+      - otimizar query
+      - indexar banco
+      - tuning
+    allowed_agents:
+      - DatabaseAgent
+      - AnalyticsAgent
+    depends_on:
+      - sql-analytics
+
+  dimensional-modeling:
+    category: data_engineering
+    description: Modelagem dimensional (Star Schema, tabelas fato e dimensões).
+    location: d_data_engineering/dimensional_modeling
+    capabilities:
+      - dimensional-modeling
+      - star-schema
+      - fact-tables
+      - dimension-tables
+    triggers:
+      - dimensional modeling
+      - star schema
+      - modelar data warehouse
+      - tabelas fato
+    allowed_agents:
+      - DatabaseAgent
+      - DataAgent
+    depends_on: []
+
+  analytics-engineering:
+    category: data_engineering
+    description: Modelagem analítica modular em camadas (staging, intermediate, marts).
+    location: d_data_engineering/analytics_engineering
+    capabilities:
+      - analytics-engineering
+      - modular-models
+      - staging-models
+      - marts-models
+    triggers:
+      - analytics engineering
+      - staging models
+      - data marts
+    allowed_agents:
+      - AnalyticsAgent
+      - DataAgent
+    depends_on:
+      - sql-analytics
+
+  pipeline-observability:
+    category: data_engineering
+    description: Logging estruturado, monitoramento e métricas de execução do pipeline.
+    location: d_data_engineering/pipeline_observability
+    capabilities:
+      - pipeline-observability
+      - structured-logging
+      - execution-metrics
+    triggers:
+      - observability
+      - logs estruturados
+      - monitorar pipeline
+    allowed_agents:
+      - DataAgent
+      - TestingAgent
+    depends_on: []
+
+  technical-documentation:
+    category: development
+    description: Especificações técnicas, runbooks e dicionários de dados.
+    location: e_development/technical_documentation
+    capabilities:
+      - technical-documentation
+      - runbooks
+      - system-specs
+      - data-dictionary
+    triggers:
+      - documentation
+      - documentação técnica
+      - runbook
+      - data dictionary
+    allowed_agents:
+      - DocumentationAgent
+    depends_on: []
+
+  readme-generation:
+    category: development
+    description: README.md completo com objetivos, comandos de execução e testes.
+    location: e_development/readme_generation
+    capabilities:
+      - readme-generation
+      - execution-guide
+      - project-overview
+      - troubleshooting
+    triggers:
+      - readme
+      - gerar readme
+      - documentar projeto
+    allowed_agents:
+      - DocumentationAgent
+    depends_on:
+      - technical-documentation
+
+  architecture-documentation:
+    category: development
+    description: Documentação de arquitetura, limites de sistema e diagramas C4/Mermaid.
+    location: e_development/architecture_documentation
+    capabilities:
+      - architecture-documentation
+      - c4-model
+      - component-diagrams
+    triggers:
+      - architecture docs
+      - documentar arquitetura
+      - diagramas
+      - c4
+    allowed_agents:
+      - DocumentationAgent
+    depends_on: []
+
+  data-quality:
+    category: quality
+    description: Asserções de qualidade, integridade, completude e evidência de dados.
+    location: f_quality/data_quality
+    capabilities:
+      - data-quality
+      - completeness-checks
+      - freshness-checks
+      - sanity-checks
+    triggers:
+      - data quality
+      - qualidade de dados
+      - checagem de integridade
+    allowed_agents:
+      - DataAgent
+      - TestingAgent
+      - AnalyticsAgent
+    depends_on:
+      - data-transformation
+
+  code-quality:
+    category: quality
+    description: Testes automatizados com Pytest, asserções de pipeline e qualidade de código.
+    location: f_quality/code_quality
+    capabilities:
+      - code-quality
+      - unit-testing
+      - pytest-generation
+      - pipeline-testing
+    triggers:
+      - tests
+      - pytest
+      - testes unitários
+      - test pipeline
+    allowed_agents:
+      - TestingAgent
+    depends_on:
+      - etl-pipeline
+
+  dependency-quality:
+    category: quality
+    description: Pinagem e auditoria de dependências mínimas em requirements.txt.
+    location: f_quality/dependency_quality
+    capabilities:
+      - dependency-quality
+      - package-pinning
+      - requirements-generation
+    triggers:
+      - requirements
+      - dependências
+      - pin packages
+    allowed_agents:
+      - TestingAgent
+      - DocumentationAgent
+    depends_on: []

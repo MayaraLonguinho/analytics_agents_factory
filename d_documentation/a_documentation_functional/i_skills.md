@@ -13,8 +13,9 @@ Capacidades granulares e reutilizáveis de geração e processamento (ex: `datas
 
 ## Integrações e Contratos
 - Contrato Base: `a_platform/b_contracts/c_skill_contract.py` (`BaseSkill` / `SkillContract`)
-- Despachante: `a_platform/e_skills/h_registry/a_skill_registry.py`
-- Catálogo: `a_platform/e_skills/h_registry/b_skills.yaml`
+- Catálogo e Descoberta: `a_platform/e_skills/skill_index.yaml` (`SkillIndex`)
+- Roteamento Determinístico: `a_platform/e_skills/skill_router.py` (`SkillRouter`)
+- Resolução e Execução: `a_platform/e_skills/skill_registry.py` (`SkillRegistry`)
 
 ## Referência Técnica
 Para o catálogo completo, schemas de entrada/saída e validações, consulte [[d_skills|Subsistema de Skills]].

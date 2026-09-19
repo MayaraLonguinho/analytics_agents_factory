@@ -1,0 +1,158 @@
+version: 1
+skills:
+  - id: dataset-profiling
+    name: Dataset Profiling
+    category: dataset
+    location: b_dataset/profiling
+    capabilities: [profiling, schema-analysis, duplicate-detection, missing-values]
+    allowed_agents: [DiscoveryAgent, DataAgent, AnalyticsAgent]
+  - id: data-ingestion
+    name: Data Ingestion
+    category: dataset
+    location: b_dataset/ingestion
+    capabilities: [data-ingestion, csv-reading, source-loading, error-handling]
+    allowed_agents: [DataAgent]
+  - id: data-cleaning
+    name: Data Cleaning
+    category: dataset
+    location: b_dataset/cleaning
+    capabilities: [data-cleaning, deduplication, missing-values-handling, text-sanitization]
+    allowed_agents: [DataAgent, AnalyticsAgent]
+  - id: data-transformation
+    name: Data Transformation
+    category: dataset
+    location: b_dataset/transformation
+    capabilities: [data-transformation, type-casting, business-rules, schema-alignment]
+    allowed_agents: [DataAgent, AnalyticsAgent]
+  - id: dataset-validation
+    name: Dataset Validation
+    category: dataset
+    location: b_dataset/validation
+    capabilities: [dataset-validation, schema-verification, input-contract-checks]
+    allowed_agents: [DataAgent, TestingAgent]
+  - id: exploratory-data-analysis
+    name: Exploratory Data Analysis
+    category: analytics
+    location: c_analytics/exploratory_data_analysis
+    capabilities: [eda, descriptive-statistics, correlation-analysis, distribution-analysis, outlier-analysis]
+    allowed_agents: [AnalyticsAgent, DataAgent]
+  - id: statistical-analysis
+    name: Statistical Analysis
+    category: analytics
+    location: c_analytics/statistical_analysis
+    capabilities: [statistical-analysis, descriptive-statistics, correlation-matrix, hypothesis-testing]
+    allowed_agents: [AnalyticsAgent]
+  - id: metrics-analysis
+    name: Metrics Analysis
+    category: analytics
+    location: c_analytics/metrics_analysis
+    capabilities: [metrics-analysis, kpi-calculation, aggregations, business-metrics]
+    allowed_agents: [AnalyticsAgent, DatabaseAgent]
+  - id: data-visualization
+    name: Data Visualization
+    category: analytics
+    location: c_analytics/data_visualization
+    capabilities: [data-visualization, chart-generation, visual-encoding, plots-export]
+    allowed_agents: [AnalyticsAgent]
+  - id: feature-engineering
+    name: Feature Engineering
+    category: analytics
+    location: c_analytics/feature_engineering
+    capabilities: [feature-engineering, encoding, scaling, datetime-features]
+    allowed_agents: [AnalyticsAgent]
+  - id: feature-selection
+    name: Feature Selection
+    category: analytics
+    location: c_analytics/feature_selection
+    capabilities: [feature-selection, feature-importance, dimensionality-reduction]
+    allowed_agents: [AnalyticsAgent]
+  - id: model-training
+    name: Model Training
+    category: analytics
+    location: c_analytics/model_training
+    capabilities: [model-training, cross-validation, hyperparameter-tuning]
+    allowed_agents: [AnalyticsAgent]
+  - id: model-evaluation
+    name: Model Evaluation
+    category: analytics
+    location: c_analytics/model_evaluation
+    capabilities: [model-evaluation, metrics-computation, classification-report]
+    allowed_agents: [AnalyticsAgent, TestingAgent]
+  - id: prediction
+    name: Prediction
+    category: analytics
+    location: c_analytics/prediction
+    capabilities: [prediction, model-inference, batch-scoring]
+    allowed_agents: [AnalyticsAgent]
+  - id: etl-pipeline
+    name: ETL Pipeline
+    category: data_engineering
+    location: d_data_engineering/etl_pipeline
+    capabilities: [etl-pipeline, data-extraction, data-loading, pipeline-orchestration]
+    allowed_agents: [DataAgent]
+  - id: sql-analytics
+    name: SQL Analytics
+    category: data_engineering
+    location: d_data_engineering/sql_analytics
+    capabilities: [sql, joins, aggregations, cte, window-functions]
+    allowed_agents: [AnalyticsAgent, DatabaseAgent, DataAgent]
+  - id: sql-optimization
+    name: SQL Optimization
+    category: data_engineering
+    location: d_data_engineering/sql_optimization
+    capabilities: [sql-optimization, index-design, query-performance, execution-plans]
+    allowed_agents: [DatabaseAgent, AnalyticsAgent]
+  - id: dimensional-modeling
+    name: Dimensional Modeling
+    category: data_engineering
+    location: d_data_engineering/dimensional_modeling
+    capabilities: [dimensional-modeling, star-schema, fact-tables, dimension-tables]
+    allowed_agents: [DatabaseAgent, DataAgent]
+  - id: analytics-engineering
+    name: Analytics Engineering
+    category: data_engineering
+    location: d_data_engineering/analytics_engineering
+    capabilities: [analytics-engineering, modular-models, staging-models, marts-models]
+    allowed_agents: [AnalyticsAgent, DataAgent]
+  - id: pipeline-observability
+    name: Pipeline Observability
+    category: data_engineering
+    location: d_data_engineering/pipeline_observability
+    capabilities: [pipeline-observability, structured-logging, execution-metrics]
+    allowed_agents: [DataAgent, TestingAgent]
+  - id: technical-documentation
+    name: Technical Documentation
+    category: development
+    location: e_development/technical_documentation
+    capabilities: [technical-documentation, runbooks, system-specs, data-dictionary]
+    allowed_agents: [DocumentationAgent]
+  - id: readme-generation
+    name: README Generation
+    category: development
+    location: e_development/readme_generation
+    capabilities: [readme-generation, execution-guide, project-overview, troubleshooting]
+    allowed_agents: [DocumentationAgent]
+  - id: architecture-documentation
+    name: Architecture Documentation
+    category: development
+    location: e_development/architecture_documentation
+    capabilities: [architecture-documentation, c4-model, component-diagrams]
+    allowed_agents: [DocumentationAgent]
+  - id: data-quality
+    name: Data Quality
+    category: quality
+    location: f_quality/data_quality
+    capabilities: [data-quality, completeness-checks, freshness-checks, sanity-checks]
+    allowed_agents: [DataAgent, TestingAgent, AnalyticsAgent]
+  - id: code-quality
+    name: Code Quality
+    category: quality
+    location: f_quality/code_quality
+    capabilities: [code-quality, unit-testing, pytest-generation, pipeline-testing]
+    allowed_agents: [TestingAgent]
+  - id: dependency-quality
+    name: Dependency Quality
+    category: quality
+    location: f_quality/dependency_quality
+    capabilities: [dependency-quality, package-pinning, requirements-generation]
+    allowed_agents: [TestingAgent, DocumentationAgent]
