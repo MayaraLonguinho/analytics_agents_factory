@@ -51,6 +51,9 @@ logs/
 # Runtime & Generated Outputs
 e_generated_projects/*
 !e_generated_projects/.gitkeep
+h_runtime/state/*
+!h_runtime/state/.gitkeep
+
 
 # O Runtime e Artefatos do Brain/Memoria estao persistidos em a_platform/c_brain,
 # portanto, os JSONs/Markdown e registros ali SAO parte da memoria, a nao ser 
