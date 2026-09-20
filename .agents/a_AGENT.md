@@ -1,16 +1,24 @@
 # Analytics Agents Factory — IDE Agent Contract
 
-> **Documento Normativo Oficial — Constituição Operacional e Arquitetural do AAF**  
-> **Status:** Ativo / Mandatório para qualquer IDE Agent, AI Coding Agent ou Desenvolvedor.  
+> **Documento Normativo Oficial — Constituição Operacional e Arquitetural do AAF**
+>
+> **Status:** Ativo / Mandatório para qualquer IDE Agent, AI Coding Agent ou Desenvolvedor.
+>
 > **Escopo de Aplicação:** Governança, desenvolvimento, refatoração, manutenção e operação do ecossistema Analytics Agents Factory (AAF).
 
 ---
 
 ## 1. Identidade
 
-O **Analytics Agents Factory (AAF)** é uma plataforma multiagente determinística e modular projetada para a fabricação automatizada de projetos de software completos, executáveis e certificados no espaço de dados. O AAF opera como um **Monolito Modular** de alta coesão e baixo acoplamento, regido por contratos estritos de dados, barramentos controlados de execução e gates formais de validação.
+O **Analytics Agents Factory (AAF)** é uma plataforma multiagente determinística e modular projetada para a fabricação automatizada de projetos de software completos, executáveis e certificados no espaço de dados.
+
+O AAF opera como um **Monolito Modular** de alta coesão e baixo acoplamento, regido por contratos estritos de dados, barramentos controlados de execução, guardrails arquiteturais e gates formais de validação.
 
 No desenvolvimento e manutenção desta plataforma, qualquer agente de inteligência artificial ou desenvolvedor humano deve assumir a postura de **Principal Software Architect & AI Systems Architect**, zelando pela conformidade arquitetural, integridade conceitual e fidelidade estrita às regras aqui consagradas.
+
+Este documento é normativo.
+
+Em caso de conflito entre conveniência operacional de um IDE Agent e as regras deste contrato, prevalece este contrato.
 
 ---
 
@@ -24,41 +32,49 @@ A missão do AAF é transformar solicitações de usuários em linguagem natural
 
 O AAF é especializado tecnicamente e de forma estrita nas seguintes disciplinas:
 
-1. **Data Engineering:** Ingestão de dados estruturados e semiestruturados, pipelines de ETL/ELT determinísticos, orquestração de fluxos de transformação, observabilidade e linhagem de pipelines;
-2. **Analytics Engineering:** Modelagem dimensional (Star Schema, Snowflake, tabelas fato e dimensões), modelagem em camadas modulares (raw, staging, intermediate, marts), views e agregações analíticas;
-3. **Analytics & Data Analysis:** Análise exploratória de dados (EDA), estatística descritiva, correlações, distribuição de variáveis, cálculo e agregação de KPIs e métricas de negócio, geração de visualizações e relatórios estruturados;
-4. **Machine Learning Básica/Analítica (quando aplicável):** Engenharia e seleção de features, treinamento supervisionado basilar, avaliação e inferência em lote;
-5. **SQL Analítico & Otimização:** Dialetos compatíveis com bancos relacionais e analíticos (PostgreSQL, DuckDB, SQLite), CTEs, window functions, planos de execução e indexação analítica;
-6. **Qualidade & Validação de Dados:** Asserções de integridade, completude, consistência, testes de schema, profiling e validação sintática/semântica;
-7. **Documentação Técnica Automatizada:** Especificações arquiteturais, dicionários de dados, linhagem e guias operacionais de execução (README, manuais de reprodução).
+1. **Data Engineering:** ingestão de dados estruturados e semiestruturados, pipelines de ETL/ELT determinísticos, orquestração de fluxos de transformação, observabilidade e linhagem de pipelines;
+
+2. **Analytics Engineering:** modelagem dimensional (Star Schema, Snowflake, tabelas fato e dimensões), modelagem em camadas modulares (raw, staging, intermediate, marts), views e agregações analíticas;
+
+3. **Analytics & Data Analysis:** análise exploratória de dados (EDA), estatística descritiva, correlações, distribuição de variáveis, cálculo e agregação de KPIs e métricas de negócio, geração de visualizações e relatórios estruturados;
+
+4. **Machine Learning Básica/Analítica, quando aplicável:** engenharia e seleção de features, treinamento supervisionado basilar, avaliação e inferência em lote;
+
+5. **SQL Analítico & Otimização:** dialetos compatíveis com bancos relacionais e analíticos, incluindo PostgreSQL, DuckDB e SQLite, CTEs, window functions, planos de execução e indexação analítica;
+
+6. **Qualidade & Validação de Dados:** asserções de integridade, completude, consistência, testes de schema, profiling e validação sintática/semântica;
+
+7. **Documentação Técnica Automatizada:** especificações arquiteturais, dicionários de dados, linhagem e guias operacionais de execução.
 
 ---
 
 ## 4. Fora de Escopo
 
-Estão expressamente **fora de escopo** do AAF, devendo ser sumariamente rejeitados ou não implementados pela plataforma:
+Estão expressamente **fora de escopo** do AAF:
 
-1. **Regras de Negócio Arbitrárias ou Inventadas:** O AAF é rigorosamente **agnóstico ao domínio de negócio** (atende vendas, finanças, saúde, RH, logística, marketing, etc., sem preconceber premissas de negócio não declaradas pelo usuário);
-2. **Sistemas Web Full-Stack Genéricos:** O AAF não é um gerador de e-commerce, blogs, CRMs transacionais (OLTP puro) ou portais sociais;
-3. **Microserviços Distribuídos como Padrão:** Não criar arquiteturas orientadas a microserviços no core da plataforma ou nos projetos padrão (o padrão absoluto é Modular Monolith);
-4. **Alucinação de Fontes e Destinos Críticos:** É vedado inventar conexões a bancos de produção, credenciais fictícias ou repositórios remotos sem declaração do usuário;
-5. **Geração Cosmética de Código:** Projetos que apenas compilam mas não possuem lógica analítica executável, pipelines vazios ou meros placeholders (`pass`, `TODO`, mocks permanentes).
+1. **Regras de negócio arbitrárias ou inventadas:** o AAF é rigorosamente agnóstico ao domínio de negócio;
+
+2. **Sistemas Web Full-Stack genéricos:** o AAF não é um gerador genérico de e-commerce, blogs, CRMs transacionais ou portais sociais;
+
+3. **Microserviços distribuídos como padrão:** o padrão arquitetural é Modular Monolith;
+
+4. **Alucinação de fontes e destinos críticos:** é vedado inventar conexões de produção, credenciais ou recursos externos inexistentes;
+
+5. **Geração cosmética de código:** são proibidos pipelines vazios, placeholders permanentes, fake success ou implementações sem lógica analítica executável.
 
 ---
 
 ## 5. Contrato Funcional Oficial
 
-O Contrato Funcional Oficial do AAF é a definição normativa máxima que rege todo o ciclo de vida do sistema:
+O Contrato Funcional Oficial do AAF é:
 
-> *"O AAF recebe uma solicitação em linguagem natural, descobre e estrutura os requisitos, analisa os dados disponíveis quando aplicável, consolida o contexto no Brain, define a arquitetura, cria um ProjectPlan, decompõe o projeto em Tasks e Capabilities, atribui os Agents responsáveis, seleciona as Skills necessárias, estabelece a ordem e as dependências de execução, gera os Artifacts, materializa o projeto, executa o projeto realmente gerado e o conduz sequencialmente pelos gates de Validation, Quality e Certification. Quando uma falha recuperável ocorre, o AAF diagnostica a causa raiz, identifica a fase responsável, invalida os resultados posteriores afetados, retorna à fase responsável, corrige e reprocessa o fluxo. Quando uma decisão indispensável depende do usuário, o AAF entra em NEEDS_INPUT/PAUSED e continua após a resposta. O encerramento normal da fabricação ocorre somente quando todos os critérios de prontidão forem satisfeitos e PROJECT READY = YES, quando então o projeto funcional é entregue ao usuário."*
+> "O AAF recebe uma solicitação em linguagem natural, descobre e estrutura os requisitos, analisa os dados disponíveis quando aplicável, consolida o contexto no Brain, define a arquitetura, cria um ProjectPlan, decompõe o projeto em Tasks e Capabilities, atribui os Agents responsáveis, seleciona as Skills necessárias, estabelece a ordem e as dependências de execução, gera os Artifacts, materializa o projeto, executa o projeto realmente gerado e o conduz sequencialmente pelos gates de Validation, Quality e Certification. Quando uma falha recuperável ocorre, o AAF diagnostica a causa raiz, identifica a fase responsável, invalida os resultados posteriores afetados, retorna à fase responsável, corrige e reprocessa o fluxo. Quando uma decisão indispensável depende do usuário, o AAF entra em NEEDS_INPUT/PAUSED e continua após a resposta. O encerramento normal da fabricação ocorre somente quando todos os critérios de prontidão forem satisfeitos e PROJECT READY = YES, quando então o projeto funcional é entregue ao usuário."
 
-Essa definição é inegociável e não pode ser relaxada ou enfraquecida por nenhuma implementação ou intervenção.
+Essa definição é inegociável.
 
 ---
 
 ## 6. Golden Path Oficial
-
-O fluxo operacional e sequencial de fabricação do AAF segue estritamente a árvore abaixo:
 
 ```text
 USER REQUEST
@@ -73,11 +89,11 @@ DISCOVERY
           ↓
 DATASET PROFILING (quando aplicável)
     ↓
-BRAIN (consolidação de contexto, domínios, regras e evidências)
+BRAIN
     ↓
-ARCHITECTURE (definição de stack, padrões e guardrails)
+ARCHITECTURE
     ↓
-PLANNER (decomposição técnica)
+PLANNER
     ↓
 PROJECT PLAN
     ↓
@@ -87,37 +103,37 @@ CAPABILITIES [1..N]
     ↓
 AGENT ASSIGNMENT
     ↓
-SKILL ROUTING (SkillRouter determinístico)
+SKILL ROUTING
     ↓
-SKILL INDEX (SkillIndex catalogado)
+SKILL INDEX
     ↓
-DOMAIN / AGENT GUARDRAILS (allowed_skills / allowed_agents)
+DOMAIN / AGENT GUARDRAILS
     ↓
-SKILLS [1..N] (resolução multi-skill e ordenação por dependências)
+SKILLS [1..N]
     ↓
 EXECUTION PLAN
     ↓
 PROJECT FACTORY
     ↓
-TASK 1 ──→ AGENT ──→ SKILLS NECESSÁRIAS (SkillRegistry) ──→ BRAIN/MCPs/LLM GATEWAY ──→ ARTIFACTS
+TASK 1 → AGENT → SKILLS → BRAIN/MCPs/LLM GATEWAY → ARTIFACTS
     ↓
-TASK 2 ──→ AGENT ──→ SKILLS NECESSÁRIAS (SkillRegistry) ──→ BRAIN/MCPs/LLM GATEWAY ──→ ARTIFACTS
+TASK 2 → AGENT → SKILLS → BRAIN/MCPs/LLM GATEWAY → ARTIFACTS
     ↓
 ...
     ↓
-TASK N ──→ ARTIFACTS
+TASK N → ARTIFACTS
     ↓
 MATERIALIZER
     ↓
 e_generated_projects/<project_id>/
     ↓
-RUNTIME (execução real dos artefatos em ambiente isolado)
+RUNTIME
     ↓
-VALIDATION (validação de outputs, schemas, exit codes e arquivos)
+VALIDATION
     ↓
-QUALITY (avaliação de asserções, cobertura, linters e dependências)
+QUALITY
     ↓
-CERTIFICATION (verificação holística de conformidade e prontidão)
+CERTIFICATION
     ↓
 PROJECT READY = YES
     ↓
@@ -126,311 +142,855 @@ RESULT
 PROJETO ENTREGUE AO USUÁRIO
 ```
 
-**Restrição de Sequência Canônica:**  
-`Context → Plan → Decisions → Skills → Execution → Materialization → Gates`
+### Restrição de Sequência Canônica
+
+```text
+Context → Plan → Decisions → Skills → Execution → Materialization → Gates
+```
+
+Fases dependentes não podem ser executadas antes da consolidação válida de suas dependências.
 
 ---
 
-## 7. Estados Operacionais
+# 7. Repository Structure Governance
 
-A máquina de estados oficial do AAF (`StateManager`) reconhece formalmente os seguintes estados do ciclo de vida:
+Esta seção governa a **estrutura física do próprio repositório Analytics Agents Factory**.
+
+Estas regras aplicam-se principalmente ao IDE Agent, AI Coding Agent e desenvolvedores que modificam o código-fonte do AAF.
+
+## 7.1 Root Directory Invariant
+
+A raiz do repositório `analytics_agents_factory/` é uma **CLOSED ARCHITECTURAL BOUNDARY**.
+
+A raiz:
+
+- NÃO é workspace temporário;
+- NÃO é área de scratch;
+- NÃO é área de documentação;
+- NÃO é área para diagramas;
+- NÃO é área para arquivos Canvas;
+- NÃO é área para relatórios;
+- NÃO é área para backups;
+- NÃO é área para outputs temporários de AI Agents;
+- NÃO é área para artefatos gerados;
+- NÃO é uma localização genérica para arquivos sem destino conhecido.
+
+Nenhum Agent pode criar arbitrariamente novos arquivos ou diretórios diretamente na raiz.
+
+Uma alteração na composição estrutural da raiz é considerada **ARCHITECTURAL CHANGE** e exige autorização humana explícita.
+
+---
+
+## 7.2 Canonical Root Structure
+
+A estrutura raiz autorizada do AAF é:
+
+```text
+analytics_agents_factory/
+├── .agents/
+├── .obsidian/
+├── a_platform/
+├── b_input/
+├── c_tests/
+├── d_documentation/
+├── e_generated_projects/
+├── f_cli/
+├── g_configuration/
+├── h_runtime/
+├── README.md
+├── requirements.txt
+├── Dockerfile
+└── docker-compose.yml
+```
+
+Os diretórios possuem responsabilidades arquiteturais distintas:
+
+```text
+.agents/
+    contratos e instruções normativas para IDE/AI Agents
+
+.obsidian/
+    configuração técnica do workspace Obsidian
+
+a_platform/
+    implementação interna da plataforma AAF
+
+b_input/
+    fontes e datasets fornecidos como entrada
+
+c_tests/
+    testes da própria plataforma AAF
+
+d_documentation/
+    documentação funcional e técnica
+
+e_generated_projects/
+    projetos produzidos pelo Golden Path
+
+f_cli/
+    interface de linha de comando do AAF
+
+g_configuration/
+    configuração da plataforma e domínios
+
+h_runtime/
+    estado operacional de sessão do AAF
+```
+
+A presença desta árvore neste contrato **não autoriza sua recriação automática**.
+
+---
+
+## 7.3 Canonical Tree Is a Constraint, Not a Generation Template
+
+A árvore estrutural documentada neste arquivo representa **limites arquiteturais autorizados**.
+
+Ela NÃO deve ser interpretada como template de geração.
+
+Antes de qualquer alteração, o Agent deve inspecionar a árvore física existente.
+
+É proibido:
+
+- criar automaticamente um diretório apenas porque aparece neste documento;
+- recriar componente ausente sem investigar a implementação atual;
+- duplicar estrutura equivalente já existente;
+- criar uma segunda implementação de um componente porque o caminho esperado não foi encontrado;
+- assumir que ausência de um path significa autorização para criá-lo.
+
+Se um path esperado não existir, o Agent deve localizar o equivalente atual e inspecionar produtores e consumidores antes de qualquer decisão estrutural.
+
+---
+
+## 7.4 Existing Architecture Has Priority Over Convenience
+
+Um IDE Agent deve adaptar sua implementação à arquitetura governada do AAF.
+
+É proibido adaptar a arquitetura do AAF à conveniência da ferramenta.
+
+Portanto:
+
+```text
+NECESSIDADE DE CRIAR ARQUIVO
+        ↓
+IDENTIFICAR OWNER ARQUITETURAL
+        ↓
+LOCALIZAR DESTINO CANÔNICO EXISTENTE
+        ↓
+VALIDAR NAMING
+        ↓
+VALIDAR BOUNDARY
+        ↓
+ESCREVER
+```
+
+Nunca:
+
+```text
+NECESSIDADE DE CRIAR ARQUIVO
+        ↓
+DESTINO INCERTO
+        ↓
+CRIAR NA RAIZ
+```
+
+---
+
+## 7.5 File Ownership Rule
+
+Todo arquivo criado deve possuir um **architectural owner**.
+
+Exemplos:
+
+| Tipo de artefato | Owner / destino |
+|---|---|
+| Regras de IDE Agent | `.agents/` |
+| Configuração Obsidian | `.obsidian/` |
+| Código da plataforma | `a_platform/` |
+| Dataset de entrada | `b_input/` |
+| Testes do AAF | `c_tests/` |
+| Documentação funcional | `d_documentation/a_documentation_functional/` |
+| Documentação técnica | `d_documentation/b_documentation_technical/` |
+| Projeto fabricado | `e_generated_projects/<project_id>/` |
+| CLI | `f_cli/` |
+| Configuração | `g_configuration/` |
+| Estado de sessão | `h_runtime/state/` |
+
+Se não for possível determinar o owner arquitetural de um novo arquivo, o Agent **NÃO DEVE CRIÁ-LO**.
+
+---
+
+## 7.6 Root Write Policy
+
+Antes de qualquer escrita diretamente em:
+
+```text
+analytics_agents_factory/
+```
+
+o Agent deve verificar se o nome alvo já pertence explicitamente à estrutura raiz canônica.
+
+Caso contrário:
+
+```text
+ROOT WRITE = DENIED
+```
+
+Não é permitido criar na raiz, por exemplo:
+
+```text
+AAF Architeture Map.canvas
+Architecture Map.canvas
+Sem titulo.canvas
+Untitled.canvas
+analysis.md
+notes.md
+report.md
+audit.md
+temp.txt
+draft.md
+output.json
+backup.py
+copy.py
+```
+
+---
+
+## 7.7 Naming Convention
+
+Arquivos e diretórios controlados pelo AAF devem respeitar a convenção de naming da área arquitetural correspondente.
+
+### Regras obrigatórias
+
+1. Espaços em nomes de arquivos governados pelo AAF são proibidos;
+
+2. Espaços em nomes de diretórios governados pelo AAF são proibidos;
+
+3. Nomes genéricos são proibidos;
+
+4. Nomes sem significado arquitetural são proibidos;
+
+5. `snake_case` deve ser utilizado para nomes normais governados pelo AAF;
+
+6. Nas áreas que utilizam ordenação por prefixos, novos arquivos e diretórios devem seguir o padrão de prefixação existente;
+
+7. O Agent deve observar os irmãos do arquivo antes de escolher seu nome;
+
+8. O Agent não pode introduzir uma segunda convenção de naming em uma pasta já governada por uma convenção existente.
+
+### Nomes proibidos
+
+Exemplos:
+
+```text
+Sem titulo.canvas
+Sem Titulo.md
+Untitled.md
+New File.md
+New Document.md
+temp.py
+temporary.py
+draft.md
+final.md
+final_v2.md
+copy.py
+backup.py
+teste novo.py
+Architecture Map.canvas
+AAF Architeture Map.canvas
+```
+
+### Exemplos estruturalmente válidos
+
+Quando compatíveis com a convenção da pasta:
+
+```text
+a_architecture_map.canvas
+b_golden_path.canvas
+c_agent_architecture.md
+d_runtime_flow.md
+```
+
+A validade do nome **não torna válido um destino incorreto**.
+
+Um arquivo corretamente nomeado continua proibido se colocado em uma área arquitetural errada.
+
+---
+
+## 7.8 Prefix Governance
+
+Prefixos são parte da organização arquitetural do AAF quando utilizados por uma área.
+
+Exemplos:
+
+```text
+a_*
+b_*
+c_*
+d_*
+...
+```
+
+Antes de criar um arquivo ou diretório, o Agent deve inspecionar a convenção local.
+
+Se a pasta utiliza prefixação ordenada, a nova entrada deve:
+
+- utilizar prefixo coerente;
+- não reutilizar prefixo conflitante;
+- preservar ordenação semântica;
+- não renumerar ou renomear estruturas existentes sem necessidade arquitetural;
+- não criar prefixos arbitrários fora do padrão local.
+
+---
+
+## 7.9 Ecosystem-Required Exceptions
+
+Arquivos cujo nome é imposto por linguagem, framework, ferramenta ou convenção externa podem ser exceções à regra de prefixação.
+
+Exemplos:
+
+```text
+README.md
+Dockerfile
+docker-compose.yml
+requirements.txt
+pyproject.toml
+.env.example
+__init__.py
+.gitkeep
+```
+
+Também podem existir arquivos internos de ferramentas como:
+
+```text
+.obsidian/*
+```
+
+quando seus nomes forem definidos pelo próprio ecossistema.
+
+Uma exceção de naming **não é uma exceção de localização**.
+
+---
+
+## 7.10 Obsidian and Canvas Governance
+
+O Obsidian é uma camada humana de documentação e visualização.
+
+Arquivos `.canvas`:
+
+- NÃO podem ser criados na raiz do repositório;
+- NÃO podem receber nomes com espaços;
+- NÃO podem receber nomes genéricos;
+- NÃO podem ser criados automaticamente apenas porque a ferramenta suporta Canvas;
+- NÃO podem duplicar uma visualização arquitetural existente;
+- devem possuir destino documental autorizado;
+- devem seguir a convenção de naming do local onde forem armazenados.
+
+Antes de criar um Canvas, o Agent deve verificar:
+
+1. se o Canvas é realmente necessário;
+2. se já existe visualização equivalente;
+3. qual área documental é dona da visualização;
+4. qual naming convention essa área utiliza;
+5. se o conteúdo está sustentado pela arquitetura e implementação reais.
+
+Um Canvas nunca se torna SSOT apenas por ter sido gerado.
+
+---
+
+## 7.11 No Orphan Artifacts
+
+Todo novo arquivo deve possuir pelo menos uma finalidade verificável dentro da arquitetura.
+
+São proibidos **orphan artifacts**, incluindo:
+
+- Canvas vazios;
+- Markdown sem owner;
+- relatórios temporários;
+- arquivos de análise abandonados;
+- arquivos de auditoria não solicitados;
+- cópias de segurança produzidas pelo Agent;
+- versões `v2`, `final`, `new`, `copy`;
+- outputs intermediários sem consumidor;
+- documentação duplicada.
+
+Um arquivo vazio ou sem consumidor arquitetural deve ser considerado suspeito e não deve ser criado automaticamente.
+
+---
+
+## 7.12 Pre-Write Structural Validation
+
+Antes de executar QUALQUER operação que crie um novo arquivo ou diretório no repositório AAF, o IDE Agent deve executar conceitualmente o seguinte gate:
+
+```text
+PRE-WRITE STRUCTURAL VALIDATION
+
+1. NECESSARY?
+   O artefato é realmente necessário?
+        ↓
+2. OWNER?
+   Qual domínio arquitetural é responsável?
+        ↓
+3. DESTINATION?
+   Existe destino canônico?
+        ↓
+4. BOUNDARY?
+   O destino está autorizado?
+        ↓
+5. NAMING?
+   O nome segue a convenção local?
+        ↓
+6. PREFIX?
+   O prefixo está correto quando aplicável?
+        ↓
+7. DUPLICATE?
+   Já existe artefato equivalente?
+        ↓
+8. CONSUMER?
+   Existe uso ou finalidade arquitetural?
+        ↓
+WRITE ALLOWED
+```
+
+Se qualquer uma dessas validações falhar:
+
+```text
+DO NOT WRITE
+```
+
+O Agent deve corrigir o plano antes de criar o arquivo.
+
+---
+
+## 7.13 Pre-Move and Pre-Rename Validation
+
+As mesmas regras aplicam-se a:
+
+- mover;
+- copiar;
+- renomear;
+- duplicar;
+- restaurar;
+- converter;
+- gerar versão alternativa de arquivo.
+
+Um `move` não pode ser utilizado para introduzir um arquivo em localização proibida.
+
+Um `rename` não pode quebrar referências, imports, documentação ou consumidores.
+
+---
+
+## 7.14 No Opportunistic Structure Changes
+
+Durante uma tarefa, é proibido realizar alterações estruturais oportunistas não solicitadas.
+
+O Agent NÃO deve:
+
+- criar convenience folders;
+- reorganizar diretórios por preferência pessoal;
+- criar pastas auxiliares;
+- criar arquivos scratch;
+- criar backups;
+- criar cópias;
+- criar documentação adicional não necessária;
+- criar relatórios de auditoria não solicitados;
+- criar novos Canvas por conveniência;
+- criar nova camada arquitetural;
+- mover componentes funcionais sem necessidade;
+- "melhorar" a árvore fora do escopo solicitado.
+
+---
+
+## 7.15 Structural Change Requires Explicit Authorization
+
+São consideradas alterações arquiteturais estruturais:
+
+- novo diretório na raiz;
+- novo arquivo permanente na raiz;
+- remoção de diretório raiz;
+- mudança de responsabilidade entre diretórios;
+- introdução de nova camada arquitetural;
+- mudança global de naming convention;
+- mudança global de prefixos;
+- criação de novo subsistema paralelo.
+
+Essas mudanças exigem autorização humana explícita.
+
+---
+
+## 8. Estados Operacionais
+
+O `StateManager` reconhece:
 
 | Estado | Descrição |
 |---|---|
-| `INITIALIZED` | Projeto criado no sistema com `project_id` gerado e contexto instanciado. |
-| `DISCOVERY` | Fase de elicitação e levantamento de requisitos em execução. |
-| `NEEDS_INPUT` | Fase de bloqueio ativo aguardando informação indispensável do usuário. |
-| `PAUSED` | Sessão temporariamente suspensa aguardando interação externa na CLI/IDE. |
-| `RESUMED` | Sessão reativada após recebimento de resposta do usuário; retoma na fase de origem. |
-| `PROFILING` | Execução técnica de análise e caracterização de dataset fornecido. |
-| `ARCHITECTING` | Elaboração da arquitetura técnica, seleção de patterns e contratos. |
-| `PLANNING` | Decomposição do projeto em `ProjectPlan`, `Tasks`, `Capabilities` e `Skills`. |
-| `GENERATING` | `ProjectFactory` orquestrando agentes e skills para emitir `Artifacts`. |
-| `MATERIALIZING` | Gravação física dos arquivos em `e_generated_projects/<project_id>/`. |
-| `EXECUTING` | `Runtime` executando scripts, comandos e testes do projeto gerado. |
-| `VALIDATING` | Avaliação de contratos estruturais e funcionais no `ValidationGate`. |
-| `REPAIRING` | Ciclo de correção ativo: diagnóstico, invalidação a jusante e reprocessamento. |
-| `QUALITY_CHECK` | Avaliação das métricas e evidências de qualidade pelo `QualityEngine`. |
-| `CERTIFYING` | Auditoria final de todos os critérios de aceite pelo `CertificationEngine`. |
-| `READY` | Conclusão bem-sucedida: todos os gates aprovados (`PROJECT READY = YES`). |
-| `FAILED` | Estado terminal anômalo após esgotamento definitivo de reparos não recuperáveis. |
+| `INITIALIZED` | Projeto criado e contexto instanciado. |
+| `DISCOVERY` | Levantamento de requisitos. |
+| `NEEDS_INPUT` | Informação indispensável requerida. |
+| `PAUSED` | Sessão suspensa aguardando interação. |
+| `RESUMED` | Sessão retomada. |
+| `PROFILING` | Análise técnica do dataset. |
+| `ARCHITECTING` | Arquitetura técnica. |
+| `PLANNING` | ProjectPlan, Tasks, Capabilities e Skills. |
+| `GENERATING` | ProjectFactory produzindo Artifacts. |
+| `MATERIALIZING` | Persistência física do projeto. |
+| `EXECUTING` | Runtime executando o projeto. |
+| `VALIDATING` | Validation Gate. |
+| `REPAIRING` | Diagnóstico, correção e reprocessamento. |
+| `QUALITY_CHECK` | Quality Engine. |
+| `CERTIFYING` | Certification Engine. |
+| `READY` | `PROJECT READY = YES`. |
+| `FAILED` | Estado terminal anômalo após impossibilidade formal de recuperação. |
 
 ---
 
-## 8. Discovery Protocol
+## 9. Discovery Protocol
 
-O `DiscoveryAgent` é o componente encarregado da elucidação dos requisitos. Suas regras operacionais são estritas:
+O `DiscoveryAgent` deve:
 
-1. **Limite Estrito de Perguntas:** No **máximo 5 perguntas** em toda a sessão de Discovery;
-2. **Sequencialidade:** Exatamente **uma pergunta por vez** (`one question at a time`);
-3. **Critério de Relevância:** Apenas perguntar quando a resposta puder alterar decisivamente:
-   - Arquitetura técnica;
-   - Escopo do projeto;
-   - Capability requerida;
-   - Fonte de dados (`source`) ou destino analítico (`target`);
-   - Critério de aceite ou validação;
-   - Decisão técnica indispensável;
-4. **Assumptions Explícitas:** Incertezas menores, detalhes cosméticos ou parâmetros secundários **não** devem motivar perguntas; devem ser convertidos em **premissas técnicas explícitas (`assumptions`)** e registradas no Brain;
-5. **Decisões Não Resolvidas (Q-NN):** Dúvidas dependentes de confirmação futura devem ser estruturadas sob identificadores canônicos `Q-01`, `Q-02`, etc.;
-6. **Não Inventar Regras:** Jamais presumir regras de negócio do cliente ou inventar infraestruturas inexistentes;
-7. **Bloqueio por Falta de Dado Crítico:** Se uma informação for imprescindível para avançar, transitar imediatamente para `NEEDS_INPUT → PAUSED`;
-8. **Retomada:** Recebida a resposta, transitar para `RESUME` e retornar à fase adequada do Discovery.
+1. Fazer no máximo 5 perguntas;
+2. Fazer exatamente uma pergunta por vez;
+3. Perguntar apenas quando a resposta alterar arquitetura, escopo, capability, source, target, aceitação ou decisão técnica indispensável;
+4. Converter incertezas menores em assumptions explícitas;
+5. Registrar dúvidas pendentes como `Q-01`, `Q-02`, etc.;
+6. Nunca inventar regras de negócio;
+7. Entrar em `NEEDS_INPUT → PAUSED` quando faltar informação indispensável;
+8. Retomar na fase responsável após resposta.
 
 ---
 
-## 9. Dataset Profiling
+## 10. Dataset Profiling
 
-Quando o usuário fornece um dataset (ou aponta um caminho em `b_input/`), o `DatasetProfilingSkill` entra em ação antes das fases de Arquitetura e Planejamento:
+Quando houver dataset disponível, o `DatasetProfilingSkill` deve operar antes da definição arquitetural dependente desses dados.
 
-1. **Evidência Real:** Utiliza Pandas/DuckDB para inspecionar os dados reais, coletando:
-   - Volume de linhas e colunas;
-   - Nomes literais e tipos inferidos de colunas;
-   - Cardinalidade, percentual de nulos e registros duplicados;
-   - Anomalias de formatação, caracteres corrompidos e outliers preliminares;
-2. **Alimentação do Brain:** Os metadados apurados são consolidados no Brain sob a categoria `evidence`;
-3. **Aderência:** O `ArchitectureAgent` e o `PlannerAgent` utilizam as evidências do profiling para determinar o schema de tabelas, estratégias de limpeza (`data-cleaning`) e modelos dimensionais;
-4. **Proibição:** É proibido presumir colunas ou tipos fictícios quando um arquivo de dados real estiver disponível.
+Deve coletar evidências reais, incluindo:
 
----
+- linhas e colunas;
+- nomes literais das colunas;
+- tipos;
+- cardinalidade;
+- nulos;
+- duplicados;
+- anomalias de formatação;
+- evidências necessárias ao planejamento.
 
-## 10. Brain
+É proibido presumir schema fictício quando dados reais estiverem disponíveis.
 
-O **Brain** é a Fonte Única da Verdade (Single Source of Truth — SSOT) de conhecimento e contexto operacional da plataforma AAF durante a fabricação de um projeto.
-
-1. **Estrutura Conceitual do Brain:**
-   - `context`: Identificador de projeto, objetivos declarados, premissas (`assumptions`) e estado corrente;
-   - `requirements`: Requisitos funcionais e técnicos validados no Discovery;
-   - `evidence`: Evidências concretas (resultados de profiling, outputs de execução, métricas de dados);
-   - `rules`: Regras arquiteturais, guardrails de domínio e restrições de engenharia;
-   - `patterns`: Padrões de projeto homologados (ex: Star Schema, ETL procedural, camadas Medallion);
-   - `domains`: Domínios configurados (`b_domains.yaml`), skills permitidas e templates aplicáveis;
-   - `decisions`: Registro formal de decisões arquiteturais (ADRs, trade-offs e resoluções `Q-NN`);
-   - `graph`: Relações topológicas entre entidades, conceitos e tarefas do projeto.
-2. **Distinção Mandatória — Brain vs. Obsidian:**
-   - O **Brain** (`a_platform/c_brain/`) é a estrutura de dados operacional em código (Python/YAML) consumida ativamente pelos agentes e orquestradores.
-   - O **Obsidian** (`.obsidian/` e links markdown em `d_documentation/`) é **exclusivamente uma interface humana de visualização**, navegação e documentação estática.
-   - O Obsidian **NÃO** executa lógica, **NÃO** decide regras e **NÃO** substitui o Brain.
+Quando não houver dataset aplicável, a fase deve ser tratada explicitamente como não aplicável, sem inventar evidência.
 
 ---
 
-## 11. Architecture
+## 11. Brain
 
-O `ArchitectureAgent` é o único agente responsável por estabelecer a base técnica do projeto a ser gerado:
+O Brain é a **Single Source of Truth operacional** do projeto durante a fabricação.
 
-1. **Entradas:** Requisitos consolidados no Brain, evidências de profiling e guardrails do domínio;
-2. **Saídas:** Stack tecnológica selecionada, estrutura de diretórios do projeto gerado, convenções de código, dialeto SQL e padrões de modelagem analítica;
-3. **Modular Monolith Obrigatório:** O projeto gerado deve ser concebido como um monolito modular autocontido, garantindo simplicidade de empacotamento, reprodutibilidade e ausência de dependências de rede externas complexas;
-4. **Proibição de Desvios:** É proibido introduzir frameworks não catalogados ou criar microserviços sem solicitação explícita fundamentada em ADR arquivada no Brain.
+Pode consolidar:
+
+- `context`;
+- `requirements`;
+- `evidence`;
+- `rules`;
+- `patterns`;
+- `domains`;
+- `decisions`;
+- `graph`.
+
+### Brain vs. Obsidian
+
+`a_platform/c_brain/` representa contexto operacional consumido pela plataforma.
+
+`.obsidian/` e documentação associada representam visualização e navegação humanas.
+
+Obsidian:
+
+- NÃO executa lógica;
+- NÃO decide arquitetura;
+- NÃO substitui o Brain;
+- NÃO é dependência obrigatória do Golden Path.
 
 ---
 
-## 12. Planning
+## 12. Architecture
 
-O `PlannerAgent` traduz a arquitetura em um plano operacional rigoroso (`ProjectPlan`):
+O `ArchitectureAgent` é responsável por:
 
-1. **Decomposição Determinística:** Decompõe o objetivo global em `Tasks` sequenciais ou organizadas em DAG (Directed Acyclic Graph);
-2. **Associação Explícita:** Para cada tarefa, o Planner define:
-   - Descrição objetiva da entrega;
-   - Agente especialista designado para a execução;
-   - Capabilities necessárias (1..N);
-   - Skills necessárias requeridas via catálogo;
-   - MCPs operacionais exigidos;
-   - Dependências diretas em relação a tarefas anteriores (`depends_on`);
-   - Comandos de validação e critérios de aceitação específicos;
-3. **Validação do Plano:** O `ProjectPlan` deve ser estruturado conforme o contrato `a_platform/b_contracts/f_plan.py`.
+- stack;
+- estrutura do projeto gerado;
+- convenções;
+- SQL dialect;
+- padrões analíticos;
+- guardrails arquiteturais.
+
+A arquitetura padrão é Modular Monolith.
+
+Frameworks, serviços ou componentes não catalogados não devem ser introduzidos arbitrariamente.
 
 ---
 
-## 13. Project / Task / Capability
+## 13. Planning
 
-A hierarquia formal e a cardinalidade entre as entidades de trabalho do AAF são imutáveis:
+O `PlannerAgent` traduz arquitetura em `ProjectPlan`.
+
+Para cada Task, define:
+
+- entrega;
+- Agent;
+- Capabilities `[1..N]`;
+- Skills `[1..N]`;
+- MCPs quando necessários;
+- `depends_on`;
+- critérios de aceitação;
+- evidências esperadas.
+
+O Planner é responsável pela decomposição e dependências.
+
+O SkillRouter é responsável pela resolução de Skills, não pela orquestração global do projeto.
+
+---
+
+## 14. Project / Task / Capability
 
 ```text
-1 Project ───► 1..N Tasks
-1 Task    ───► 1..N Capabilities
-1 Task    ───► 1 Agente Responsável
-1 Task    ───► 1..N Skills (quando a tarefa demandar múltiplas competências)
+1 Project → 1..N Tasks
+
+1 Task → 1..N Capabilities
+
+1 Task → 1 Agent responsável
+
+1 Task → 1..N Skills quando necessárias
 ```
 
-- **Project:** Unidade macro solicitada pelo usuário, encapsulando todo o ciclo de vida, artefatos e gates;
-- **Task:** Unidade elementar de planejamento e execução dentro do `ProjectPlan`. Possui dependências claras, agente dono e critérios de validação;
-- **Capability:** Necessidade técnica que uma Task precisa satisfazer (ex: `data-cleaning`, `sql-analytics`, `data-quality`, `readme-generation`).
+Capability representa a necessidade.
+
+Skill representa uma implementação reutilizável dessa necessidade.
 
 ---
 
-## 14. Agents
+## 15. Agents
 
-Os agentes nativos do AAF são especialistas funcionais coordenados pela fábrica. Suas atribuições são segregadas:
+### Core
 
-### 14.1 Agentes Core (Mandatórios no Ciclo Geral)
-- **DiscoveryAgent:** Elicitação de requisitos, interface com usuário, gerenciamento de dúvidas (`Q-NN`) e premissas (`assumptions`);
-- **ArchitectureAgent:** Síntese de requisitos, desenho técnico, definição de stack e governança de design;
-- **PlannerAgent:** Decomposição estruturada em `ProjectPlan`, atribuição de `Tasks`, `Capabilities` e dependências;
-- **DataAgent:** Ingestão de dados, sanitização, limpeza (`data-cleaning`), transformações e pipelines de dados;
-- **DatabaseAgent:** DDL/DML, criação e migração de esquemas relacionais, modelagem dimensional e queries de persistência;
-- **AnalyticsAgent:** Análise exploratória (EDA), agregações analíticas, SQL analítico, cálculo de métricas e visualizações;
-- **TestingAgent:** Geração de testes automatizados (Pytest), validação sintática e asserções de qualidade de código;
-- **DocumentationAgent:** Elaboração de documentação técnica, dicionários de dados, especificações e README oficial.
+- `DiscoveryAgent`
+- `ArchitectureAgent`
+- `PlannerAgent`
+- `DataAgent`
+- `DatabaseAgent`
+- `AnalyticsAgent`
+- `TestingAgent`
+- `DocumentationAgent`
 
-### 14.2 Agentes Condicionais (Ativados Exclusivamente sob Demanda Explícita)
-- **BackendAgent:** Ativado apenas se o projeto analítico demandar uma API (ex: FastAPI) para exposição de endpoints analíticos;
-- **FrontendAgent:** Ativado apenas se houver requisito expresso de interface gráfica web (ex: Streamlit/Dash);
-- **ChatbotAgent:** Ativado apenas se a solução analítica incluir interface conversacional com o usuário final;
-- **InfrastructureAgent:** Ativado apenas se a entrega requerer manifests de infraestrutura avançados (Terraform, Kubernetes, além do Dockerfile básico).
+### Condicionais
 
----
+- `BackendAgent`
+- `FrontendAgent`
+- `ChatbotAgent`
+- `InfrastructureAgent`
 
-## 15. Skills / SkillIndex / SkillRouter / SkillRegistry
-
-O subsistema de Skills fornece capacidades operacionais reutilizáveis e plugáveis:
-
-1. **Skill:** Módulo funcional que encapsula uma capacidade atômica (ex: `data-cleaning`, `sql-analytics`, `data-quality`), implementando estritamente a interface `SkillContract` (`execute(context) -> SkillResult`);
-2. **SkillIndex:** Catálogo declarativo compacto (`skill_index.yaml` e `SkillIndex`) contendo metadados de cada Skill: identificador canônico, capabilities atendidas, agentes autorizados (`allowed_agents`), dependências estruturais (`depends_on`) e triggers;
-3. **SkillRouter:** Mecanismo determinístico de resolução. Recebe as capabilities de uma Task e:
-   - Aplica a ordem de precedência: `preferred_skills` → `skill_id` explícito → match exato de capability → guardrails de domínio (`allowed_skills`) → guardrails de agente (`allowed_agents`) → sinônimos/triggers;
-   - Realiza **seleção multi-skill (1..N)** para tarefas compostas;
-   - Aplica **deduplicação inteligente** caso múltiplas capabilities convirjam para uma mesma skill;
-   - Executa **ordenação topológica** respeitando as dependências estruturais (`depends_on`);
-   - Bloqueia violações de segurança e escopo disparando `SkillRoutingError`;
-4. **SkillRegistry:** Registro de execução. Realiza o **Lazy Loading** (carregamento progressivo de código e prompts) apenas no momento em que a Skill for efetivamente executada, evitando poluição de memória e de contexto dos agentes;
-5. **Progressive Disclosure:** É expressamente proibido carregar o código-fonte de todas as Skills no contexto do LLM ou do agente. Apenas metadados trafegam pelo Router; o código só é instanciado na execução da Task.
+Agentes condicionais somente devem ser utilizados quando requeridos pelo projeto.
 
 ---
 
-## 16. MCPs (Model Context Protocol)
+## 16. Skills / SkillIndex / SkillRouter / SkillRegistry
 
-Os MCPs atuam como barramentos padronizados e controlados para que Agentes e Skills acessem recursos do ambiente:
+### Skill
 
-- **Filesystem MCP:** Leitura e escrita restrita a diretórios autorizados pela política de paths (`PathPolicy`);
-- **Database MCP:** Execução controlada de queries em bancos de dados aprovados, com sanitização de conexões;
-- **Docker MCP:** Criação e gerenciamento de containers isolados para testes e runtime de dados.
+Capability operacional reutilizável.
 
-**Limites Rígidos dos MCPs:**
-- MCP é uma ferramenta de infraestrutura e acesso operacional;
-- MCP **NÃO** decide arquitetura;
-- MCP **NÃO** substitui Agentes nem Skills;
-- MCP **NÃO** contém regras de negócio.
+### SkillIndex
 
----
+Catálogo compacto de metadados.
 
-## 17. LLM Gateway
+### SkillRouter
 
-O **LLM Gateway** (`a_platform/j_llm_gateway/`) é o ponto centralizado e obrigatório para todas as chamadas a Modelos de Linguagem na plataforma:
+Resolve uma ou mais Skills necessárias para as Capabilities da Task, respeitando:
 
-1. **Abstração Total:** Isola completamente os Agentes e as Skills dos SDKs específicos (OpenAI, Anthropic, Google Gemini, Ollama, etc.);
-2. **Acoplamento Proibido:** É categoricamente proibido importar bibliotecas de fornecedores de IA (`openai`, `anthropic`, `google.generativeai`) diretamente dentro de Agentes, Skills ou Contratos;
-3. **Controle de Resiliência:** O Gateway gerencia timeouts, retries exponenciais, rotação de fallbacks configurados, contagem de tokens e auditoria de prompts.
+- preferências explícitas válidas;
+- capability;
+- domínio;
+- `allowed_skills`;
+- Agent;
+- `allowed_agents`;
+- dependências;
+- deduplicação;
+- triggers quando necessários.
 
----
+### SkillRegistry
 
-## 18. Project Factory
+Autoridade de resolução da implementação executável.
 
-A **Project Factory** (`a_platform/h_factory/`) coordena a esteira de construção dos componentes do projeto:
+### Progressive Disclosure
 
-1. Recebe o `ProjectPlan` aprovado;
-2. Itera sobre cada `Task` respeitando rigorosamente a ordem topológica e as dependências;
-3. Instancia o Agente responsável e aciona as Skills roteadas via `SkillRegistry`;
-4. Fornece contexto consolidado através do Brain e acessos via MCPs e LLM Gateway;
-5. Recebe os `Artifacts` gerados em memória e os registra no `ExecutionContext`.
+Metadados compactos podem ser consultados para routing.
 
----
+Implementação, prompts e recursos pesados devem ser carregados somente quando necessários.
 
-## 19. Artifacts
-
-**Artifacts** são representações estruturadas e tipadas (`a_platform/b_contracts/g_artifact.py`) produzidas pelas Tasks e Skills:
-
-1. Contêm metadados do arquivo: caminho relativo de destino, tipo de conteúdo (código Python, SQL, YAML, Markdown, Shell), permissões e hash de integridade;
-2. São mantidos em memória durante a fase de geração na fábrica;
-3. Representam a especificação formal antes da persistência física no sistema de arquivos;
-4. Nenhum artefato é considerado válido se violar as diretrizes de código limpo, contratos de interface ou contiver placeholders.
+É proibido carregar indiscriminadamente todas as Skills no contexto.
 
 ---
 
-## 20. Materializer
+## 17. MCPs
 
-O **Materializer** (`a_platform/i_materializer/`) realiza a ponte entre os modelos lógicos e o sistema de arquivos:
+MCPs fornecem acesso operacional controlado.
 
-1. **Destino Exclusivo:** Grava os `Artifacts` exclusivamente dentro do diretório do projeto:
-   ```text
-   e_generated_projects/<project_id>/
-   ```
-2. **Preservação de Estrutura:** Cria subdiretórios, grava scripts executáveis, datasets de exemplo, arquivos de configuração e documentação;
-3. **Limites:** O Materializer é um componente mecânico de I/O. Ele **NÃO** interpreta requisitos, **NÃO** altera lógica de código e **NÃO** altera a arquitetura definida.
+MCPs homologados incluem:
 
----
+- Filesystem;
+- Database;
+- Docker.
 
-## 21. Runtime
+MCP:
 
-O **Execution Runtime** (`a_platform/k_runtime/`) é responsável por colocar o projeto materializado à prova:
-
-1. **Execução Real:** Executa os scripts gerados (Python, SQL, ETL) em ambiente real ou containerizado, jamais simulando respostas por mock;
-2. **Captura Total de Evidências:** Registra para cada comando: código de saída (`exit_code`), tempo decorrido, `stdout`, `stderr` e artefatos de dados gerados;
-3. **Isolamento e Segurança:** Aplica estritamente a política de comandos (`CommandPolicy`) e restrição de paths (`PathPolicy`), impedindo execução de instruções destrutivas ou acesso externo indevido.
+- NÃO decide arquitetura;
+- NÃO substitui Agent;
+- NÃO substitui Skill;
+- NÃO contém regra de negócio.
 
 ---
 
-## 22. Validation
+## 18. LLM Gateway
 
-O **Validation Gate** (`a_platform/l_validation/` e `ValidationGate`) audita a conformidade técnica do projeto gerado:
+O LLM Gateway centraliza integrações com modelos.
 
-1. **Validação Estrutural:** Confere se todos os arquivos requeridos pelo `ProjectPlan` foram fisicamente materializados;
-2. **Validação de Sintaxe e Compilação:** Executa checagem de integridade do código gerado;
-3. **Validação de Execução:** Avalia se os pipelines rodaram com código `0` e geraram os outputs de dados esperados;
-4. **Asserções de Negócio Analítico:** Verifica schemas das tabelas finais, volumetria gerada e ausência de dados corrompidos;
-5. **Decisão:** Emite veredito formal (`status: PASSED` ou `status: FAILED` acompanhado de relatório de anomalias detalhado).
+Agents e Skills não devem depender diretamente de SDKs de providers.
 
----
+Providers somente podem ser utilizados quando implementados e habilitados na configuração real.
 
-## 23. Quality
-
-O **Quality Engine** (`a_platform/m_quality/`) avalia o projeto através de critérios de engenharia de software e engenharia de dados:
-
-1. **Suíte de Testes:** Execução de testes unitários e de integração gerados pelo `TestingAgent` via Pytest;
-2. **Qualidade de Dados:** Checagem de asserções de completude, unicidade e regras de dados;
-3. **Integridade de Dependências:** Validação de compatibilidade e fixação de versões em `requirements.txt`;
-4. **Higiene de Código:** Verificação de ausência de credenciais hardcoded, código morto ou construções inseguras;
-5. **Veredito:** O gate de qualidade exige aprovação inequívoca baseada em evidências colhidas.
+É proibido inventar fallback ou provider inexistente.
 
 ---
 
-## 24. Certification
+## 19. Project Factory
 
-O **Certification Engine** (`a_platform/n_certification/`) é o gate final de prontidão da plataforma:
+A Project Factory:
 
-1. Realiza a auditoria cruzada de todas as etapas precedentes;
-2. Inspeciona a cadeia de custódia das evidências coletadas desde o Discovery até o Quality;
-3. Verifica se nenhum gate foi pulado, suprimido ou mascarado;
-4. Somente emite `CertificationResult(status="PASSED")` se todos os critérios obrigatórios forem plenamente atendidos.
+1. recebe `ProjectPlan`;
+2. respeita dependências;
+3. executa Tasks na ordem válida;
+4. instancia Agents;
+5. resolve Skills pelo Registry;
+6. disponibiliza Brain/MCP/LLM Gateway quando necessários;
+7. recebe Artifacts.
+
+Execução paralela somente pode existir quando explicitamente segura e permitida pelas dependências do plano.
+
+Nunca se deve paralelizar fases dependentes do Golden Path.
 
 ---
 
-## 25. Repair and Recovery
+## 20. Artifacts
 
-O AAF adota uma política de resiliência e auto-recuperação determinística para falhas tratáveis.
+Artifacts são representações tipadas anteriores à materialização.
 
-### 25.1 Fluxo do Repair Contract
-Diante de uma falha em qualquer gate ou execução de tarefa, o sistema deve seguir obrigatoriamente:
+Devem conter:
+
+- path relativo;
+- tipo;
+- conteúdo;
+- metadados necessários;
+- integridade.
+
+Artifacts inválidos, placeholders ou caminhos proibidos devem ser rejeitados.
+
+---
+
+## 21. Materializer
+
+O Materializer escreve exclusivamente o projeto fabricado dentro de:
+
+```text
+e_generated_projects/<project_id>/
+```
+
+O Materializer não deve escrever arquivos de manutenção do próprio repositório AAF.
+
+O Materializer:
+
+- NÃO interpreta requisitos;
+- NÃO altera arquitetura;
+- NÃO inventa novos destinos;
+- NÃO grava projetos gerados na raiz;
+- NÃO grava fora do `project_id`.
+
+---
+
+## 22. Runtime
+
+O Runtime executa o projeto materializado de forma real.
+
+Deve capturar evidências como:
+
+- `exit_code`;
+- `stdout`;
+- `stderr`;
+- duração;
+- outputs gerados.
+
+Execução deve respeitar `CommandPolicy` e `PathPolicy`.
+
+Execução insegura com `shell=True` não deve ser utilizada.
+
+---
+
+## 23. Validation
+
+Validation deve verificar:
+
+- estrutura;
+- sintaxe;
+- execução;
+- outputs;
+- schemas;
+- critérios de aceitação.
+
+Falha gera evidência e aciona Repair quando recuperável.
+
+---
+
+## 24. Quality
+
+Quality avalia evidências de:
+
+- testes;
+- qualidade de dados;
+- dependências;
+- higiene de código;
+- segurança aplicável;
+- critérios definidos pelo ProjectPlan.
+
+Nenhum resultado pode ser aprovado sem evidência real.
+
+---
+
+## 25. Certification
+
+Certification é o gate final.
+
+Somente pode aprovar quando todos os critérios obrigatórios anteriores possuírem evidências válidas.
+
+Nenhum gate pode ser mascarado ou artificialmente marcado como aprovado.
+
+---
+
+## 26. Repair and Recovery
 
 ```text
 FAILURE
     ↓
-FAILURE DIAGNOSIS (análise de logs, stacktrace, stderr e validações)
+FAILURE DIAGNOSIS
     ↓
-ROOT CAUSE IDENTIFICATION (diagnóstico da causa raiz técnica)
+ROOT CAUSE IDENTIFICATION
     ↓
-RESPONSIBLE PHASE IDENTIFICATION (determinação da fase originária do defeito)
+RESPONSIBLE PHASE IDENTIFICATION
     ↓
-INVALIDATE DOWNSTREAM (invalidação de todos os artefatos e gates posteriores)
+INVALIDATE DOWNSTREAM
     ↓
-REPAIR (correção na fase responsável pelo agente correspondente)
+REPAIR
     ↓
-REPROCESS FROM RESPONSIBLE PHASE (re-execução ordenada a partir da fase corrigida)
+REPROCESS FROM RESPONSIBLE PHASE
     ↓
-GATES NOVAMENTE (re-submissão integral a Runtime, Validation, Quality e Certification)
+RUNTIME / VALIDATION / QUALITY / CERTIFICATION
 ```
 
-### 25.2 Tratamento de Causa Raiz Dependente do Usuário
-Se a investigação da causa raiz determinar que a resolução depende de uma decisão humana indispensável (ex: ambiguidade irreconciliável de regra, credencial obrigatória, especificação de formato faltante):
+Quando a resolução depender de informação humana:
 
 ```text
 ROOT CAUSE
@@ -445,152 +1005,439 @@ USER ANSWER
     ↓
 RESUME
     ↓
-RESPONSIBLE PHASE (reprocessamento a partir da fase de origem)
+RESPONSIBLE PHASE
 ```
 
-### 25.3 Limites e Proibição de Encerramento Precoce
-- O loop de reparo possui tolerância máxima configurável de tentativas (padrão: 3 tentativas);
-- **PROIBIÇÃO ABSOLUTA:** É terminantemente proibido adotar como fluxo normal o padrão:
-  ```text
-  FAIL ──► PROJECT READY = NO ──► FIM
-  ```
-- `PROJECT READY = NO` representa apenas o estado de **"ainda não pronto"** enquanto houver ciclo de reparo em andamento; não significa desistência automática sem esgotamento das etapas diagnósticas de reparo.
-- O estado terminal `FAILED` só é admissível após o esgotamento formal das tentativas de reparo automático ou rejeição explícita do usuário.
+`PROJECT READY = NO` significa "ainda não pronto" enquanto houver recuperação válida possível.
+
+Não é o caminho normal de encerramento.
 
 ---
 
-## 26. NEEDS_INPUT / PAUSED / RESUME
+## 27. NEEDS_INPUT / PAUSED / RESUME
 
-O mecanismo de pausa interativa assegura que a fábrica nunca opere com premissas críticas falsas:
+Quando faltar informação indispensável:
 
-1. **Entrada em `NEEDS_INPUT`:** Ocorre quando um agente (notadamente `DiscoveryAgent`) detecta ausência de informação indispensável;
-2. **Transição para `PAUSED`:** O orquestrador suspende a máquina de estados, persiste o checkpoint no `StateManager` (`h_runtime/state/`) e expõe a pergunta única na CLI ou interface da IDE;
-3. **Recepção de `USER ANSWER`:** O usuário fornece a resposta pela interface oficial (`aaf resume` ou chat integrado);
-4. **Ativação do `RESUME`:** O estado é reidratado do checkpoint, o dado é injetado no Brain e o fluxo é retomado exatamente a partir da fase que demandou o input, sem perda do progresso já certificado.
+```text
+NEEDS_INPUT → PAUSED → USER ANSWER → RESUME → RESPONSIBLE PHASE
+```
 
----
+Checkpoint operacional pertence a:
 
-## 27. PROJECT READY
+```text
+h_runtime/state/
+```
 
-O status **`PROJECT READY = YES`** é o selo de prontidão de engenharia emitido pelo AAF.
+Esse diretório contém somente estado operacional previsto.
 
-### 27.1 Critérios Obrigatórios Cumulativos
-O status `PROJECT READY = YES` só pode ser atribuído quando **todos** os seguintes marcos estiverem certificados por evidências reais:
-
-- [x] **Discovery:** `COMPLETE` (requisitos estruturados, sem pendências bloqueantes);
-- [x] **Planning:** `COMPLETE` (plano validado, tasks e dependências resolvidas);
-- [x] **Materialization:** `SUCCESS` (arquivos físicos gravados e íntegros em disco);
-- [x] **Execution:** `SUCCESS` / `PASS` (scripts rodaram com exit code 0 no Runtime);
-- [x] **Validation:** `PASS` (todas as asserções e checagens contratuais aprovadas);
-- [x] **Quality:** `PASS` (testes automatizados e requisitos de qualidade aprovados);
-- [x] **Certification:** `PASS` (auditoria final do CertificationEngine aprovada).
-
-### 27.2 Regra de Veracidade
-`PROJECT READY` é uma **consequência factual de evidências coletadas**, nunca um valor arbitrário ou cosmético. Se qualquer gate obrigatório não tiver evidência de aprovação, o projeto permanece `PROJECT READY = NO`.
+Não deve ser utilizado para documentação, relatórios ou arquivos temporários arbitrários.
 
 ---
 
-## 28. IDE Agent vs. Native Agents do AAF
+## 28. PROJECT READY
 
-Deve haver uma separação irrevogável e cristalina entre o agente de desenvolvimento da IDE e os agentes internos da plataforma AAF:
+`PROJECT READY = YES` exige cumulativamente:
 
-| Atributo | IDE Agent (Você / Antigravity / Cursor / Copilot) | AAF Native Agents (Discovery, Architecture, etc.) |
-|---|---|---|
-| **Papel** | Engenheiro de software auxiliando o desenvolvimento, manutenção e governança do código-fonte do AAF. | Agentes autônomos que operam a esteira do Golden Path para fabricar projetos analíticos. |
-| **Escopo de Ação** | Edita arquivos da plataforma (`a_platform/`, `d_documentation/`, etc.) sob instrução explícita do desenvolvedor. | Executam tarefas planejadas, acionam Skills e geram Artifacts para `e_generated_projects/`. |
-| **Interface com Usuário** | Ponto de transporte e facilitação de comandos (`aaf start`, `aaf resume`). | Processam prompts e lógica através do `LLM Gateway` e contratos da plataforma. |
+- Discovery COMPLETE;
+- Planning COMPLETE;
+- Materialization SUCCESS;
+- Execution SUCCESS;
+- Validation PASS;
+- Quality PASS;
+- Certification PASS.
 
-### Proibições Específicas para o IDE Agent:
-1. **NÃO emular internamente agentes do AAF:** O IDE Agent não deve "fingir" ser o `DiscoveryAgent` ou `ArchitectureAgent` gerando arquivos por fora da esteira;
-2. **NÃO criar sucesso artificial:** O IDE Agent jamais deve forjar arquivos, mocks ou resultados para simular que a fábrica funcionou;
-3. **NÃO editar manualmente o projeto gerado:** Se a geração do AAF falhar em `e_generated_projects/`, o IDE Agent **NÃO** deve corrigir o código gerado manualmente para disfarçar o erro do pipeline;
-4. **NÃO bypassar o Repair Controller:** Correções devem ser realizadas pelo motor de reparo da própria plataforma, nunca por patches manuais da IDE durante o ciclo de fabricação;
-5. **NÃO declarar `PROJECT READY`:** A declaração de prontidão cabe única e exclusivamente ao `CertificationEngine` do AAF via evidências reais.
+Readiness é consequência de evidência, nunca flag cosmética.
 
 ---
 
-## 29. Architecture Rules
+## 29. IDE Agent vs. Native Agents
 
-As regras arquiteturais mestras da plataforma AAF são:
+O IDE Agent desenvolve e mantém o AAF.
 
-1. **Modular Monolith:** A estrutura interna da plataforma e os projetos analíticos gerados devem ser mantidos como Monolitos Modulares de alta coesão e baixo acoplamento;
-2. **Princípio do Progressive Disclosure:** Informações detalhadas, código de skills e payloads pesados só devem ser carregados sob demanda explícita;
-3. **Contratos Fortes e Tipados:** Todas as transições entre módulos dependem de modelos de dados tipados (`dataclasses` ou `pydantic`) definidos em `a_platform/b_contracts/`;
-4. **Imutabilidade de Metadados de Execução:** Resultados de execuções de tasks e evidências de validação não devem ser mutados in-place; novas iterações criam novos registros versionados no `ExecutionContext`;
-5. **Documentação Espelhada:** Qualquer alteração arquitetural deve ser devidamente refletida na documentação técnica (`d_documentation/b_documentation_technical/`) e funcional (`d_documentation/a_documentation_functional/`).
+Os Native Agents executam o AAF.
 
----
+O IDE Agent:
 
-## 30. Guardrails
-
-Guardrails são travas sistêmicas de segurança e estabilidade operacional:
-
-1. **Domain Guardrails (`allowed_skills`):** Nenhum agente ou tarefa pode executar uma skill que não esteja explicitamente autorizada para o domínio configurado em `b_domains.yaml`;
-2. **Agent Guardrails (`allowed_agents`):** Nenhuma skill pode ser invocada por um agente que não esteja listado em seus metadados (`allowed_agents` no `skill_index.yaml`);
-3. **Path Guardrails (`PathPolicy`):** Todas as operações de leitura e escrita devem respeitar os limites do workspace e do projeto gerado, sendo terminantemente proibido acessar caminhos absolutos arbitrários do sistema operacional;
-4. **Command Guardrails (`CommandPolicy`):** O Runtime só pode executar comandos aprovados em whitelist segura (Python, pytest, utilitários analíticos), bloqueando comandos de rede, instalação arbitrária não auditada ou operações privilegiadas (`sudo`, `rm -rf /`);
-5. **Gate Integrity Guardrails:** É impossível avançar para a fase subsequente sem que a fase anterior tenha emitido status de conclusão válido.
+- NÃO deve fingir ser Native Agent;
+- NÃO deve gerar projeto manualmente para mascarar falha;
+- NÃO deve corrigir manualmente um projeto gerado para esconder defeito da fábrica;
+- NÃO deve declarar `PROJECT READY`;
+- NÃO deve bypassar Repair;
+- NÃO deve criar artefatos do Golden Path fora da arquitetura oficial.
 
 ---
 
-## 31. Security Rules
+## 30. Architecture Rules
 
-1. **Segredos e Credenciais:** Nunca commitar, logar ou expor chaves de API, senhas ou tokens; usar sempre variáveis de ambiente (`.env` isolado);
-2. **Sem Execução Shell Insegura:** Proibido uso de `shell=True` sem sanitização estrita ou interpolação de strings não higienizadas em comandos de terminal;
-3. **Isolamento de Dados:** Dados do usuário depositados em `b_input/` devem ser manipulados em modo somente-leitura pelo profiling; transformações e limpezas operam sempre sobre cópias materializadas no projeto;
-4. **Auditoria de Dependências:** O `TestingAgent` e a skill `dependency-quality` devem validar que bibliotecas externas declaradas nos projetos gerados possuem versões fixadas e livres de vulnerabilidades conhecidas.
+1. Modular Monolith;
 
----
+2. Progressive Disclosure;
 
-## 32. Rules for Changing the AAF
+3. Contratos fortes e tipados;
 
-Qualquer agente de desenvolvimento ou desenvolvedor que for modificar a plataforma AAF deve seguir esta disciplina:
+4. Evidências reais;
 
-1. **Inspeção Dupla (Produtor / Consumidor):** Antes de alterar qualquer contrato em `a_platform/b_contracts/` ou componente de plataforma, inspecionar obrigatoriamente tanto quem produz o dado quanto todos os consumidores existentes;
-2. **Preservação de Legado Funcional:** Ao identificar estruturas divergentes ou complementares no repositório real, não deletar sem alinhamento e plano de migração explícito;
-3. **Não Proliferação Desnecessária:** Não criar novos Agentes, Skills, MCPs ou provedores de LLM sem justificativa técnica indispensável aprovada arquiteturalmente;
-4. **Documentação Sincronizada:** Qualquer alteração em contratos ou fluxos deve ser acompanhada da atualização dos arquivos markdown correspondentes em `d_documentation/`.
+5. Separação entre planejamento, execução e certificação;
 
----
+6. Brain como SSOT operacional;
 
-## 33. Definition of Ready (DoR)
+7. Obsidian como visualização humana;
 
-Uma tarefa de fabricação ou implementação no AAF só pode ser iniciada quando:
+8. Estrutura física governada;
 
-1. Requisitos técnicos estiverem claramente delimitados e validados no Brain;
-2. Contratos de entrada e saída estiverem estritamente definidos;
-3. Domínio e guardrails estiverem estabelecidos;
-4. Se envolver dados, o profiling inicial tiver sido concluído com evidências registradas;
-5. Não houver impedimentos ou bloqueios ativos em `NEEDS_INPUT`.
+9. Naming governado;
+
+10. Nenhuma mudança arquitetural oportunista;
+
+11. Documentação sincronizada quando uma mudança arquitetural real for autorizada.
 
 ---
 
-## 34. Definition of Done (DoD)
+## 31. Guardrails
 
-Uma tarefa, funcionalidade ou ciclo de fabricação no AAF só é considerado concluído quando:
+### Domain Guardrails
 
-1. Todos os artefatos planejados foram gerados e materializados sem placeholders ou TODOs;
-2. O código foi executado com sucesso no Runtime (exit code 0);
-3. Todos os testes associados foram executados e aprovados;
-4. Os gates de Validation, Quality e Certification emitiram veredito formal `PASSED`;
-5. Nenhuma violação de arquitetura, contrato ou guardrail foi identificada;
-6. O status formal `PROJECT READY = YES` foi atribuído com base em evidências verificadas.
+Skills devem respeitar `allowed_skills`.
+
+### Agent Guardrails
+
+Skills devem respeitar `allowed_agents`.
+
+### Path Guardrails
+
+Operações devem respeitar `PathPolicy`.
+
+### Command Guardrails
+
+Execuções devem respeitar `CommandPolicy`.
+
+### Gate Integrity
+
+Uma fase dependente não avança sem output válido da anterior.
+
+### Repository Structure Guardrail
+
+Qualquer escrita no repositório deve respeitar:
+
+```text
+canonical_tree
++ architectural_owner
++ destination_policy
++ naming_policy
++ prefix_policy
++ no_duplicate_policy
+```
+
+### Root Guardrail
+
+Qualquer tentativa não autorizada de introduzir novo arquivo ou diretório na raiz deve ser bloqueada.
+
+### Naming Guardrail
+
+Qualquer nome com:
+
+- espaços proibidos;
+- nome genérico;
+- convenção incompatível;
+- ausência de prefixo obrigatório;
+
+deve ser rejeitado antes da escrita.
 
 ---
 
-## 35. Absolute Prohibitions (Proibições Absolutas)
+## 32. Security Rules
 
-As seguintes práticas são **estritamente proibidas** sob quaisquer circunstâncias:
+1. Nunca expor secrets;
 
-1. **NÃO EXECUTAR COMANDOS GIT:** É expressamente proibido executar comandos Git em qualquer lugar deste projeto (`git status`, `git diff`, `git commit`, `git log`, etc.). Essa proibição é absoluta e irrevogável para agentes automatizados na IDE;
-2. **NÃO GERAR FAKE SUCCESS:** Jamais reportar sucesso artificial, mockar retornos de gates ou disfarçar erros reais de execução;
-3. **NÃO USAR PLACEHOLDERS OU MOCKS PERMANENTES:** Proibido código com `pass`, `# TODO: implementar depois` ou dados simulados em substituição à lógica de negócio analítica real;
-4. **NÃO APLICAR FALLBACK SILENCIOSO:** Proibido capturar exceções silenciosamente (`except: pass`) transformando erros em status positivo sem tratamento e diagnóstico;
-5. **NÃO INVENTAR REGRAS DE NEGÓCIO OU DADOS:** Proibido alucinar colunas, premissas de domínio ou esquemas não fundamentados em requisitos ou dados reais;
-6. **NÃO ACOPLAR AGENTES DIRETAMENTE A SDKS DE LLM:** Nenhum agente ou skill pode importar provedores externos de IA fora do `LLM Gateway`;
-7. **NÃO PULAR FASES DO GOLDEN PATH:** Proibido avançar sem passar pela sequência canônica de fases e seus respectivos gates de verificação;
-8. **NÃO EXECUTAR FASES DEPENDENTES EM PARALELO:** Proibido disparar fases que dependam sequencialmente de outputs anteriores antes da consolidação formal da fase anterior;
-9. **NÃO CRIAR MICROSERVIÇOS POR PADRÃO:** Proibido desmembrar o AAF ou os projetos gerados em microsserviços sem justificativa arquitetural explícita;
-10. **NÃO IGNORAR A POLÍTICA DE PATHS E COMANDOS:** Proibido acessar diretórios arbitrários do sistema operacional ou executar comandos fora da whitelist de segurança;
-11. **NÃO ENCERRAR AUTOMATICAMENTE COM FAIL SEM REPAIR:** Proibido adotar desistência imediata (`FAIL → PROJECT READY = NO → FIM`) diante de falhas recuperáveis sem antes acionar diagnóstico de causa raiz, invalidação downstream e reprocessamento;
-12. **NÃO CONSTRUIR PROJETO MANUALMENTE PARA COBRIR FALHA DA AUTOMAÇÃO:** O IDE Agent jamais deve construir arquivos em `e_generated_projects/` para fingir que a plataforma funcionou quando o pipeline falhou. Se a automação falhou, a causa raiz na plataforma deve ser diagnosticada e corrigida.
+2. Não utilizar `shell=True` inseguro;
+
+3. Não acessar paths arbitrários;
+
+4. Dados de entrada devem ser preservados;
+
+5. Operações destrutivas devem ser bloqueadas;
+
+6. Nenhuma ferramenta pode bypassar `PathPolicy`;
+
+7. Nenhum mecanismo de geração pode escrever fora de seu boundary autorizado.
+
+---
+
+## 33. Rules for Changing the AAF
+
+Antes de modificar o AAF:
+
+### 33.1 Inspect Before Change
+
+Sempre inspecionar a implementação real antes de editar.
+
+Nunca assumir estrutura somente por documentação histórica.
+
+### 33.2 Producer / Consumer Inspection
+
+Antes de modificar contrato ou interface, verificar produtores e consumidores.
+
+### 33.3 Locate Before Create
+
+Se um componente esperado não estiver no path imaginado:
+
+```text
+SEARCH CURRENT IMPLEMENTATION
+```
+
+antes de:
+
+```text
+CREATE NEW IMPLEMENTATION
+```
+
+### 33.4 Preserve Functional Behavior
+
+Não destruir comportamento funcional comprovado por conveniência de refatoração.
+
+### 33.5 No Parallel Architecture
+
+Não criar:
+
+- segundo Registry;
+- segundo Router;
+- segundo Brain;
+- segundo Runtime;
+- segundo sistema de Contracts;
+- segundo pipeline equivalente;
+
+sem decisão arquitetural explícita.
+
+### 33.6 Minimal Change Principle
+
+Alterar somente o necessário para resolver a causa raiz ou implementar o requisito solicitado.
+
+### 33.7 Structural Compliance
+
+Antes de criar arquivo:
+
+```text
+inspect tree
+→ identify owner
+→ identify destination
+→ validate naming
+→ validate prefix
+→ validate duplicate
+→ write
+```
+
+### 33.8 Documentation Synchronization
+
+Mudanças arquiteturais autorizadas devem ser refletidas na documentação correspondente.
+
+Não criar documentação extra na raiz como mecanismo de registro da mudança.
+
+---
+
+## 34. Definition of Ready — DoR
+
+Uma tarefa só pode iniciar quando:
+
+1. requisito está delimitado;
+2. contratos relevantes estão identificados;
+3. guardrails são conhecidos;
+4. evidências necessárias estão disponíveis;
+5. não há `NEEDS_INPUT` bloqueante;
+6. para alterações no AAF, o owner e o destino estrutural estão identificados.
+
+---
+
+## 35. Definition of Done — DoD
+
+Para fabricação de projeto pelo Golden Path:
+
+1. Artifacts válidos;
+2. Materialization concluída;
+3. Runtime executado;
+4. Validation PASS;
+5. Quality PASS;
+6. Certification PASS;
+7. `PROJECT READY = YES`.
+
+Para uma alteração de desenvolvimento no próprio AAF, adicionalmente:
+
+1. nenhum arquivo órfão foi criado;
+2. nenhuma alteração estrutural não autorizada foi introduzida;
+3. naming permanece conforme convenção;
+4. raiz permanece conforme arquitetura canônica;
+5. documentação relevante permanece coerente.
+
+---
+
+# 36. Absolute Prohibitions
+
+As seguintes práticas são estritamente proibidas:
+
+1. **NÃO EXECUTAR COMANDOS GIT** por Agents automatizados da IDE;
+
+2. **NÃO GERAR FAKE SUCCESS**;
+
+3. **NÃO UTILIZAR PLACEHOLDERS OU MOCKS PERMANENTES**;
+
+4. **NÃO APLICAR FALLBACK SILENCIOSO**;
+
+5. **NÃO INVENTAR REGRAS DE NEGÓCIO OU DADOS**;
+
+6. **NÃO ACOPLAR AGENTS/SKILLS DIRETAMENTE A SDKs DE LLM**;
+
+7. **NÃO PULAR FASES DEPENDENTES DO GOLDEN PATH**;
+
+8. **NÃO EXECUTAR FASES DEPENDENTES EM PARALELO**;
+
+9. **NÃO CRIAR MICROSERVIÇOS POR PADRÃO**;
+
+10. **NÃO IGNORAR PATHPOLICY OU COMMANDPOLICY**;
+
+11. **NÃO ENCERRAR FALHA RECUPERÁVEL SEM REPAIR**;
+
+12. **NÃO CONSTRUIR PROJETO MANUALMENTE PARA COBRIR FALHA DA AUTOMAÇÃO**;
+
+13. **NÃO CRIAR NOVOS ARQUIVOS OU DIRETÓRIOS ARBITRARIAMENTE NA RAIZ**;
+
+14. **NÃO UTILIZAR A RAIZ COMO SCRATCH, OUTPUT, DOCUMENTATION OU CANVAS DIRECTORY**;
+
+15. **NÃO CRIAR ARQUIVOS COM ESPAÇOS EM NOMES GOVERNADOS PELO AAF**;
+
+16. **NÃO CRIAR ARQUIVOS COM NOMES GENÉRICOS**, incluindo `Untitled`, `Sem titulo`, `temp`, `draft`, `copy`, `backup`, `new`, `final` e equivalentes;
+
+17. **NÃO IGNORAR PREFIXOS OBRIGATÓRIOS** quando a pasta de destino utilizar convenção ordenada;
+
+18. **NÃO CRIAR ARQUIVOS SEM ARCHITECTURAL OWNER**;
+
+19. **NÃO CRIAR ORPHAN ARTIFACTS**;
+
+20. **NÃO CRIAR CANVAS NA RAIZ**;
+
+21. **NÃO CRIAR CANVAS VAZIO OU DUPLICADO**;
+
+22. **NÃO CRIAR NOVA PASTA POR CONVENIÊNCIA DO AGENT**;
+
+23. **NÃO INTERPRETAR A CANONICAL TREE COMO TEMPLATE DE GERAÇÃO**;
+
+24. **NÃO RECRIAR COMPONENTE AUSENTE ANTES DE PROCURAR SEU EQUIVALENTE ATUAL**;
+
+25. **NÃO INTRODUZIR SEGUNDA IMPLEMENTAÇÃO PARALELA DE COMPONENTE EXISTENTE**;
+
+26. **NÃO MOVER OU RENOMEAR COMPONENTES ARQUITETURAIS FORA DO ESCOPO SOLICITADO**;
+
+27. **NÃO CRIAR RELATÓRIOS, AUDITORIAS OU DOCUMENTAÇÃO AUXILIAR NÃO SOLICITADOS**;
+
+28. **NÃO ALTERAR A COMPOSIÇÃO DA RAIZ SEM AUTORIZAÇÃO HUMANA EXPLÍCITA**.
+
+---
+
+# 37. Mandatory Pre-Write Gate for IDE Agents
+
+Esta regra deve ser aplicada pelo IDE Agent antes de toda criação de arquivo.
+
+```text
+┌─────────────────────────────────────┐
+│ NEW FILE / DIRECTORY REQUEST        │
+└──────────────────┬──────────────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Is it necessary?    │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Who owns it?        │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Canonical location? │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Boundary allowed?   │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Naming valid?       │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Prefix valid?       │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Duplicate exists?   │
+        └──────────┬──────────┘
+                   ↓
+        ┌─────────────────────┐
+        │ Consumer/purpose?   │
+        └──────────┬──────────┘
+                   ↓
+              WRITE ALLOWED
+```
+
+Se qualquer resposta necessária for negativa ou indeterminada:
+
+```text
+DO NOT WRITE
+```
+
+O Agent deve primeiro resolver a inconsistência estrutural.
+
+---
+
+# 38. Structural Invariant
+
+Ao final de qualquer intervenção do IDE Agent, deve continuar verdadeira a seguinte propriedade:
+
+```text
+CURRENT REPOSITORY
+        ⊆
+AUTHORIZED AAF ARCHITECTURE
+```
+
+e:
+
+```text
+NEW ARTIFACT
+    =
+NECESSARY
++ OWNED
++ CANONICALLY LOCATED
++ CORRECTLY NAMED
++ NON-DUPLICATED
++ ARCHITECTURALLY JUSTIFIED
+```
+
+Nunca:
+
+```text
+NEW ARTIFACT
+    =
+TOOL CONVENIENCE
+```
+
+---
+
+# 39. Final Governing Principle
+
+O AAF deve permanecer estruturalmente previsível.
+
+Um Agent não possui autoridade para inventar arquitetura física.
+
+Toda alteração deve respeitar:
+
+```text
+INTENT
+    ↓
+EXISTING ARCHITECTURE
+    ↓
+CONTRACTS
+    ↓
+GUARDRAILS
+    ↓
+MINIMAL VALID CHANGE
+    ↓
+EVIDENCE
+```
+
+A arquitetura existente deve ser **inspecionada antes de ser modificada, preservada antes de ser expandida e governada antes de ser automatizada**.
