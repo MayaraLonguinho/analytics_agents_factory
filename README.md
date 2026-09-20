@@ -468,7 +468,7 @@ python3 -m pip install -r requirements.txt
 
 ## Configuração
 
-A plataforma carrega automaticamente suas configurações a partir de variáveis de ambiente gerenciadas por `a_platform/g_configuration/a_settings.py` via `pydantic-settings`.
+A plataforma carrega automaticamente suas configurações a partir de variáveis de ambiente gerenciadas por `g_configuration/a_settings.py` via `pydantic-settings`.
 
 Crie o seu arquivo `.env` local a partir do modelo `.env.example`:
 

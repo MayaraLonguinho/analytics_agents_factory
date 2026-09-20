@@ -54,7 +54,7 @@ A plataforma estabelece barreiras rígidas para ferramentas e inteligência:
 ## 5. Gestão de Segredos e Variáveis de Ambiente (`.env`)
 
 1. **Isolamento de Credenciais:** Nenhuma chave de API, senha de banco de dados ou token de serviço é commitado no repositório ou exposto em código-fonte;
-2. **Uso de `.env`:** As credenciais operacionais (como `OPENAI_API_KEY`) residem exclusivamente no arquivo `.env` local (ignorado pelo `.gitignore`), sendo carregadas via `a_platform/g_configuration/a_settings.py`;
+2. **Uso de `.env`:** As credenciais operacionais (como `OPENAI_API_KEY`) residem exclusivamente no arquivo `.env` local (ignorado pelo `.gitignore`), sendo carregadas via `g_configuration/a_settings.py`;
 3. **Sanitização de Logs:** Logs de auditoria, laudos de gates e saídas de terminal são higienizados para prevenir o vazamento acidental de tokens em `stdout` ou `stderr`.
 
 ---
