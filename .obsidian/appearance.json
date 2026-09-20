@@ -1,1 +1,7 @@
-{}
+{
+  "accentColor": "#a855f7",
+  "theme": "obsidian",
+  "baseColorScheme": "dark",
+  "cssTheme": "",
+  "translucency": false
+}

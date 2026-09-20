@@ -1,15 +1,20 @@
 {
   "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "showUnsupportedFiles": false,
   "newFileLocation": "current",
   "attachmentFolderPath": "./",
   "userIgnoreFilters": [
-    "c_tests/",
-    "e_generated_projects/",
-    "venv/",
+    ".git/",
     ".venv/",
+    "venv/",
     "__pycache__/",
     ".pytest_cache/",
-    "d_input/",
-    "analytics_agents_factory.egg-info/"
+    "c_tests/",
+    "b_input/",
+    "h_runtime/state/",
+    "e_generated_projects/",
+    "analytics_agents_factory.egg-info/",
+    ".DS_Store"
   ]
 }

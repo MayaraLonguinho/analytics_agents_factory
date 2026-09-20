@@ -1,6 +1,6 @@
 {
   "collapse-filter": false,
-  "search": "",
+  "search": "path:d_documentation/c_knowledge_graph",
   "showTags": false,
   "showAttachments": false,
   "hideUnresolved": true,
@@ -8,51 +8,100 @@
   "collapse-color-groups": false,
   "colorGroups": [
     {
-      "query": "path:a_platform/c_brain",
+      "query": "file:a_aaf",
       "color": {
         "a": 1,
-        "rgb": 14701138
+        "rgb": 11032055
       }
     },
     {
-      "query": "path:.agents",
+      "query": "file:b_golden_path",
       "color": {
         "a": 1,
-        "rgb": 11657298
+        "rgb": 2278750
       }
     },
     {
-      "query": "path:a_platform/g_agents",
+      "query": "file:c_agents",
       "color": {
         "a": 1,
-        "rgb": 5406085
+        "rgb": 441044
       }
     },
     {
-      "query": "path:a_platform/e_skills",
+      "query": "file:d_brain",
       "color": {
         "a": 1,
-        "rgb": 5419350
+        "rgb": 3726328
       }
     },
     {
-      "query": "path:d_documentation",
+      "query": "file:e_skills",
       "color": {
         "a": 1,
-        "rgb": 15049539
+        "rgb": 16281969
+      }
+    },
+    {
+      "query": "file:f_mcps",
+      "color": {
+        "a": 1,
+        "rgb": 15381256
+      }
+    },
+    {
+      "query": "file:g_architecture",
+      "color": {
+        "a": 1,
+        "rgb": 3908342
+      }
+    },
+    {
+      "query": "file:h_contracts",
+      "color": {
+        "a": 1,
+        "rgb": 14239471
+      }
+    },
+    {
+      "query": "file:i_runtime",
+      "color": {
+        "a": 1,
+        "rgb": 9133302
+      }
+    },
+    {
+      "query": "file:j_quality_gates",
+      "color": {
+        "a": 1,
+        "rgb": 1357990
+      }
+    },
+    {
+      "query": "file:k_governance",
+      "color": {
+        "a": 1,
+        "rgb": 15485081
+      }
+    },
+    {
+      "query": "file:l_documentation OR file:m_obsidian",
+      "color": {
+        "a": 1,
+        "rgb": 16347926
       }
     }
   ],
   "collapse-display": false,
-  "showArrow": true,
+  "showArrow": false,
   "textFadeMultiplier": 0,
-  "nodeSizeMultiplier": 1,
-  "lineSizeMultiplier": 1,
+  "nodeSizeMultiplier": 1.25,
+  "lineSizeMultiplier": 1.15,
   "collapse-forces": false,
-  "centerStrength": 0.52,
-  "repelStrength": 10,
-  "linkStrength": 1,
-  "linkDistance": 250,
-  "scale": 1.3244967593174326,
+  "centerStrength": 0.38,
+  "repelStrength": 8.5,
+  "linkStrength": 0.9,
+  "linkDistance": 140,
+  "scale": 1.1722126634880536,
   "close": true
 }
